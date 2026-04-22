@@ -70,8 +70,18 @@ def obtener_datos_usuario(username):
     usuarios = cargar_usuarios()
     user_lower = username.lower()
     if user_lower in usuarios:
-        return usuarios[user_lower].get("datos_perfil", {})
-    return None
+        datos = usuarios[user_lower].get("datos_perfil", {})
+        # Asegurar que tienen valores por defecto
+        if not datos:
+            datos = {}
+        if "peso_lb" not in datos:
+            datos["peso_lb"] = 160.0
+        if "estatura_m" not in datos:
+            datos["estatura_m"] = 1.70
+        if "dias_entreno" not in datos:
+            datos["dias_entreno"] = 5
+        return datos
+    return {"peso_lb": 160.0, "estatura_m": 1.70, "dias_entreno": 5}
 
 
 
@@ -694,7 +704,7 @@ def generar_rutina_ia(u):
     
     # Preparar perfil para IA
     perfil = {
-        "nombre": u.get('nombre'),
+        "nombre": u.get('nombre', 'Usuario'),
         "sexo": sexo,
         "edad": edad,
         "peso_lb": peso_lb,
@@ -1227,6 +1237,12 @@ else:
     
     # --- SIDEBAR PREMIUN ---
     with st.sidebar:
+        nombre_usuario = u.get('nombre', 'Usuario')
+        sexo_usuario = u.get('sexo', 'N/A')
+        edad_usuario = u.get('edad', 'N/A')
+        objetivos_usuario = u.get('objetivos', [])
+        objetivo_principal = objetivos_usuario[0] if objetivos_usuario else 'Sin objetivos'
+        
         st.markdown(f"""
             <div style="text-align: center; padding: 20px 0;">
                 <h2 style="margin:0;">💪 Gym Pro AI</h2>
@@ -1234,10 +1250,10 @@ else:
             </div>
             <hr style="margin: 10px 0; border: 0.1px solid rgba(255,255,255,0.1);">
             <p class="sidebar-label">Perfil de Usuario</p>
-            <h3>👤 {u.get('nombre')}</h3>            <p>⚧️ Sexo: {u.get('sexo', 'N/A')}</p>            <p>🎂 Edad: {u.get('edad', 'N/A')} años</p>
-            <p>🎯 {u.get('objetivos')[0] if u.get('objetivos') else 'Sin objetivos'}</p>
+            <h3>👤 {nombre_usuario}</h3>            <p>⚧️ Sexo: {sexo_usuario}</p>            <p>🎂 Edad: {edad_usuario} años</p>
+            <p>🎯 {objetivo_principal}</p>
         """, unsafe_allow_html=True)
-        st.info(f"📍 Meta: {len(u.get('objetivos', []))} objetivos seleccionados.")
+        st.info(f"📍 Meta: {len(objetivos_usuario)} objetivos seleccionados.")
         
         col_logout, col_reinicio = st.columns(2)
         
@@ -1452,13 +1468,13 @@ else:
         with col1:
             if st.button("🤖 Generar Mi Plan de Nutrición con IA", use_container_width=True, key="gen_dieta"):
                 perfil_nutri = {
-                    "nombre": u.get('nombre'),
-                    "sexo": u.get('sexo'),
-                    "edad": u.get('edad'),
-                    "peso_lb": u.get('peso_lb'),
-                    "estatura_m": u.get('estatura_m'),
+                    "nombre": u.get('nombre', 'Usuario'),
+                    "sexo": u.get('sexo', 'Masculino'),
+                    "edad": u.get('edad', 25),
+                    "peso_lb": u.get('peso_lb', 160),
+                    "estatura_m": u.get('estatura_m', 1.70),
                     "objetivos": u.get('objetivos', [])[:2],  # Top 2 objetivos
-                    "dias_entreno": u.get('dias_entreno'),
+                    "dias_entreno": u.get('dias_entreno', 5),
                     "calorias_objetivo": cal
                 }
                 
@@ -1639,7 +1655,8 @@ else:
         with c1:
             st.markdown("#### ⚖️ Registrar Peso")
             with st.form("log_peso"):
-                n_p = st.number_input("Peso de hoy (Lbs)", 50.0, 500.0, float(u.get('peso_lb')))
+                peso_actual = float(u.get('peso_lb', 160.0)) if u.get('peso_lb') else 160.0
+                n_p = st.number_input("Peso de hoy (Lbs)", 50.0, 500.0, peso_actual)
                 if st.form_submit_button("Anotar Peso"):
                     from datetime import date
                     hoy = str(date.today())
@@ -1687,8 +1704,8 @@ else:
         st.markdown("### ⚙️ Configuración de Perfil")
         with st.form("edit_perfil"):
             st.markdown("#### 👤 Información Personal")
-            n_nombre = st.text_input("Nombre", u.get('nombre'))
-            n_sexo = st.selectbox("Sexo", ["Masculino", "Femenino"], index=0 if u.get('sexo') == 'Masculino' else 1)
+            n_nombre = st.text_input("Nombre", u.get('nombre', ''))
+            n_sexo = st.selectbox("Sexo", ["Masculino", "Femenino"], index=0 if u.get('sexo', 'Masculino') == 'Masculino' else 1)
             
             st.markdown("#### 📏 Medidas y Frecuencia")
             n_peso = st.number_input("Peso (Lbs)", value=float(u.get('peso_lb', 160)))
