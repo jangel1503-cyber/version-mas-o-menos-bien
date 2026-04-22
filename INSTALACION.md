@@ -1,191 +1,125 @@
-# 🚀 Inicio Rápido - Sistema de Login y Registro
+# 🚀 Gym Pro AI - Guía de Instalación y Ejecución
 
-## ¿Qué se implementó?
+## ✅ Instalación Rápida (Local)
 
-✅ **Página de Login/Registro** - Antes de acceder a la app, ahora los usuarios deben:
-- Registrarse con una nueva cuenta, O
-- Iniciar sesión con una cuenta existente
+### 1. Instalar dependencias
+```bash
+pip install -r requirements.txt
+```
 
-✅ **Almacenamiento de datos de usuarios** en `user_data.json`:
-- Nombre de usuario
-- Contraseña
-- Todos los datos del perfil (nombre, sexo, peso, altura, edad, días de entreno, objetivos)
-
-✅ **Datos separados por usuario** en `gym_data.json`:
-- Cada usuario tiene su propio espacio de datos completamente aislado
-- Rutinas, historial de entrenamiento, pesos, etc.
-
-✅ **Botón de Cerrar Sesión** en el sidebar para logout
-
----
-
-## ¿Cómo empezar?
-
-### 1. **Ejecutar la aplicación**
+### 2. Ejecutar la app
 ```bash
 streamlit run app.py
 ```
 
-### 2. **Primera vez (Sin cuenta)**
-- Haz clic en "✅ Crear Cuenta" en el panel derecho
-- Completa todos los campos
-- Haz clic en "✅ Crear Cuenta"
-
-### 3. **Subsecuentes accesos (Con cuenta)**
-- Ingresa tu usuario y contraseña
-- Haz clic en "🚀 Iniciar Sesión"
-
-### 4. **Cerrar sesión**
-- En el sidebar, haz clic en "🚪 Cerrar Sesión"
+La app se abrirá en: **http://localhost:8501**
 
 ---
 
-## Archivos importantes
+## 🌐 Desplegar en Streamlit Cloud
 
-| Archivo | Descripción |
-|---------|-----------|
-| `app.py` | Aplicación principal (modificada) |
-| `user_data.json` | Base de datos de usuarios (se crea automáticamente) |
-| `gym_data.json` | Datos de entrenamiento por usuario (modificado) |
-| `LOGIN_REGISTRO.md` | Documentación completa del sistema |
-| `CAMBIOS_REALIZADOS.md` | Detalle técnico de cambios |
-| `GUIA_PRUEBAS.md` | Cómo probar la funcionalidad |
+### Requisitos:
+- Repositorio en GitHub
+- Cuenta en [Streamlit Cloud](https://streamlit.io/cloud)
+- El archivo `requirements.txt` debe estar en la raíz
 
----
+### Pasos:
+1. Sube tu código a GitHub
+2. Ve a https://share.streamlit.io
+3. Click en "New app"
+4. Selecciona tu repositorio
+5. Elige la rama y el archivo `app.py`
+6. Click "Deploy"
 
-## Campos disponibles en el registro
-
-- **Usuario**: Nombre de usuario único (sin espacios recomendado)
-- **Contraseña**: Con confirmación
-- **Nombre completo**: Texto libre
-- **Sexo**: Masculino / Femenino
-- **Peso**: 50 - 500 libras
-- **Altura**: Pies y Pulgadas
-- **Edad**: 12 - 100 años
-- **Días de entreno**: 3, 4 o 5 días
-- **Objetivos**: Múltiple selección
-
----
-
-## Estructura de datos guardada
-
-### user_data.json
-```json
-{
-  "usuario1": {
-    "username": "usuario1",
-    "password": "contraseña",
-    "datos_perfil": { ... },
-    "fecha_registro": "..."
-  }
-}
+### Estructura esperada:
 ```
-
-### gym_data.json
-```json
-{
-  "usuario1": {
-    "perfil_completado": true,
-    "user": { ... },
-    "rutina_semanal": { ... },
-    ...
-  }
-}
+tu-repositorio/
+├── app.py
+├── gym_data.json
+├── requirements.txt
+└── .streamlit/
+    └── config.toml
 ```
 
 ---
 
-## Funciones principales
+## 🔑 Variables de Entorno (Importante)
 
+Si usas Streamlit Cloud, **NO guardes tu API key en el código**.
+
+### Opción 1: Secrets Management (Recomendado)
+1. En Streamlit Cloud: App settings → Secrets
+2. Agrega:
+```toml
+GEMINI_API_KEY = "tu_clave_aqui"
+```
+
+3. En `app.py`, cambia la línea 11:
 ```python
-# Registrar usuario
-registrar_usuario(username, password, datos_perfil)
+# En lugar de:
+# GEMINI_API_KEY = "AIzaSyB2KaHLEIebj5JQ99O_oG_k28vtSvcpRzA"
 
-# Validar credenciales
-validar_credenciales(username, password)
-
-# Verificar si existe
-usuario_existe(username)
-
-# Obtener datos
-obtener_datos_usuario(username)
+# Usa:
+GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
 ```
 
----
+### Opción 2: Variables de Entorno Local
+Crea `.env`:
+```
+GEMINI_API_KEY=tu_clave_aqui
+```
 
-## Validaciones implementadas
-
-✓ Usuario y contraseña requeridos  
-✓ Las contraseñas deben coincidir en registro  
-✓ No permite usuarios duplicados  
-✓ Nombre completo obligatorio  
-✓ Al menos un objetivo requerido  
-✓ Validación de credenciales en login  
-
----
-
-## 🔐 Nota de seguridad
-
-⚠️ Las contraseñas se guardan en **texto plano** en esta versión  
-Para producción, usa:
-- `bcrypt` para hash de contraseñas
-- HTTPS
-- Base de datos segura
-- Tokens JWT
-
----
-
-## Preguntas frecuentes
-
-**¿Puedo cambiar mi usuario/contraseña?**  
-Todavía no. Es una característica a implementar en futuras versiones.
-
-**¿Qué pasa si olvido mi contraseña?**  
-Por ahora, no hay función de recuperación. Edita `user_data.json` manualmente.
-
-**¿Dónde están mis datos guardados?**  
-- Credenciales: `user_data.json`
-- Entrenamiento: `gym_data.json`
-
-**¿Puedo compartir mi cuenta?**  
-Sí, pero cada login creará una nueva sesión. No se puede estar conectado con la misma cuenta en dos lugares simultáneamente.
-
-**¿Se pierden los datos si elimino los JSON?**  
-Sí. Mantén backups regulares.
-
----
-
-## Próximas mejoras sugeridas
-
-1. Recuperación de contraseña por email
-2. Editar perfil después de registro
-3. Hash de contraseñas
-4. Autenticación de dos factores
-5. Roles de administrador
-6. Backup automático de datos
-
----
-
-## Support
-
-Si encuentras problemas:
-1. Revisa la consola de Streamlit para errores
-2. Verifica que `user_data.json` y `gym_data.json` existan
-3. Lee `CAMBIOS_REALIZADOS.md` para entender la arquitectura
-4. Consulta `GUIA_PRUEBAS.md` para validar funcionamiento
-
----
-
-**¡Listo para usar! 🎉**
-
-Abre la aplicación, crea una cuenta y comienza tu plan de entrenamiento personalizado.
-
+Instala python-dotenv:
 ```bash
-streamlit run app.py
+pip install python-dotenv
 ```
 
 ---
 
-**Versión**: 1.0  
-**Última actualización**: Abril 2026  
-**Estado**: ✅ Funcional y listo para usar
+## ⚠️ Troubleshooting
+
+### Error: "ModuleNotFoundError: No module named 'google.generativeai'"
+**Solución:**
+```bash
+pip install google-generativeai==0.4.0
+```
+
+### Error: "API key invalid"
+- Verifica que la API key sea correcta
+- Regenera en: https://ai.google.dev
+
+### Streamlit Cloud no instala las dependencias
+- Revisa que `requirements.txt` esté en la **raíz** del repositorio
+- Haz un push nuevo para forzar reinstalación
+
+### La rutina se genera lentamente
+- La primera llamada a Gemini tarda ~3-5 segundos
+- Es normal, Streamlit cachea resultados posteriores
+- Si tarda más, verifica tu conexión a internet
+
+---
+
+## 📝 Contenido de requirements.txt
+
+```
+streamlit==1.28.1
+google-generativeai==0.4.0
+pandas==2.0.3
+protobuf==3.20.0
+```
+
+---
+
+## ✨ Características Incluidas
+
+✅ Generación IA de rutinas (Gemini)
+✅ Cálculo de macros personalizados
+✅ Historial de peso
+✅ Edición de rutinas
+✅ Soporte para sexo, edad, peso, altura
+✅ Regeneración de rutinas
+✅ Almacenamiento local en JSON
+
+---
+
+**¡Listo! Tu app está lista para usar 💪**

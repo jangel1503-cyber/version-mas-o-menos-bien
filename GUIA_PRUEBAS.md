@@ -1,178 +1,238 @@
-# 📝 Resumen de Cambios - Sistema de Login y Registro
+# 🧪 Guía de Prueba - Sistema de Login y Registro
 
-## ✅ Lo que se implementó
+## Pruebas básicas recomendadas
 
-### 1. **Archivo: app.py**
+### Prueba 1: Registro de nuevo usuario
+**Pasos:**
+1. Abre la aplicación (`streamlit run app.py`)
+2. En el panel derecho, ingresa:
+   - Usuario: `testuser1`
+   - Contraseña: `pass123`
+   - Confirmar contraseña: `pass123`
+   - Nombre: `Juan Prueba`
+   - Sexo: `Masculino`
+   - Peso: `180`
+   - Altura: `5` pies `10` pulgadas
+   - Edad: `28`
+   - Días de entreno: `5`
+   - Objetivos: Selecciona al menos 2
+3. Haz clic en "✅ Crear Cuenta"
 
-#### Nuevas funciones de gestión de usuarios:
-- `cargar_usuarios()` - Carga la base de datos de usuarios desde `user_data.json`
-- `guardar_usuarios()` - Guarda la base de datos de usuarios en `user_data.json`
-- `usuario_existe()` - Verifica si un usuario ya está registrado
-- `validar_credenciales()` - Valida nombre de usuario y contraseña
-- `registrar_usuario()` - Registra un nuevo usuario con sus datos
-- `obtener_datos_usuario()` - Obtiene los datos de perfil de un usuario
-
-#### Variables de sesión:
-- `st.session_state.usuario_logueado` - Almacena el usuario actualmente conectado
-
-#### Nueva pantalla de Login/Registro:
-- Panel izquierdo: Formulario para iniciar sesión
-- Panel derecho: Formulario para registrarse
-  - Reutiliza los mismos campos del formulario original de perfil
-  - Nombre completo, sexo, peso, altura, edad, días de entreno, objetivos
-  - Validaciones completas
-
-#### Funciones modificadas:
-- `guardar_todo()` - Ahora guarda datos específicos por usuario en `gym_data.json`
-- `cargar_todo()` - Ahora carga datos específicos del usuario actual desde `gym_data.json`
-
-#### Botones agregados en el sidebar:
-- 🚪 Cerrar Sesión - Desconecta al usuario actual
-- ⚠️ Reiniciar App - Reinicia la aplicación (requiere confirmación)
+**Resultado esperado:**
+- ✓ Mensaje de éxito
+- ✓ Aparece mensaje "Ahora puedes iniciar sesión"
+- ✓ Se crea `user_data.json` con el nuevo usuario
 
 ---
 
-## 📁 Archivos creados/modificados
+### Prueba 2: Validación de registro (campos vacíos)
+**Pasos:**
+1. En el panel de registro, intenta enviar sin llenar campos
+2. Prueba cada combinación de campos vacíos
 
-### `user_data.json` (Nuevo - Se crea automáticamente)
-Almacena todos los usuarios y sus credenciales:
-- Username
-- Password
-- Datos de perfil completos
-- Fecha de registro
-
-### `gym_data.json` (Modificado)
-Ahora es multi-usuario. La estructura cambió de:
-```
-{ perfil_completado, user, rutina_semanal, ... }
-```
-A:
-```
-{
-  "usuario1": { perfil_completado, user, rutina_semanal, ... },
-  "usuario2": { perfil_completado, user, rutina_semanal, ... },
-  ...
-}
-```
-
-### `LOGIN_REGISTRO.md` (Nuevo)
-Documentación completa del sistema de autenticación
-
-### `user_data_ejemplo.json` (Nuevo)
-Ejemplo de cómo se vería `user_data.json` después de varios registros
+**Resultado esperado:**
+- ✓ Error: "Completa todos los campos"
+- ✓ Error: "Las contraseñas no coinciden"
+- ✓ Error: "Completa nombre y selecciona al menos un objetivo"
 
 ---
 
-## 🔄 Flujo de la aplicación
+### Prueba 3: Intentar registro con usuario existente
+**Pasos:**
+1. Registra el usuario `testuser1` (como en Prueba 1)
+2. Intenta registrar otro usuario con el mismo nombre
 
-### Antes (Sin usuarios):
-1. Abre app.py
-2. Ve directamente el formulario de perfil
-3. Todos los datos se guardaban en `gym_data.json` sin autenticación
-
-### Ahora (Con autenticación):
-1. Abre app.py
-2. Ve la pantalla de Login/Registro
-3. Puede registrarse con nueva cuenta O iniciar sesión con existente
-4. Cada usuario tiene su propio espacio de datos completamente separado
-5. Al cerrar sesión, vuelve a la pantalla de login
-6. Los datos se guardan por usuario en `gym_data.json` y credenciales en `user_data.json`
+**Resultado esperado:**
+- ✗ Error: "El usuario ya existe"
 
 ---
 
-## 🎯 Validaciones implementadas
+### Prueba 4: Login exitoso
+**Pasos:**
+1. En el panel izquierdo, ingresa:
+   - Usuario: `testuser1`
+   - Contraseña: `pass123`
+2. Haz clic en "🚀 Iniciar Sesión"
 
-### Registro:
-- ✓ Usuario no puede estar vacío
-- ✓ Contraseña no puede estar vacía
-- ✓ Las contraseñas deben coincidir
-- ✓ Usuario no puede existir previamente
-- ✓ Nombre completo es obligatorio
-- ✓ Debe seleccionar al menos un objetivo
-
-### Login:
-- ✓ Usuario y contraseña requeridos
-- ✓ Validación de credenciales
-- ✓ Mensajes de error claros
+**Resultado esperado:**
+- ✓ Mensaje de éxito
+- ✓ Se carga el dashboard del usuario
+- ✓ El nombre del usuario aparece en el sidebar
+- ✓ Los datos del perfil se muestran correctamente
 
 ---
 
-## 🔐 Notas de seguridad
+### Prueba 5: Login con credenciales incorrectas
+**Pasos:**
+1. En el panel izquierdo, ingresa:
+   - Usuario: `testuser1`
+   - Contraseña: `wrongpassword`
+2. Haz clic en "🚀 Iniciar Sesión"
 
-⚠️ **IMPORTANTE PARA PRODUCCIÓN:**
-- Las contraseñas se guardan en texto plano en `user_data.json`
-- Para producción, implementa:
-  - Hash de contraseñas con `bcrypt` o `werkzeug.security`
-  - Base de datos segura (MongoDB, PostgreSQL, etc.)
-  - HTTPS y tokens JWT para autenticación
-  - Rate limiting contra ataques de fuerza bruta
+**Resultado esperado:**
+- ✗ Error: "Usuario o contraseña incorrectos"
+- ✓ No se abre el dashboard
 
 ---
 
-## 📊 Estructura de datos ejemplo
+### Prueba 6: Cerrar sesión
+**Pasos:**
+1. Inicia sesión como `testuser1`
+2. En el sidebar, haz clic en "🚪 Cerrar Sesión"
 
-### user_data.json
+**Resultado esperado:**
+- ✓ Vuelve a la pantalla de login/registro
+- ✓ Los datos de sesión se limpian
+
+---
+
+### Prueba 7: Datos separados por usuario
+**Pasos:**
+1. Registra usuario `user1` con peso 180 lbs
+2. Inicia sesión como `user1`
+3. Realiza algunas acciones (agrega weight, entrena, etc.)
+4. Cierra sesión
+5. Registra usuario `user2` con peso 150 lbs
+6. Inicia sesión como `user2` - verifica que los datos sean diferentes
+7. Cierra sesión
+8. Inicia sesión como `user1` - verifica que sus datos originales estén intactos
+
+**Resultado esperado:**
+- ✓ Cada usuario tiene datos completamente separados
+- ✓ Cambios en user2 no afectan a user1
+
+---
+
+### Prueba 8: Persistencia de datos
+**Pasos:**
+1. Inicia sesión como `testuser1`
+2. Realiza alguna acción en la aplicación
+3. Cierra Streamlit (Ctrl+C)
+4. Reabre Streamlit
+5. Inicia sesión como `testuser1`
+
+**Resultado esperado:**
+- ✓ Todos los datos se mantienen
+- ✓ Los cambios realizados persisten
+
+---
+
+### Prueba 9: Múltiples usuarios simultáneos
+**Pasos:**
+1. Abre dos ventanas del navegador (localhost:8501)
+2. En la primera, inicia sesión como `user1`
+3. En la segunda, inicia sesión como `user2`
+4. Realiza acciones diferentes en cada una
+
+**Resultado esperado:**
+- ✓ Cada ventana mantiene su sesión independiente
+- ✓ No hay interferencia entre usuarios
+
+---
+
+## Verificación de archivos
+
+### Después de Prueba 1:
+**Verifica que exista `user_data.json` con:**
 ```json
 {
-  "usuario_logueado": {
-    "username": "usuario_logueado",
-    "password": "contraseña_almacenada",
+  "testuser1": {
+    "username": "testuser1",
+    "password": "pass123",
     "datos_perfil": {
-      "nombre": "Nombre Completo",
-      "sexo": "Masculino/Femenino",
+      "nombre": "Juan Prueba",
+      "sexo": "Masculino",
       "peso_lb": 180,
-      "pies": 5,
-      "pulgadas": 10,
-      "estatura_m": 1.78,
-      "edad": 28,
-      "dias_entreno": 5,
-      "objetivos": ["objetivo1", "objetivo2"]
-    },
-    "fecha_registro": "timestamp"
+      ...
+    }
   }
 }
 ```
 
-### gym_data.json (por usuario)
+### Después de Prueba 3:
+**Verifica que exista `gym_data.json` con:**
 ```json
 {
-  "usuario_logueado": {
+  "testuser1": {
     "perfil_completado": true,
-    "user": { ... datos del perfil ... },
-    "rutina_semanal": { ... rutina ... },
-    "historial_pesos": [ ... ],
-    "historial_entrenamientos": [ ... ],
-    "pr_por_ejercicio": { ... },
-    "fecha_ultima_rotacion": null,
-    "dieta_semanal": { ... }
+    "user": { ... },
+    ...
   }
 }
 ```
 
 ---
 
-## ✨ Ventajas de esta implementación
+## Casos edge a probar
 
-1. **Multi-usuario**: Cada usuario tiene sus propios datos
-2. **Seguro**: Datos separados por usuario
-3. **Compatible**: Mantiene compatibilidad con el código existente
-4. **Escalable**: Fácil de extender con más funcionalidades
-5. **Documentado**: Códigos comentados y documentación completa
-6. **Validado**: Todas las entradas son validadas
+1. **Nombres de usuario con mayúsculas:**
+   - Registra: `TestUser`
+   - Intenta login con: `testuser`
+   - Resultado: Debe funcionar (insensible a mayúsculas)
+
+2. **Contraseñas especiales:**
+   - Registra: `p@ss!w0rd#123`
+   - Intenta login: Debe funcionar
+
+3. **Nombres con espacios:**
+   - Registra usuario: `test user`
+   - Intenta login: Debe funcionar
+
+4. **Datos de perfil extremos:**
+   - Peso mínimo: 50 lbs
+   - Peso máximo: 500 lbs
+   - Edad mínima: 12 años
+   - Edad máxima: 100 años
+   - Altura mínima: 3 pies
+   - Altura máxima: 8 pies
+
+5. **Seleccionar múltiples objetivos:**
+   - Registra usuario con 5+ objetivos
+   - Verifica que se guarden todos
 
 ---
 
-## 🚀 Próximos pasos sugeridos
+## Pruebas de estrés
 
-1. Implementar hash de contraseñas
-2. Agregar opción de "Olvidé mi contraseña"
-3. Agregar opción de editar perfil
-4. Agregar opción de eliminar cuenta
-5. Implementar confirmación por email
-6. Agregar roles/permisos de administrador
+1. **Registrar 10+ usuarios**
+   - Crea varios usuarios
+   - Verifica que `user_data.json` tenga todos
+
+2. **Cambiar entre usuarios rápidamente**
+   - Login/logout múltiples veces
+   - Verifica que no haya pérdida de datos
+
+3. **Operaciones simultáneas**
+   - Múltiples ventanas modificando datos
+   - Verifica consistencia
+
+---
+
+## Checklist de validación final
+
+- [ ] Registro funciona correctamente
+- [ ] Login funciona correctamente
+- [ ] Logout funciona correctamente
+- [ ] Datos se guardan en `user_data.json`
+- [ ] Datos se guardan en `gym_data.json` por usuario
+- [ ] Validaciones funcionan
+- [ ] Mensajes de error son claros
+- [ ] Cada usuario tiene datos separados
+- [ ] Los datos persisten después de cerrar la aplicación
+- [ ] El dashboard carga los datos del usuario correcto
+- [ ] El sidebar muestra el nombre del usuario conectado
+- [ ] No hay errores en la consola
+
+---
+
+## Notas para QA
+
+- Revisa la consola de Streamlit para mensajes de error
+- Verifica los archivos JSON después de cada operación
+- Prueba con datos realistas y también casos extremos
+- Intenta acceder a datos de otro usuario editando JSON
 
 ---
 
 **Versión**: 1.0  
-**Estado**: Listo para usar  
-**Prueba recomendada**: Crea varias cuentas de prueba para verificar funcionalidad
+**Última actualización**: Abril 2026

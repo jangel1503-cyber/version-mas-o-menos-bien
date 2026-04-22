@@ -1,238 +1,336 @@
-# 🧪 Guía de Prueba - Sistema de Login y Registro
-
-## Pruebas básicas recomendadas
-
-### Prueba 1: Registro de nuevo usuario
-**Pasos:**
-1. Abre la aplicación (`streamlit run app.py`)
-2. En el panel derecho, ingresa:
-   - Usuario: `testuser1`
-   - Contraseña: `pass123`
-   - Confirmar contraseña: `pass123`
-   - Nombre: `Juan Prueba`
-   - Sexo: `Masculino`
-   - Peso: `180`
-   - Altura: `5` pies `10` pulgadas
-   - Edad: `28`
-   - Días de entreno: `5`
-   - Objetivos: Selecciona al menos 2
-3. Haz clic en "✅ Crear Cuenta"
-
-**Resultado esperado:**
-- ✓ Mensaje de éxito
-- ✓ Aparece mensaje "Ahora puedes iniciar sesión"
-- ✓ Se crea `user_data.json` con el nuevo usuario
-
----
-
-### Prueba 2: Validación de registro (campos vacíos)
-**Pasos:**
-1. En el panel de registro, intenta enviar sin llenar campos
-2. Prueba cada combinación de campos vacíos
-
-**Resultado esperado:**
-- ✓ Error: "Completa todos los campos"
-- ✓ Error: "Las contraseñas no coinciden"
-- ✓ Error: "Completa nombre y selecciona al menos un objetivo"
-
----
-
-### Prueba 3: Intentar registro con usuario existente
-**Pasos:**
-1. Registra el usuario `testuser1` (como en Prueba 1)
-2. Intenta registrar otro usuario con el mismo nombre
-
-**Resultado esperado:**
-- ✗ Error: "El usuario ya existe"
-
----
-
-### Prueba 4: Login exitoso
-**Pasos:**
-1. En el panel izquierdo, ingresa:
-   - Usuario: `testuser1`
-   - Contraseña: `pass123`
-2. Haz clic en "🚀 Iniciar Sesión"
-
-**Resultado esperado:**
-- ✓ Mensaje de éxito
-- ✓ Se carga el dashboard del usuario
-- ✓ El nombre del usuario aparece en el sidebar
-- ✓ Los datos del perfil se muestran correctamente
-
----
-
-### Prueba 5: Login con credenciales incorrectas
-**Pasos:**
-1. En el panel izquierdo, ingresa:
-   - Usuario: `testuser1`
-   - Contraseña: `wrongpassword`
-2. Haz clic en "🚀 Iniciar Sesión"
-
-**Resultado esperado:**
-- ✗ Error: "Usuario o contraseña incorrectos"
-- ✓ No se abre el dashboard
-
----
-
-### Prueba 6: Cerrar sesión
-**Pasos:**
-1. Inicia sesión como `testuser1`
-2. En el sidebar, haz clic en "🚪 Cerrar Sesión"
-
-**Resultado esperado:**
-- ✓ Vuelve a la pantalla de login/registro
-- ✓ Los datos de sesión se limpian
-
----
-
-### Prueba 7: Datos separados por usuario
-**Pasos:**
-1. Registra usuario `user1` con peso 180 lbs
-2. Inicia sesión como `user1`
-3. Realiza algunas acciones (agrega weight, entrena, etc.)
-4. Cierra sesión
-5. Registra usuario `user2` con peso 150 lbs
-6. Inicia sesión como `user2` - verifica que los datos sean diferentes
-7. Cierra sesión
-8. Inicia sesión como `user1` - verifica que sus datos originales estén intactos
-
-**Resultado esperado:**
-- ✓ Cada usuario tiene datos completamente separados
-- ✓ Cambios en user2 no afectan a user1
-
----
-
-### Prueba 8: Persistencia de datos
-**Pasos:**
-1. Inicia sesión como `testuser1`
-2. Realiza alguna acción en la aplicación
-3. Cierra Streamlit (Ctrl+C)
-4. Reabre Streamlit
-5. Inicia sesión como `testuser1`
-
-**Resultado esperado:**
-- ✓ Todos los datos se mantienen
-- ✓ Los cambios realizados persisten
-
----
-
-### Prueba 9: Múltiples usuarios simultáneos
-**Pasos:**
-1. Abre dos ventanas del navegador (localhost:8501)
-2. En la primera, inicia sesión como `user1`
-3. En la segunda, inicia sesión como `user2`
-4. Realiza acciones diferentes en cada una
-
-**Resultado esperado:**
-- ✓ Cada ventana mantiene su sesión independiente
-- ✓ No hay interferencia entre usuarios
-
----
-
-## Verificación de archivos
-
-### Después de Prueba 1:
-**Verifica que exista `user_data.json` con:**
-```json
 {
-  "testuser1": {
-    "username": "testuser1",
-    "password": "pass123",
-    "datos_perfil": {
-      "nombre": "Juan Prueba",
-      "sexo": "Masculino",
-      "peso_lb": 180,
-      ...
-    }
-  }
-}
-```
-
-### Después de Prueba 3:
-**Verifica que exista `gym_data.json` con:**
-```json
-{
-  "testuser1": {
     "perfil_completado": true,
-    "user": { ... },
-    ...
-  }
+    "user": {
+        "nombre": "adads",
+        "sexo": "Masculino",
+        "peso_lb": 160.0,
+        "pies": 5,
+        "pulgadas": 7,
+        "estatura_m": 1.7018,
+        "objetivos": [
+            "🏋️ Tonificar el cuerpo",
+            "🏋️ Perder grasa corporal"
+        ],
+        "edad": 25,
+        "dias_entreno": 5
+    },
+    "rutina_semanal": {
+        "Lunes": [
+            {
+                "ejercicio": "Flexiones de Brazos",
+                "series": 3,
+                "detalles_sets": [
+                    {
+                        "reps": "15",
+                        "libras": 53.0
+                    },
+                    {
+                        "reps": "14",
+                        "libras": 49.0
+                    },
+                    {
+                        "reps": "13",
+                        "libras": 45.0
+                    }
+                ],
+                "tip": "Mantén el core activado y la espalda recta."
+            },
+            {
+                "ejercicio": "Fondos de Pecho",
+                "series": 3,
+                "detalles_sets": [
+                    {
+                        "reps": "15",
+                        "libras": 52.0
+                    },
+                    {
+                        "reps": "14",
+                        "libras": 48.0
+                    },
+                    {
+                        "reps": "13",
+                        "libras": 44.0
+                    }
+                ],
+                "tip": "Inclina el torso hacia adelante para activar el pectoral."
+            },
+            {
+                "ejercicio": "Press Arnold",
+                "series": 3,
+                "detalles_sets": [
+                    {
+                        "reps": "15",
+                        "libras": 40.0
+                    },
+                    {
+                        "reps": "14",
+                        "libras": 37.0
+                    },
+                    {
+                        "reps": "13",
+                        "libras": 34.0
+                    }
+                ],
+                "tip": "Gira las palmas mientras subes para mayor rango."
+            },
+            {
+                "ejercicio": "Elevaciones Laterales",
+                "series": 3,
+                "detalles_sets": [
+                    {
+                        "reps": "15",
+                        "libras": 49.0
+                    },
+                    {
+                        "reps": "14",
+                        "libras": 45.0
+                    },
+                    {
+                        "reps": "14",
+                        "libras": 41.0
+                    }
+                ],
+                "tip": "No subas más allá de la altura de los hombros."
+            }
+        ],
+        "Martes": [
+            {
+                "ejercicio": "Prensa de Piernas",
+                "series": 3,
+                "detalles_sets": [
+                    {
+                        "reps": "15",
+                        "libras": 60.0
+                    },
+                    {
+                        "reps": "14",
+                        "libras": 55.0
+                    },
+                    {
+                        "reps": "13",
+                        "libras": 50.0
+                    }
+                ],
+                "tip": "No bloquees las rodillas al extender."
+            },
+            {
+                "ejercicio": "Sentadillas",
+                "series": 3,
+                "detalles_sets": [
+                    {
+                        "reps": "15",
+                        "libras": 36.0
+                    },
+                    {
+                        "reps": "14",
+                        "libras": 33.0
+                    },
+                    {
+                        "reps": "13",
+                        "libras": 30.0
+                    }
+                ],
+                "tip": "Baja la cadera por debajo de las rodillas si puedes."
+            },
+            {
+                "ejercicio": "Peso Muerto Rumano",
+                "series": 3,
+                "detalles_sets": [
+                    {
+                        "reps": "15",
+                        "libras": 40.0
+                    },
+                    {
+                        "reps": "14",
+                        "libras": 37.0
+                    },
+                    {
+                        "reps": "13",
+                        "libras": 34.0
+                    }
+                ],
+                "tip": "Siente el estiramiento en los isquiotibiales."
+            },
+            {
+                "ejercicio": "Curl Femoral",
+                "series": 3,
+                "detalles_sets": [
+                    {
+                        "reps": "15",
+                        "libras": 48.0
+                    },
+                    {
+                        "reps": "14",
+                        "libras": 44.0
+                    },
+                    {
+                        "reps": "13",
+                        "libras": 40.0
+                    }
+                ],
+                "tip": "Aprieta los isquios en la parte superior del movimiento."
+            }
+        ],
+        "Miércoles": "Día de recuperación: Estiramientos dinámicos o 30 min de caminata ligera.",
+        "Jueves": [
+            {
+                "ejercicio": "Peso Muerto Convencional",
+                "series": 3,
+                "detalles_sets": [
+                    {
+                        "reps": "15",
+                        "libras": 63.0
+                    },
+                    {
+                        "reps": "14",
+                        "libras": 58.0
+                    },
+                    {
+                        "reps": "13",
+                        "libras": 53.0
+                    }
+                ],
+                "tip": "Mantén la barra pegada a tus canillas."
+            },
+            {
+                "ejercicio": "Jalón al Pecho",
+                "series": 3,
+                "detalles_sets": [
+                    {
+                        "reps": "15",
+                        "libras": 39.0
+                    },
+                    {
+                        "reps": "14",
+                        "libras": 36.0
+                    },
+                    {
+                        "reps": "13",
+                        "libras": 33.0
+                    }
+                ],
+                "tip": "Tira desde los codos, no solo con las manos."
+            },
+            {
+                "ejercicio": "Curl de Bíceps",
+                "series": 3,
+                "detalles_sets": [
+                    {
+                        "reps": "15",
+                        "libras": 47.0
+                    },
+                    {
+                        "reps": "14",
+                        "libras": 43.0
+                    },
+                    {
+                        "reps": "13",
+                        "libras": 39.0
+                    }
+                ],
+                "tip": "No balancees el cuerpo, solo mueve los antebrazos."
+            },
+            {
+                "ejercicio": "Press Francés",
+                "series": 3,
+                "detalles_sets": [
+                    {
+                        "reps": "15",
+                        "libras": 33.0
+                    },
+                    {
+                        "reps": "14",
+                        "libras": 30.0
+                    },
+                    {
+                        "reps": "13",
+                        "libras": 28.0
+                    }
+                ],
+                "tip": "Mantén los codos cerrados y apuntando al techo."
+            }
+        ],
+        "Viernes": [
+            {
+                "ejercicio": "Mountain Climbers",
+                "series": 3,
+                "detalles_sets": [
+                    {
+                        "reps": "15",
+                        "libras": 46.0
+                    },
+                    {
+                        "reps": "14",
+                        "libras": 42.0
+                    },
+                    {
+                        "reps": "13",
+                        "libras": 39.0
+                    }
+                ],
+                "tip": "Velocidad constante y espalda estable."
+            },
+            {
+                "ejercicio": "Box Jumps",
+                "series": 3,
+                "detalles_sets": [
+                    {
+                        "reps": "15",
+                        "libras": 58.0
+                    },
+                    {
+                        "reps": "14",
+                        "libras": 53.0
+                    },
+                    {
+                        "reps": "13",
+                        "libras": 49.0
+                    }
+                ],
+                "tip": "Aterriza suavemente para proteger tus rodillas."
+            },
+            {
+                "ejercicio": "Rueda Abdominal",
+                "series": 3,
+                "detalles_sets": [
+                    {
+                        "reps": "15",
+                        "libras": 40.0
+                    },
+                    {
+                        "reps": "14",
+                        "libras": 37.0
+                    },
+                    {
+                        "reps": "13",
+                        "libras": 34.0
+                    }
+                ],
+                "tip": "Extiende hasta donde controles tu espalda."
+            },
+            {
+                "ejercicio": "Russian Twists",
+                "series": 3,
+                "detalles_sets": [
+                    {
+                        "reps": "15",
+                        "libras": 62.0
+                    },
+                    {
+                        "reps": "14",
+                        "libras": 57.0
+                    },
+                    {
+                        "reps": "13",
+                        "libras": 52.0
+                    }
+                ],
+                "tip": "Gira el torso, no solo los brazos."
+            }
+        ]
+    },
+    "historial_pesos": [],
+    "historial_entrenamientos": [],
+    "pr_por_ejercicio": {},
+    "fecha_ultima_rotacion": null
 }
-```
-
----
-
-## Casos edge a probar
-
-1. **Nombres de usuario con mayúsculas:**
-   - Registra: `TestUser`
-   - Intenta login con: `testuser`
-   - Resultado: Debe funcionar (insensible a mayúsculas)
-
-2. **Contraseñas especiales:**
-   - Registra: `p@ss!w0rd#123`
-   - Intenta login: Debe funcionar
-
-3. **Nombres con espacios:**
-   - Registra usuario: `test user`
-   - Intenta login: Debe funcionar
-
-4. **Datos de perfil extremos:**
-   - Peso mínimo: 50 lbs
-   - Peso máximo: 500 lbs
-   - Edad mínima: 12 años
-   - Edad máxima: 100 años
-   - Altura mínima: 3 pies
-   - Altura máxima: 8 pies
-
-5. **Seleccionar múltiples objetivos:**
-   - Registra usuario con 5+ objetivos
-   - Verifica que se guarden todos
-
----
-
-## Pruebas de estrés
-
-1. **Registrar 10+ usuarios**
-   - Crea varios usuarios
-   - Verifica que `user_data.json` tenga todos
-
-2. **Cambiar entre usuarios rápidamente**
-   - Login/logout múltiples veces
-   - Verifica que no haya pérdida de datos
-
-3. **Operaciones simultáneas**
-   - Múltiples ventanas modificando datos
-   - Verifica consistencia
-
----
-
-## Checklist de validación final
-
-- [ ] Registro funciona correctamente
-- [ ] Login funciona correctamente
-- [ ] Logout funciona correctamente
-- [ ] Datos se guardan en `user_data.json`
-- [ ] Datos se guardan en `gym_data.json` por usuario
-- [ ] Validaciones funcionan
-- [ ] Mensajes de error son claros
-- [ ] Cada usuario tiene datos separados
-- [ ] Los datos persisten después de cerrar la aplicación
-- [ ] El dashboard carga los datos del usuario correcto
-- [ ] El sidebar muestra el nombre del usuario conectado
-- [ ] No hay errores en la consola
-
----
-
-## Notas para QA
-
-- Revisa la consola de Streamlit para mensajes de error
-- Verifica los archivos JSON después de cada operación
-- Prueba con datos realistas y también casos extremos
-- Intenta acceder a datos de otro usuario editando JSON
-
----
-
-**Versión**: 1.0  
-**Última actualización**: Abril 2026
