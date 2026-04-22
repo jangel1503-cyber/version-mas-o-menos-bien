@@ -1,150 +1,336 @@
 {
-    "usuario1": {
-        "perfil_completado": true,
-        "user": {
-            "nombre": "Juan Pérez",
-            "sexo": "Masculino",
-            "peso_lb": 180.0,
-            "pies": 5,
-            "pulgadas": 10,
-            "estatura_m": 1.7783999999999999,
-            "objetivos": [
-                "🏋️ Ganar masa muscular (hipertrofia)",
-                "🏋️ Aumentar fuerza (ej. mejorar en ejercicios clave)"
-            ],
-            "edad": 28,
-            "dias_entreno": 5
-        },
-        "rutina_semanal": {
-            "Lunes": {
-                "dia": "Lunes",
-                "enfoque": "Pecho y Tríceps",
-                "ejercicios": [
+    "perfil_completado": true,
+    "user": {
+        "nombre": "adads",
+        "sexo": "Masculino",
+        "peso_lb": 160.0,
+        "pies": 5,
+        "pulgadas": 7,
+        "estatura_m": 1.7018,
+        "objetivos": [
+            "🏋️ Tonificar el cuerpo",
+            "🏋️ Perder grasa corporal"
+        ],
+        "edad": 25,
+        "dias_entreno": 5
+    },
+    "rutina_semanal": {
+        "Lunes": [
+            {
+                "ejercicio": "Flexiones de Brazos",
+                "series": 3,
+                "detalles_sets": [
                     {
-                        "nombre": "Press de Banca Inclinado",
-                        "series": 4,
-                        "reps": 8,
-                        "notas": "Peso máximo"
+                        "reps": "15",
+                        "libras": 53.0
                     },
                     {
-                        "nombre": "Dumbbell Press",
-                        "series": 3,
-                        "reps": 10,
-                        "notas": "Controlado"
-                    }
-                ]
-            },
-            "Martes": {
-                "dia": "Martes",
-                "enfoque": "Espalda y Bíceps",
-                "ejercicios": [
+                        "reps": "14",
+                        "libras": 49.0
+                    },
                     {
-                        "nombre": "Deadlift",
-                        "series": 5,
-                        "reps": 5,
-                        "notas": "Forma perfecta"
-                    }
-                ]
-            }
-        },
-        "historial_pesos": [
-            {
-                "fecha": "2024-04-20",
-                "peso": 180.5,
-                "imc": 25.8,
-                "estado": "Sobrepeso"
-            },
-            {
-                "fecha": "2024-04-21",
-                "peso": 180.0,
-                "imc": 25.7,
-                "estado": "Sobrepeso"
-            }
-        ],
-        "historial_entrenamientos": [
-            {
-                "fecha": "2024-04-21 18:30",
-                "ejercicios": [
-                    {
-                        "nombre": "Press de Banca Inclinado",
-                        "reps_completadas": 8,
-                        "peso_levantado": 225.0,
-                        "notas": "Buena forma"
+                        "reps": "13",
+                        "libras": 45.0
                     }
                 ],
-                "duracion_minutos": 45,
-                "intensidad": "Alta"
-            }
-        ],
-        "pr_por_ejercicio": {
-            "Press de Banca Inclinado": {
-                "peso": 225.0,
-                "reps": 8,
-                "fecha": "2024-04-21"
+                "tip": "Mantén el core activado y la espalda recta."
             },
-            "Deadlift": {
-                "peso": 405.0,
-                "reps": 5,
-                "fecha": "2024-04-15"
-            }
-        },
-        "fecha_ultima_rotacion": "2024-04-21",
-        "dieta_semanal": {
-            "Lunes": {
-                "desayuno": "Huevos con tostadas",
-                "almuerzo": "Pecho de pollo con arroz",
-                "cena": "Salmón con papa dulce",
-                "meriendas": "Proteína en polvo"
-            }
-        }
-    },
-    "usuario2": {
-        "perfil_completado": true,
-        "user": {
-            "nombre": "María García",
-            "sexo": "Femenino",
-            "peso_lb": 135.0,
-            "pies": 5,
-            "pulgadas": 4,
-            "estatura_m": 1.6256,
-            "objetivos": [
-                "🏋️ Perder grasa corporal",
-                "🎯 Marcar abdomen"
-            ],
-            "edad": 25,
-            "dias_entreno": 4
-        },
-        "rutina_semanal": {
-            "Lunes": {
-                "dia": "Lunes",
-                "enfoque": "Cardio y Core",
-                "ejercicios": [
+            {
+                "ejercicio": "Fondos de Pecho",
+                "series": 3,
+                "detalles_sets": [
                     {
-                        "nombre": "Trotadora",
-                        "series": 1,
-                        "reps": "30 min",
-                        "notas": "Intensidad moderada"
+                        "reps": "15",
+                        "libras": 52.0
+                    },
+                    {
+                        "reps": "14",
+                        "libras": 48.0
+                    },
+                    {
+                        "reps": "13",
+                        "libras": 44.0
                     }
-                ]
-            }
-        },
-        "historial_pesos": [
-            {
-                "fecha": "2024-04-20",
-                "peso": 136.0,
-                "imc": 24.6,
-                "estado": "Peso normal"
+                ],
+                "tip": "Inclina el torso hacia adelante para activar el pectoral."
             },
             {
-                "fecha": "2024-04-21",
-                "peso": 135.0,
-                "imc": 24.4,
-                "estado": "Peso normal"
+                "ejercicio": "Press Arnold",
+                "series": 3,
+                "detalles_sets": [
+                    {
+                        "reps": "15",
+                        "libras": 40.0
+                    },
+                    {
+                        "reps": "14",
+                        "libras": 37.0
+                    },
+                    {
+                        "reps": "13",
+                        "libras": 34.0
+                    }
+                ],
+                "tip": "Gira las palmas mientras subes para mayor rango."
+            },
+            {
+                "ejercicio": "Elevaciones Laterales",
+                "series": 3,
+                "detalles_sets": [
+                    {
+                        "reps": "15",
+                        "libras": 49.0
+                    },
+                    {
+                        "reps": "14",
+                        "libras": 45.0
+                    },
+                    {
+                        "reps": "14",
+                        "libras": 41.0
+                    }
+                ],
+                "tip": "No subas más allá de la altura de los hombros."
             }
         ],
-        "historial_entrenamientos": [],
-        "pr_por_ejercicio": {},
-        "fecha_ultima_rotacion": null,
-        "dieta_semanal": {}
-    }
+        "Martes": [
+            {
+                "ejercicio": "Prensa de Piernas",
+                "series": 3,
+                "detalles_sets": [
+                    {
+                        "reps": "15",
+                        "libras": 60.0
+                    },
+                    {
+                        "reps": "14",
+                        "libras": 55.0
+                    },
+                    {
+                        "reps": "13",
+                        "libras": 50.0
+                    }
+                ],
+                "tip": "No bloquees las rodillas al extender."
+            },
+            {
+                "ejercicio": "Sentadillas",
+                "series": 3,
+                "detalles_sets": [
+                    {
+                        "reps": "15",
+                        "libras": 36.0
+                    },
+                    {
+                        "reps": "14",
+                        "libras": 33.0
+                    },
+                    {
+                        "reps": "13",
+                        "libras": 30.0
+                    }
+                ],
+                "tip": "Baja la cadera por debajo de las rodillas si puedes."
+            },
+            {
+                "ejercicio": "Peso Muerto Rumano",
+                "series": 3,
+                "detalles_sets": [
+                    {
+                        "reps": "15",
+                        "libras": 40.0
+                    },
+                    {
+                        "reps": "14",
+                        "libras": 37.0
+                    },
+                    {
+                        "reps": "13",
+                        "libras": 34.0
+                    }
+                ],
+                "tip": "Siente el estiramiento en los isquiotibiales."
+            },
+            {
+                "ejercicio": "Curl Femoral",
+                "series": 3,
+                "detalles_sets": [
+                    {
+                        "reps": "15",
+                        "libras": 48.0
+                    },
+                    {
+                        "reps": "14",
+                        "libras": 44.0
+                    },
+                    {
+                        "reps": "13",
+                        "libras": 40.0
+                    }
+                ],
+                "tip": "Aprieta los isquios en la parte superior del movimiento."
+            }
+        ],
+        "Miércoles": "Día de recuperación: Estiramientos dinámicos o 30 min de caminata ligera.",
+        "Jueves": [
+            {
+                "ejercicio": "Peso Muerto Convencional",
+                "series": 3,
+                "detalles_sets": [
+                    {
+                        "reps": "15",
+                        "libras": 63.0
+                    },
+                    {
+                        "reps": "14",
+                        "libras": 58.0
+                    },
+                    {
+                        "reps": "13",
+                        "libras": 53.0
+                    }
+                ],
+                "tip": "Mantén la barra pegada a tus canillas."
+            },
+            {
+                "ejercicio": "Jalón al Pecho",
+                "series": 3,
+                "detalles_sets": [
+                    {
+                        "reps": "15",
+                        "libras": 39.0
+                    },
+                    {
+                        "reps": "14",
+                        "libras": 36.0
+                    },
+                    {
+                        "reps": "13",
+                        "libras": 33.0
+                    }
+                ],
+                "tip": "Tira desde los codos, no solo con las manos."
+            },
+            {
+                "ejercicio": "Curl de Bíceps",
+                "series": 3,
+                "detalles_sets": [
+                    {
+                        "reps": "15",
+                        "libras": 47.0
+                    },
+                    {
+                        "reps": "14",
+                        "libras": 43.0
+                    },
+                    {
+                        "reps": "13",
+                        "libras": 39.0
+                    }
+                ],
+                "tip": "No balancees el cuerpo, solo mueve los antebrazos."
+            },
+            {
+                "ejercicio": "Press Francés",
+                "series": 3,
+                "detalles_sets": [
+                    {
+                        "reps": "15",
+                        "libras": 33.0
+                    },
+                    {
+                        "reps": "14",
+                        "libras": 30.0
+                    },
+                    {
+                        "reps": "13",
+                        "libras": 28.0
+                    }
+                ],
+                "tip": "Mantén los codos cerrados y apuntando al techo."
+            }
+        ],
+        "Viernes": [
+            {
+                "ejercicio": "Mountain Climbers",
+                "series": 3,
+                "detalles_sets": [
+                    {
+                        "reps": "15",
+                        "libras": 46.0
+                    },
+                    {
+                        "reps": "14",
+                        "libras": 42.0
+                    },
+                    {
+                        "reps": "13",
+                        "libras": 39.0
+                    }
+                ],
+                "tip": "Velocidad constante y espalda estable."
+            },
+            {
+                "ejercicio": "Box Jumps",
+                "series": 3,
+                "detalles_sets": [
+                    {
+                        "reps": "15",
+                        "libras": 58.0
+                    },
+                    {
+                        "reps": "14",
+                        "libras": 53.0
+                    },
+                    {
+                        "reps": "13",
+                        "libras": 49.0
+                    }
+                ],
+                "tip": "Aterriza suavemente para proteger tus rodillas."
+            },
+            {
+                "ejercicio": "Rueda Abdominal",
+                "series": 3,
+                "detalles_sets": [
+                    {
+                        "reps": "15",
+                        "libras": 40.0
+                    },
+                    {
+                        "reps": "14",
+                        "libras": 37.0
+                    },
+                    {
+                        "reps": "13",
+                        "libras": 34.0
+                    }
+                ],
+                "tip": "Extiende hasta donde controles tu espalda."
+            },
+            {
+                "ejercicio": "Russian Twists",
+                "series": 3,
+                "detalles_sets": [
+                    {
+                        "reps": "15",
+                        "libras": 62.0
+                    },
+                    {
+                        "reps": "14",
+                        "libras": 57.0
+                    },
+                    {
+                        "reps": "13",
+                        "libras": 52.0
+                    }
+                ],
+                "tip": "Gira el torso, no solo los brazos."
+            }
+        ]
+    },
+    "historial_pesos": [],
+    "historial_entrenamientos": [],
+    "pr_por_ejercicio": {},
+    "fecha_ultima_rotacion": null
 }

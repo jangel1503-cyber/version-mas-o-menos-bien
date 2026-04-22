@@ -1,178 +1,394 @@
-# 📝 Resumen de Cambios - Sistema de Login y Registro
+# 📊 Arquitectura del Sistema de Login y Registro
 
-## ✅ Lo que se implementó
+## Diagrama de flujo
 
-### 1. **Archivo: app.py**
-
-#### Nuevas funciones de gestión de usuarios:
-- `cargar_usuarios()` - Carga la base de datos de usuarios desde `user_data.json`
-- `guardar_usuarios()` - Guarda la base de datos de usuarios en `user_data.json`
-- `usuario_existe()` - Verifica si un usuario ya está registrado
-- `validar_credenciales()` - Valida nombre de usuario y contraseña
-- `registrar_usuario()` - Registra un nuevo usuario con sus datos
-- `obtener_datos_usuario()` - Obtiene los datos de perfil de un usuario
-
-#### Variables de sesión:
-- `st.session_state.usuario_logueado` - Almacena el usuario actualmente conectado
-
-#### Nueva pantalla de Login/Registro:
-- Panel izquierdo: Formulario para iniciar sesión
-- Panel derecho: Formulario para registrarse
-  - Reutiliza los mismos campos del formulario original de perfil
-  - Nombre completo, sexo, peso, altura, edad, días de entreno, objetivos
-  - Validaciones completas
-
-#### Funciones modificadas:
-- `guardar_todo()` - Ahora guarda datos específicos por usuario en `gym_data.json`
-- `cargar_todo()` - Ahora carga datos específicos del usuario actual desde `gym_data.json`
-
-#### Botones agregados en el sidebar:
-- 🚪 Cerrar Sesión - Desconecta al usuario actual
-- ⚠️ Reiniciar App - Reinicia la aplicación (requiere confirmación)
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    APLICACIÓN GYM PRO AI                        │
+└─────────────────────────────────────────────────────────────────┘
+                            │
+                            ▼
+                ¿Usuario logueado?
+                   /          \
+                 NO             SÍ
+                /                 \
+               ▼                   ▼
+        ┌──────────────┐    ┌──────────────────────┐
+        │  PANTALLA    │    │  DASHBOARD PRINCIPAL │
+        │ LOGIN/REGISTRO    │  DEL USUARIO         │
+        └──────────────┘    └──────────────────────┘
+             │                       │
+      ┌──────┴──────┐               │
+      │             │               │
+      ▼             ▼               ▼
+   LOGIN      REGISTRO          FUNCIONALIDADES
+    │            │              ├─ Rutinas
+    │            │              ├─ Historial
+    │            │              ├─ Dieta
+    │            │              ├─ Pesos
+    │            │              ├─ Entrenamientos
+    │            │              └─ Cerrar sesión
+    │            │
+    ▼            ▼
+  ┌─────┐      ┌──────────┐
+  │user_│      │ user_    │
+  │data.│      │ data.json│
+  │json │      │ (nuevo)  │
+  └─────┘      └──────────┘
+    │               │
+    └───────┬───────┘
+            │
+            ▼
+        ┌────────────────┐
+        │ gym_data.json  │
+        │ (por usuario)  │
+        └────────────────┘
+```
 
 ---
 
-## 📁 Archivos creados/modificados
+## Estructura de archivos
 
-### `user_data.json` (Nuevo - Se crea automáticamente)
-Almacena todos los usuarios y sus credenciales:
-- Username
-- Password
-- Datos de perfil completos
-- Fecha de registro
+```
+app.py                          # Aplicación principal
+├── Funciones de autenticación
+├── Pantalla de login/registro
+├── Dashboard del usuario
+└── Gestión de datos
 
-### `gym_data.json` (Modificado)
-Ahora es multi-usuario. La estructura cambió de:
+user_data.json                  # BD de usuarios (credenciales)
+├── usuario1
+│   ├── username
+│   ├── password
+│   ├── datos_perfil
+│   └── fecha_registro
+├── usuario2
+└── usuario3
+
+gym_data.json                   # BD de entrenamiento (por usuario)
+├── usuario1
+│   ├── perfil_completado
+│   ├── user
+│   ├── rutina_semanal
+│   ├── historial_pesos
+│   ├── historial_entrenamientos
+│   ├── pr_por_ejercicio
+│   ├── fecha_ultima_rotacion
+│   └── dieta_semanal
+└── usuario2
 ```
-{ perfil_completado, user, rutina_semanal, ... }
+
+---
+
+## Ciclo de vida del usuario
+
+### Primer acceso (Sin cuenta)
+
 ```
-A:
+START
+  │
+  ├─→ Abre app.py
+  │
+  ├─→ Ver pantalla LOGIN/REGISTRO
+  │
+  ├─→ Completar formulario de REGISTRO
+  │
+  ├─→ Clic "✅ Crear Cuenta"
+  │
+  ├─→ Validaciones
+  │   ├─ Usuario no vacío? ✓
+  │   ├─ Contraseña = confirmación? ✓
+  │   ├─ Usuario no existe? ✓
+  │   └─ Datos completos? ✓
+  │
+  ├─→ Guardar en user_data.json
+  │
+  ├─→ Guardar en gym_data.json
+  │
+  ├─→ Éxito: "Ahora puedes iniciar sesión"
+  │
+  └─→ Siguiente acceso...
 ```
-{
-  "usuario1": { perfil_completado, user, rutina_semanal, ... },
-  "usuario2": { perfil_completado, user, rutina_semanal, ... },
-  ...
+
+### Accesos posteriores (Con cuenta)
+
+```
+START
+  │
+  ├─→ Abre app.py
+  │
+  ├─→ Ver pantalla LOGIN/REGISTRO
+  │
+  ├─→ Ingresar credenciales
+  │   ├─ Usuario
+  │   └─ Contraseña
+  │
+  ├─→ Clic "🚀 Iniciar Sesión"
+  │
+  ├─→ Validar credenciales
+  │   ├─ Usuario existe? ✓
+  │   ├─ Contraseña coincide? ✓
+  │   └─ st.session_state.usuario_logueado = usuario
+  │
+  ├─→ Cargar datos de gym_data.json[usuario]
+  │
+  ├─→ Cargar datos de user_data.json[usuario]
+  │
+  ├─→ Mostrar DASHBOARD
+  │   ├─ Sidebar con nombre del usuario
+  │   ├─ Botón "🚪 Cerrar Sesión"
+  │   └─ Acceso a todas las funciones
+  │
+  └─→ Sesión activa
+```
+
+### Cerrar sesión
+
+```
+En el DASHBOARD
+  │
+  ├─→ Clic "🚪 Cerrar Sesión" en sidebar
+  │
+  ├─→ st.session_state.usuario_logueado = None
+  │
+  ├─→ Limpiar st.session_state.data
+  │
+  ├─→ Guardar datos en gym_data.json[usuario]
+  │
+  ├─→ Volver a LOGIN/REGISTRO
+  │
+  └─→ Disponible para otro usuario
+```
+
+---
+
+## Funciones principales del sistema
+
+### Autenticación
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                   FUNCIONES DE LOGIN                        │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│ cargar_usuarios()                                           │
+│   → Lee user_data.json                                      │
+│   ← Retorna dict de usuarios                                │
+│                                                             │
+│ guardar_usuarios(usuarios)                                  │
+│   → Escribe user_data.json                                  │
+│                                                             │
+│ usuario_existe(username)                                    │
+│   → Verifica en user_data.json                              │
+│   ← True/False                                              │
+│                                                             │
+│ validar_credenciales(username, password)                    │
+│   → Compara usuario y contraseña                            │
+│   ← True/False                                              │
+│                                                             │
+│ registrar_usuario(username, password, datos_perfil)        │
+│   → Crea nuevo usuario                                      │
+│   → Guarda en user_data.json                                │
+│   ← (exito, mensaje)                                        │
+│                                                             │
+│ obtener_datos_usuario(username)                             │
+│   → Busca en user_data.json                                 │
+│   ← datos_perfil                                            │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Persistencia
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                FUNCIONES DE PERSISTENCIA                     │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│ guardar_todo(datos)                                         │
+│   → Guarda datos del usuario actual                         │
+│   → En gym_data.json[usuario_logueado]                      │
+│                                                             │
+│ cargar_todo()                                               │
+│   → Carga datos del usuario actual                          │
+│   ← Desde gym_data.json[usuario_logueado]                   │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Variables de sesión
+
+```
+st.session_state
+├── usuario_logueado (str o None)
+│   └── Nombre de usuario actualmente conectado
+│
+├── data (dict)
+│   ├── perfil_completado (bool)
+│   ├── user (dict con datos del perfil)
+│   ├── rutina_semanal (dict)
+│   ├── historial_pesos (list)
+│   ├── historial_entrenamientos (list)
+│   ├── pr_por_ejercicio (dict)
+│   ├── fecha_ultima_rotacion (date/None)
+│   └── dieta_semanal (dict)
+│
+└── [otras variables de UI]
+```
+
+---
+
+## Flujo de datos
+
+### Registro
+
+```
+USER INPUT
+  │
+  ├─ Username
+  ├─ Password
+  ├─ Nombre completo
+  ├─ Sexo
+  ├─ Peso, Altura, Edad
+  ├─ Días de entreno
+  └─ Objetivos
+     │
+     ▼
+  VALIDACIONES
+  │
+  ├─ ¿Campos completos?
+  ├─ ¿Contraseñas coinciden?
+  ├─ ¿Usuario no existe?
+  ├─ ¿Objetivos seleccionados?
+  │
+  ├─ Si falla → ERROR (mostrar mensaje)
+  │
+  ├─ Si pasa → GUARDAR
+     │
+     ├─ registrar_usuario()
+     │  └─ user_data.json[username] = {...}
+     │
+     ├─ guardar_usuarios()
+     │
+     └─ SUCCESS (mostrar mensaje)
+```
+
+### Login
+
+```
+USER INPUT
+  │
+  ├─ Username
+  └─ Password
+     │
+     ▼
+  VALIDAR
+  │
+  ├─ validar_credenciales(username, password)
+  │
+  ├─ ¿Encontrado?
+  │  │
+  │  ├─ NO → ERROR
+  │  │
+  │  ├─ SÍ → CARGAR DATOS
+  │     │
+  │     ├─ st.session_state.usuario_logueado = username
+  │     │
+  │     ├─ obtener_datos_usuario()
+  │     │  └─ user_data.json[username].datos_perfil
+  │     │
+  │     ├─ cargar_todo()
+  │     │  └─ gym_data.json[username]
+  │     │
+  │     └─ MOSTRAR DASHBOARD
+```
+
+---
+
+## Ejemplo de uso
+
+### Registrarse
+
+```python
+# Usuario envía formulario
+datos_perfil = {
+    "nombre": "Juan Pérez",
+    "sexo": "Masculino",
+    "peso_lb": 180,
+    "pies": 5,
+    "pulgadas": 10,
+    "estatura_m": 1.778,
+    "edad": 28,
+    "dias_entreno": 5,
+    "objetivos": ["🏋️ Ganar masa muscular", "🏋️ Aumentar fuerza"]
 }
-```
 
-### `LOGIN_REGISTRO.md` (Nuevo)
-Documentación completa del sistema de autenticación
+exito, mensaje = registrar_usuario("juan123", "pass456", datos_perfil)
 
-### `user_data_ejemplo.json` (Nuevo)
-Ejemplo de cómo se vería `user_data.json` después de varios registros
-
----
-
-## 🔄 Flujo de la aplicación
-
-### Antes (Sin usuarios):
-1. Abre app.py
-2. Ve directamente el formulario de perfil
-3. Todos los datos se guardaban en `gym_data.json` sin autenticación
-
-### Ahora (Con autenticación):
-1. Abre app.py
-2. Ve la pantalla de Login/Registro
-3. Puede registrarse con nueva cuenta O iniciar sesión con existente
-4. Cada usuario tiene su propio espacio de datos completamente separado
-5. Al cerrar sesión, vuelve a la pantalla de login
-6. Los datos se guardan por usuario en `gym_data.json` y credenciales en `user_data.json`
-
----
-
-## 🎯 Validaciones implementadas
-
-### Registro:
-- ✓ Usuario no puede estar vacío
-- ✓ Contraseña no puede estar vacía
-- ✓ Las contraseñas deben coincidir
-- ✓ Usuario no puede existir previamente
-- ✓ Nombre completo es obligatorio
-- ✓ Debe seleccionar al menos un objetivo
-
-### Login:
-- ✓ Usuario y contraseña requeridos
-- ✓ Validación de credenciales
-- ✓ Mensajes de error claros
-
----
-
-## 🔐 Notas de seguridad
-
-⚠️ **IMPORTANTE PARA PRODUCCIÓN:**
-- Las contraseñas se guardan en texto plano en `user_data.json`
-- Para producción, implementa:
-  - Hash de contraseñas con `bcrypt` o `werkzeug.security`
-  - Base de datos segura (MongoDB, PostgreSQL, etc.)
-  - HTTPS y tokens JWT para autenticación
-  - Rate limiting contra ataques de fuerza bruta
-
----
-
-## 📊 Estructura de datos ejemplo
-
-### user_data.json
-```json
+# user_data.json se actualiza:
 {
-  "usuario_logueado": {
-    "username": "usuario_logueado",
-    "password": "contraseña_almacenada",
-    "datos_perfil": {
-      "nombre": "Nombre Completo",
-      "sexo": "Masculino/Femenino",
-      "peso_lb": 180,
-      "pies": 5,
-      "pulgadas": 10,
-      "estatura_m": 1.78,
-      "edad": 28,
-      "dias_entreno": 5,
-      "objetivos": ["objetivo1", "objetivo2"]
-    },
-    "fecha_registro": "timestamp"
+  "juan123": {
+    "username": "juan123",
+    "password": "pass456",
+    "datos_perfil": { ... },
+    "fecha_registro": "2024-04-21 15:30:00"
   }
 }
 ```
 
-### gym_data.json (por usuario)
-```json
-{
-  "usuario_logueado": {
-    "perfil_completado": true,
-    "user": { ... datos del perfil ... },
-    "rutina_semanal": { ... rutina ... },
-    "historial_pesos": [ ... ],
-    "historial_entrenamientos": [ ... ],
-    "pr_por_ejercicio": { ... },
-    "fecha_ultima_rotacion": null,
-    "dieta_semanal": { ... }
-  }
-}
+### Iniciar sesión
+
+```python
+# Usuario envía credenciales
+if validar_credenciales("juan123", "pass456"):
+    # Cargar perfil
+    datos = obtener_datos_usuario("juan123")
+    st.session_state.usuario_logueado = "juan123"
+    st.session_state.data = cargar_todo()
+    # → Mostrar dashboard
+else:
+    # Mostrar error
 ```
 
 ---
 
-## ✨ Ventajas de esta implementación
+## Ventajas de la arquitectura
 
-1. **Multi-usuario**: Cada usuario tiene sus propios datos
-2. **Seguro**: Datos separados por usuario
-3. **Compatible**: Mantiene compatibilidad con el código existente
-4. **Escalable**: Fácil de extender con más funcionalidades
-5. **Documentado**: Códigos comentados y documentación completa
-6. **Validado**: Todas las entradas son validadas
+✅ **Aislamiento**: Cada usuario tiene datos completamente separados  
+✅ **Seguridad**: No hay interferencia entre usuarios  
+✅ **Escalabilidad**: Fácil agregar más usuarios  
+✅ **Persistencia**: Los datos se guardan automáticamente  
+✅ **Compatibilidad**: Mantiene funcionalidad existente  
+✅ **Simplicidad**: JSON simple, sin base de datos compleja  
 
 ---
 
-## 🚀 Próximos pasos sugeridos
+## Limitaciones actuales
 
-1. Implementar hash de contraseñas
-2. Agregar opción de "Olvidé mi contraseña"
-3. Agregar opción de editar perfil
-4. Agregar opción de eliminar cuenta
-5. Implementar confirmación por email
-6. Agregar roles/permisos de administrador
+⚠️ Contraseñas en texto plano  
+⚠️ Sin encriptación  
+⚠️ Sin recuperación de contraseña  
+⚠️ Sin edición de perfil  
+⚠️ Sin roles/permisos  
+⚠️ Sin backup automático  
+
+---
+
+## Mejoras futuras
+
+📌 Implementar bcrypt para contraseñas  
+📌 Usar base de datos (MongoDB, PostgreSQL)  
+📌 Agregar recuperación de contraseña por email  
+📌 Permitir edición de perfil  
+📌 Agregar roles (admin, usuario, coach)  
+📌 Backup automático en la nube  
+📌 Autenticación social (Google, GitHub)  
+📌 Autenticación de dos factores  
 
 ---
 
 **Versión**: 1.0  
-**Estado**: Listo para usar  
-**Prueba recomendada**: Crea varias cuentas de prueba para verificar funcionalidad
+**Última actualización**: Abril 2026  
+**Estado**: ✅ Funcional
