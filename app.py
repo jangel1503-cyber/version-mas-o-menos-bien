@@ -138,7 +138,6 @@ def calcular_macros(u):
     return round(target), round(prot), round(grasas), round(carbs)
 
 # --- GENERADOR DE DIETA IA ---
-@st.cache_data
 def generar_dieta_semanal(perfil_json):
     """Consulta a Gemini para generar plan de comidas personalizado"""
     try:
@@ -311,7 +310,6 @@ EJERCICIOS_AVANZADOS = {
     ]
 }
 
-@st.cache_data
 def generar_rutina_gemini(perfil_json):
     """Consulta a Gemini para generar rutina personalizada"""
     try:
