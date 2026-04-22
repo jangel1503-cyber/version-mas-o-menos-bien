@@ -137,10 +137,117 @@ def calcular_macros(u):
     
     return round(target), round(prot), round(grasas), round(carbs)
 
+# --- BASE DE DATOS LOCAL DE COMIDAS VARIADAS ---
+COMIDAS_DB = {
+    "proteinas": ["Pechuga de pollo", "Salmón", "Atún", "Pavo", "Huevo", "Carne molida 85%", "Tilapia", "Yogur griego", "Requesón"],
+    "carbos": ["Arroz integral", "Papa blanca", "Papa dulce", "Pan integral", "Avena", "Plátano", "Quinoa", "Pasta integral", "Arroz blanco"],
+    "grasas": ["Aguacate", "Aceite de oliva", "Mantequilla de maní", "Almendras", "Nueces", "Semillas de linaza"],
+    "verduras": ["Brócoli", "Espinaca", "Lechuga", "Tomate", "Zanahoria", "Calabacín", "Chayote", "Vainitas", "Pepino"]
+}
+
+def generar_dieta_fallback_local(perfil_json):
+    """Genera plan de dieta completamente local sin depender de API"""
+    try:
+        perfil = json.loads(perfil_json)
+        cal_objetivo = perfil.get("calorias_objetivo", 2100)
+        sexo = perfil.get("sexo", "Masculino")
+        objetivo = perfil.get("objetivos", ["Tonificar"])[0].lower()
+        
+        # Ajustar macros según objetivo
+        if "perder grasa" in objetivo or "bajar peso" in objetivo:
+            objetivo_text = "Déficit calórico 20%"
+            proteina_g = int(cal_objetivo / 4.5)  # 2.2g/kg
+            carbs_g = int((cal_objetivo * 0.35) / 4)
+            grasas_g = int((cal_objetivo * 0.3) / 9)
+            cal_objetivo = int(cal_objetivo)
+        elif "ganar masa" in objetivo or "aumentar fuerza" in objetivo:
+            objetivo_text = "Superávit 10%"
+            proteina_g = int((cal_objetivo * 0.35) / 4)
+            carbs_g = int((cal_objetivo * 0.45) / 4)
+            grasas_g = int((cal_objetivo * 0.20) / 9)
+            cal_objetivo = int(cal_objetivo)
+        else:
+            objetivo_text = "Mantenimiento"
+            proteina_g = int((cal_objetivo * 0.30) / 4)
+            carbs_g = int((cal_objetivo * 0.40) / 4)
+            grasas_g = int((cal_objetivo * 0.30) / 9)
+            cal_objetivo = int(cal_objetivo)
+        
+        # Generar plan para 7 días
+        plan_semanal = {}
+        dias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"]
+        proteinas_usadas = []
+        
+        for dia in dias:
+            # Seleccionar proteína sin repetición del mismo día
+            proteina_hoy = random.choice([p for p in COMIDAS_DB["proteinas"] if p not in proteinas_usadas[-2:]])
+            proteinas_usadas.append(proteina_hoy)
+            
+            carbos_hoy = random.sample(COMIDAS_DB["carbos"], 3)
+            verduras_hoy = random.sample(COMIDAS_DB["verduras"], 3)
+            grasa_hoy = random.choice(COMIDAS_DB["grasas"])
+            
+            plan_semanal[dia] = {
+                "desayuno": {
+                    "comida": f"2 huevos + tostadas de pan integral con tomate",
+                    "cantidad": "2 huevos (60g) + 2 rebanadas pan integral + 100g tomate + 5g aceite",
+                    "ingredientes": "Huevos, pan integral, tomate, aceite de oliva",
+                    "calorias_aprox": 280,
+                    "proteina_g": 18,
+                    "tip": "Proteína de alta calidad + carbos complejos para energía sostenida"
+                },
+                "merienda_manana": {
+                    "comida": f"Plátano con {grasa_hoy.lower()}",
+                    "cantidad": f"1 plátano mediano (120g) + 15g {grasa_hoy.lower()}",
+                    "ingredientes": f"Plátano, {grasa_hoy.lower()}",
+                    "calorias_aprox": 180,
+                    "proteina_g": 3,
+                    "tip": "Energía rápida pre-entreno + grasas saludables"
+                },
+                "almuerzo": {
+                    "comida": f"{proteina_hoy} con {carbos_hoy[0]} y ensalada",
+                    "cantidad": f"180g {proteina_hoy.lower()} cocida + 150g {carbos_hoy[0].lower()} cocido + 200g ensalada ({verduras_hoy[0].lower()}, {verduras_hoy[1].lower()}) + 10ml aceite",
+                    "ingredientes": f"{proteina_hoy}, {carbos_hoy[0]}, {verduras_hoy[0]}, {verduras_hoy[1]}, aceite de oliva",
+                    "calorias_aprox": 620,
+                    "proteina_g": 48,
+                    "tip": "Comida principal: proteína magra + carbos complejos + vitaminas"
+                },
+                "merienda_tarde": {
+                    "comida": f"Yogur griego con {carbos_hoy[1].lower()}",
+                    "cantidad": f"150g yogur griego + 80g {carbos_hoy[1].lower()} + 10g miel",
+                    "ingredientes": f"Yogur griego, {carbos_hoy[1]}, miel",
+                    "calorias_aprox": 210,
+                    "proteina_g": 20,
+                    "tip": "Post-entreno: proteína rápida + carbos para recuperación"
+                },
+                "cena": {
+                    "comida": f"Pechuga/Pescado con {carbos_hoy[2]} y {verduras_hoy[2]}",
+                    "cantidad": f"150g {proteina_hoy.lower()} + 120g {carbos_hoy[2].lower()} + 150g {verduras_hoy[2].lower()} al vapor",
+                    "ingredientes": f"{proteina_hoy}, {carbos_hoy[2]}, {verduras_hoy[2]}",
+                    "calorias_aprox": 380,
+                    "proteina_g": 32,
+                    "tip": "Cena ligera: proteína + carbos lentos + verduras bajas en calorías"
+                }
+            }
+        
+        return {
+            "objetivo_nutricional": objetivo_text,
+            "calorias_diarias_aprox": cal_objetivo,
+            "proteina_g": proteina_g,
+            "carbos_g": carbs_g,
+            "grasas_g": grasas_g,
+            "plan_semanal": plan_semanal
+        }
+    except Exception as e:
+        st.error(f"Error en fallback local: {str(e)}")
+        return None
+
 # --- GENERADOR DE DIETA IA ---
 def generar_dieta_semanal(perfil_json):
-    """Consulta a Gemini para generar plan de comidas personalizado"""
+    """Consulta a Gemini o usa fallback local"""
     try:
+        response = model.generate_content("test")  # Test para verificar disponibilidad
+        # Si llegamos aquí, la API funciona, intentar generar completo
         prompt = f"""
 ERES UN NUTRICIONISTA CERTIFICADO CON 15+ AÑOS DE EXPERIENCIA EN DIETAS PERSONALIZADAS.
 
@@ -251,8 +358,8 @@ Solo retorna JSON válido. Sin markdown, sin explicaciones adicionales. IMPORTAN
         dieta_dict = json.loads(respuesta_texto.strip())
         return dieta_dict
     except Exception as e:
-        st.error(f"Error generando dieta con IA: {str(e)}")
-        return None
+        st.warning(f"⚠️ API de Gemini no disponible. Usando plan de dieta local personalizado.")
+        return generar_dieta_fallback_local(perfil_json)
 
 # --- MOTOR DE RUTINA IA v2 ---
 EJERCICIOS_AVANZADOS = {
