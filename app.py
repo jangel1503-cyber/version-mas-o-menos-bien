@@ -12,68 +12,72 @@ USERS_FILE = "user_data.json"
 
 # --- ESTILOS CSS PERSONALIZADOS ---
 def aplicar_estilos():
-    """Aplica estilos CSS profesionales a la aplicación"""
+    """Aplica estilos CSS profesionales a la aplicación con colores pasteles"""
     estilos = """
     <style>
-    /* Variables de color */
+    /* Variables de color - Paleta Pastel Moderna */
     :root {
-        --primary: #FF6B35;
-        --primary-dark: #E55A2B;
-        --secondary: #4ECDC4;
-        --accent: #FFE66D;
-        --dark: #2C3E50;
-        --light: #ECF0F1;
-        --success: #27AE60;
-        --danger: #E74C3C;
+        --primary: #9ba8c0;
+        --primary-dark: #7a89a8;
+        --secondary: #c9b0d0;
+        --accent: #a8c9b0;
+        --dark: #5a5a5a;
+        --light: #f5f5f7;
+        --success: #a8c9a8;
+        --danger: #d0a8a8;
+        --beige: #d0c0a8;
+        --lavender: #c9c0d8;
     }
     
-    /* Fondo gradiente */
+    /* Fondo gradiente suave */
     [data-testid="stAppViewContainer"] {
-        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-        color: #ecf0f1;
+        background: linear-gradient(135deg, #f5f5f7 0%, #e8e8eb 100%);
+        color: #5a5a5a;
     }
     
     /* Headers principales */
     .main-header {
         font-size: 3.5rem !important;
         font-weight: 900 !important;
-        background: linear-gradient(135deg, #FF6B35 0%, #FFE66D 100%) !important;
+        background: linear-gradient(135deg, #9ba8c0 0%, #c9b0d0 100%) !important;
         -webkit-background-clip: text !important;
         -webkit-text-fill-color: transparent !important;
         background-clip: text !important;
         text-align: center !important;
         margin-bottom: 1rem !important;
-        text-shadow: 0px 4px 8px rgba(0,0,0,0.2) !important;
+        text-shadow: 0px 2px 4px rgba(0,0,0,0.05) !important;
     }
     
     /* Subtítulos */
     h2, h3 {
-        color: #FFE66D !important;
+        color: #7a89a8 !important;
         font-weight: 800 !important;
         text-transform: uppercase !important;
         letter-spacing: 1px !important;
     }
     
     h4 {
-        color: #4ECDC4 !important;
+        color: #9ba8c0 !important;
         font-weight: 700 !important;
     }
     
     /* Tarjetas de ejercicios */
     .exercise-card {
-        background: linear-gradient(135deg, rgba(255, 107, 53, 0.1) 0%, rgba(78, 205, 196, 0.1) 100%) !important;
-        border-left: 5px solid #FF6B35 !important;
+        background: linear-gradient(135deg, rgba(155, 168, 192, 0.08) 0%, rgba(201, 176, 208, 0.08) 100%) !important;
+        border-left: 5px solid #9ba8c0 !important;
         border-radius: 12px !important;
         padding: 20px !important;
         margin: 15px 0 !important;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
         backdrop-filter: blur(10px) !important;
         transition: all 0.3s ease !important;
+        border: 1px solid rgba(155, 168, 192, 0.2) !important;
     }
     
     .exercise-card:hover {
         transform: translateX(5px) !important;
-        box-shadow: 0 6px 20px rgba(255, 107, 53, 0.3) !important;
+        box-shadow: 0 4px 12px rgba(155, 168, 192, 0.15) !important;
+        border-color: rgba(201, 176, 208, 0.4) !important;
     }
     
     /* Botones mejorados */
@@ -81,73 +85,257 @@ def aplicar_estilos():
         border-radius: 8px !important;
         font-weight: 700 !important;
         transition: all 0.3s ease !important;
-        text-transform: uppercase !important;
-        letter-spacing: 0.5px !important;
+        letter-spacing: 0.3px !important;
     }
     
     /* Botones primarios */
     [data-testid="baseButton-primary"] {
-        background: linear-gradient(135deg, #FF6B35 0%, #FFB84D 100%) !important;
+        background: linear-gradient(135deg, #9ba8c0 0%, #a8c9b0 100%) !important;
         color: white !important;
-        box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4) !important;
+        box-shadow: 0 2px 8px rgba(155, 168, 192, 0.2) !important;
     }
     
     [data-testid="baseButton-primary"]:hover {
-        box-shadow: 0 6px 20px rgba(255, 107, 53, 0.6) !important;
+        box-shadow: 0 4px 12px rgba(155, 168, 192, 0.3) !important;
         transform: translateY(-2px) !important;
     }
     
     /* Tabs */
     [data-baseweb="tab-list"] {
-        border-bottom: 2px solid #FF6B35 !important;
+        border-bottom: 2px solid #c9c0d8 !important;
     }
     
     [data-baseweb="tab"] {
-        color: #bbb !important;
+        color: #a8a8a8 !important;
         font-weight: 600 !important;
     }
     
     [aria-selected="true"] {
-        color: #FFE66D !important;
-        border-bottom: 3px solid #FF6B35 !important;
+        color: #9ba8c0 !important;
+        border-bottom: 3px solid #9ba8c0 !important;
     }
     
     /* Métricas */
     [data-testid="metric-container"] {
-        background: linear-gradient(135deg, rgba(255, 107, 53, 0.15) 0%, rgba(78, 205, 196, 0.15) 100%) !important;
+        background: linear-gradient(135deg, rgba(201, 176, 208, 0.1) 0%, rgba(168, 201, 176, 0.1) 100%) !important;
         border-radius: 12px !important;
         padding: 20px !important;
-        border: 1px solid #FF6B35 !important;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2) !important;
+        border: 1px solid #d0c0a8 !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
     }
     
     /* Inputs */
     input, textarea, select {
-        background-color: rgba(44, 62, 80, 0.6) !important;
-        border: 2px solid #FF6B35 !important;
-        color: #ecf0f1 !important;
+        background-color: rgba(255, 255, 255, 0.7) !important;
+        border: 2px solid #d0c0a8 !important;
+        color: #5a5a5a !important;
         border-radius: 8px !important;
         font-weight: 600 !important;
         padding: 10px !important;
     }
     
     input:focus, textarea:focus, select:focus {
-        border-color: #FFE66D !important;
-        box-shadow: 0 0 10px rgba(255, 230, 109, 0.3) !important;
+        border-color: #9ba8c0 !important;
+        box-shadow: 0 0 8px rgba(155, 168, 192, 0.2) !important;
     }
     
     /* Expanders */
     [data-testid="stExpander"] {
-        background: rgba(44, 62, 80, 0.5) !important;
-        border: 1px solid #FF6B35 !important;
+        background: rgba(255, 255, 255, 0.5) !important;
+        border: 1px solid #d0c0a8 !important;
         border-radius: 8px !important;
     }
     
     /* Info boxes */
     [data-testid="stInfo"] {
-        background: linear-gradient(135deg, rgba(78, 205, 196, 0.2) 0%, rgba(52, 152, 219, 0.2) 100%) !important;
-        border-left: 4px solid #4ECDC4 !important;
+        background: linear-gradient(135deg, rgba(168, 201, 176, 0.12) 0%, rgba(201, 192, 168, 0.12) 100%) !important;
+        border-left: 4px solid #a8c9b0 !important;
         border-radius: 8px !important;
+        color: #5a5a5a !important;
+    }
+    
+    [data-testid="stSuccess"] {
+        background: linear-gradient(135deg, rgba(168, 201, 168, 0.15) 0%, rgba(168, 201, 176, 0.15) 100%) !important;
+        border-left: 4px solid #a8c9a8 !important;
+        border-radius: 8px !important;
+        color: #5a5a5a !important;
+    }
+    
+    [data-testid="stWarning"] {
+        background: linear-gradient(135deg, rgba(208, 192, 168, 0.15) 0%, rgba(201, 176, 144, 0.15) 100%) !important;
+        border-left: 4px solid #d0c0a8 !important;
+        border-radius: 8px !important;
+        color: #5a5a5a !important;
+    }
+    
+    [data-testid="stError"] {
+        background: linear-gradient(135deg, rgba(208, 168, 168, 0.15) 0%, rgba(192, 143, 143, 0.15) 100%) !important;
+        border-left: 4px solid #d0a8a8 !important;
+        border-radius: 8px !important;
+        color: #5a5a5a !important;
+    }
+    
+    /* Checkboxes */
+    [data-testid="stCheckbox"] {
+        padding: 10px !important;
+    }
+    
+    /* Sidebar */
+    [data-testid="stSidebar"] {
+        background: linear-gradient(180deg, rgba(245, 245, 247, 0.95) 0%, rgba(232, 232, 235, 0.95) 100%) !important;
+        border-right: 2px solid #d0c0a8 !important;
+    }
+    
+    /* Textos generales */
+    p, span, div {
+        color: #5a5a5a !important;
+    }
+    
+    /* Enlace */
+    a {
+        color: #9ba8c0 !important;
+        text-decoration: none !important;
+        font-weight: 600 !important;
+    }
+    
+    a:hover {
+        color: #7a89a8 !important;
+        text-decoration: underline !important;
+    }
+    
+    /* Divisor */
+    hr {
+        border-color: #d0c0a8 !important;
+        margin: 2rem 0 !important;
+    }
+    
+    /* DataFrames */
+    [data-testid="stDataFrame"] {
+        background-color: rgba(255, 255, 255, 0.6) !important;
+    }
+    
+    /* Cards personalizadas */
+    .stat-card {
+        background: linear-gradient(135deg, #9ba8c0 0%, #a8c9b0 100%) !important;
+        border-radius: 12px !important;
+        padding: 20px !important;
+        color: white !important;
+        text-align: center !important;
+        box-shadow: 0 2px 8px rgba(155, 168, 192, 0.2) !important;
+        font-weight: 700 !important;
+    }
+    
+    .progress-bar {
+        background: linear-gradient(90deg, #9ba8c0 0%, #a8c9b0 100%) !important;
+        border-radius: 10px !important;
+        height: 25px !important;
+    }
+    
+    /* Animaciones */
+    @keyframes slideIn {
+        from { opacity: 0; transform: translateX(-20px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+    
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
+    
+    .pulse {
+        animation: pulse 2s infinite;
+    }
+    
+    .slide-in {
+        animation: slideIn 0.5s ease-out;
+    }
+    
+    /* Scrollbar personalizada */
+    ::-webkit-scrollbar {
+        width: 10px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: rgba(208, 192, 168, 0.2);
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: #9ba8c0;
+        border-radius: 10px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: #c9b0d0;
+    }
+    
+    /* Mejoras para elementos específicos */
+    .sidebar-label {
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #9ba8c0;
+        margin: 20px 0 10px 0;
+    }
+    
+    /* Improvement para tarjetas de dieta */
+    .meal-card {
+        background: linear-gradient(135deg, rgba(201, 176, 208, 0.08) 0%, rgba(168, 201, 176, 0.08) 100%) !important;
+        border-left: 5px solid;
+        border-radius: 10px !important;
+        padding: 15px !important;
+        margin: 10px 0 !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    .meal-card:hover {
+        transform: translateX(3px) !important;
+        box-shadow: 0 2px 8px rgba(155, 168, 192, 0.15) !important;
+    }
+    
+    /* Headers en tabs mejorados */
+    h3 {
+        border-bottom: 3px solid #d0c0a8 !important;
+        padding-bottom: 10px !important;
+    }
+    
+    /* Botones pequeños */
+    .small-btn {
+        font-size: 0.9rem !important;
+        padding: 8px 12px !important;
+        border-radius: 6px !important;
+    }
+    
+    /* Badges de progreso */
+    .progress-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, #9ba8c0 0%, #a8c9b0 100%) !important;
+        color: white !important;
+        padding: 5px 12px !important;
+        border-radius: 20px !important;
+        font-weight: 700 !important;
+        font-size: 0.85rem !important;
+    }
+    
+    /* Tooltips mejorados */
+    [data-tooltip] {
+        cursor: help;
+        border-bottom: 1px dotted #9ba8c0;
+    }
+    
+    /* Animación de carga mejorada */
+    @keyframes shimmer {
+        0% { opacity: 0.5; }
+        50% { opacity: 1; }
+        100% { opacity: 0.5; }
+    }
+    
+    .shimmer {
+        animation: shimmer 1.5s infinite;
+    }
+    
+    </style>
+    """
+    st.markdown(estilos, unsafe_allow_html=True)
     }
     
     [data-testid="stSuccess"] {
@@ -1996,10 +2184,15 @@ else:
 
     with t_entrenamiento:
         st.markdown("### 💪 Entrenar Hoy")
-        from datetime import datetime
-        hoy = datetime.now().strftime("%A")
+        from datetime import datetime, date
+        
+        # Obtener el día actual
+        hoy_datetime = datetime.now()
+        hoy_dia_semana = hoy_datetime.strftime("%A")
+        hoy_fecha = str(date.today())
+        
         dias_map = {"Monday": "Lunes", "Tuesday": "Martes", "Wednesday": "Miércoles", "Thursday": "Jueves", "Friday": "Viernes", "Saturday": "Sábado", "Sunday": "Domingo"}
-        dia_hoy = dias_map.get(hoy, hoy)
+        dia_hoy = dias_map.get(hoy_dia_semana, hoy_dia_semana)
         
         rutina = st.session_state.data.get("rutina_semanal", {})
         
@@ -2009,135 +2202,224 @@ else:
             musculos = obtener_musculos_del_dia(ejercicios_hoy if isinstance(ejercicios_hoy, list) else [])
             musculos_text = ", ".join(musculos) if musculos else "Descanso"
             
-            st.success(f"✅ Hoy es {dia_hoy} - 🔥 {musculos_text}")
+            st.markdown(f"""
+            <div style='background: linear-gradient(135deg, rgba(155, 168, 192, 0.1) 0%, rgba(201, 176, 208, 0.1) 100%); 
+                        padding: 20px; border-radius: 12px; border-left: 5px solid #9ba8c0; margin-bottom: 20px;'>
+                <h3 style='margin: 0; color: #7a89a8;'>✅ Hoy es <strong>{dia_hoy}</strong></h3>
+                <p style='margin: 10px 0 0 0; color: #a8a8a8;'>🔥 Grupos musculares: {musculos_text}</p>
+            </div>
+            """, unsafe_allow_html=True)
             
             # Mostrar warmup sugerido
-            with st.expander("🔥 Warmup Personalizado (5 min)"):
+            with st.expander("🔥 Warmup Personalizado (5 min)", expanded=False):
                 warmup = generar_warmup(dia_hoy, ejercicios_hoy if isinstance(ejercicios_hoy, list) else [])
                 for actividad in warmup.get('warmup', []):
                     st.write(f"⏱️ {actividad['actividad']} - {actividad['duracion_min']} min")
             
             st.markdown("---")
-            st.markdown("#### 📋 Marcar Ejercicios Completados")
+            st.markdown("#### 📋 Marca tus Ejercicios Completados")
             
             # Entrenamientos
             if isinstance(ejercicios_hoy, list):
-                # Crear un contenedor para trackear ejercicios completados
+                # Inicializar estado de ejercicios completados
                 if 'ejercicios_completados_hoy' not in st.session_state:
-                    st.session_state.ejercicios_completados_hoy = {idx: False for idx in range(len(ejercicios_hoy))}
-                
-                ejercicios_datos = []
+                    st.session_state.ejercicios_completados_hoy = {}
                 
                 for idx, ej in enumerate(ejercicios_hoy):
-                    with st.container():
-                        # Checkbox para marcar como completado
-                        col_check, col_content = st.columns([0.5, 9.5])
-                        
-                        with col_check:
-                            completado = st.checkbox(
-                                "✓",
-                                value=st.session_state.ejercicios_completados_hoy.get(idx, False),
-                                key=f"check_{idx}",
-                                label_visibility="collapsed"
-                            )
-                            st.session_state.ejercicios_completados_hoy[idx] = completado
-                        
-                        with col_content:
-                            # Estilo visual dependiendo si está completado
-                            style = "border: 2px solid #4CAF50; background-color: rgba(76, 175, 80, 0.1);" if completado else "border: 2px solid #ddd;"
+                    ej_id = f"{hoy_fecha}_{idx}"  # ID único para hoy
+                    
+                    # Checkbox para marcar como completado
+                    col_check, col_ejercicio = st.columns([0.8, 9.2])
+                    
+                    with col_check:
+                        completado = st.checkbox(
+                            "✓",
+                            value=st.session_state.ejercicios_completados_hoy.get(ej_id, False),
+                            key=f"check_{ej_id}",
+                            label_visibility="collapsed"
+                        )
+                        st.session_state.ejercicios_completados_hoy[ej_id] = completado
+                    
+                    with col_ejercicio:
+                        # Mostrar ejercicio con expander
+                        with st.expander(
+                            f"{'✅' if completado else '🏋️'} {ej['ejercicio']}", 
+                            expanded=(idx == 0)
+                        ):
+                            col_info1, col_info2 = st.columns([1, 1])
                             
-                            with st.expander(f"{'✅' if completado else '🏋️'} {ej['ejercicio']}", expanded=(idx == 0)):
-                                col_info1, col_info2 = st.columns(2)
+                            with col_info1:
+                                st.markdown(f"""
+                                <div style='background: linear-gradient(135deg, rgba(168, 201, 176, 0.1) 0%, rgba(201, 192, 168, 0.1) 100%); 
+                                            padding: 15px; border-radius: 8px; border-left: 4px solid #a8c9b0;'>
+                                    <strong style='color: #7a89a8;'>💡 Consejo:</strong><br>
+                                    <span style='color: #5a5a5a;'>{ej.get('tip', 'Mantén la técnica correcta.')}</span>
+                                </div>
+                                """, unsafe_allow_html=True)
+                            
+                            with col_info2:
+                                st.markdown(f"""
+                                <div style='background: linear-gradient(135deg, rgba(201, 176, 208, 0.1) 0%, rgba(201, 192, 168, 0.1) 100%); 
+                                            padding: 15px; border-radius: 8px; border-left: 4px solid #d0c0a8;'>
+                                    <strong style='color: #7a89a8;'>📋 Plan del Día:</strong><br>
+                                """, unsafe_allow_html=True)
+                                for s_idx, detalle in enumerate(ej.get('detalles_sets', [])):
+                                    descanso = calcular_tiempo_descanso(u.get('objetivos', [''])[0] if u.get('objetivos') else 'hipertrofia', detalle['reps'])
+                                    st.markdown(f"• **Set {s_idx+1}:** {detalle['reps']} reps × {detalle['libras']} lbs ⏱️ {descanso}", unsafe_allow_html=True)
+                                st.markdown("</div>", unsafe_allow_html=True)
+                            
+                            st.markdown("---")
+                            st.markdown("**📊 Registra tu Desempeño Real:**")
+                            
+                            # Registrar resultado
+                            with st.form(f"form_ejer_{ej_id}"):
+                                col_r, col_p, col_n = st.columns([1, 1, 2])
                                 
-                                with col_info1:
-                                    st.info(f"💡 {ej.get('tip', '')}")
+                                with col_r:
+                                    reps_real = st.number_input(
+                                        f"Reps completadas", 
+                                        min_value=0, 
+                                        max_value=100, 
+                                        key=f"reps_{ej_id}"
+                                    )
                                 
-                                with col_info2:
-                                    st.markdown(f"**Plan del día:**")
-                                    for s_idx, detalle in enumerate(ej.get('detalles_sets', [])):
-                                        st.write(f"Set {s_idx+1}: {detalle['reps']} reps × {detalle['libras']} lbs (⏱️ {calcular_tiempo_descanso(u.get('objetivos', [''])[0] if u.get('objetivos') else 'hipertrofia', detalle['reps'])})")
+                                with col_p:
+                                    peso_real = st.number_input(
+                                        f"Peso (lbs)", 
+                                        min_value=0.0, 
+                                        max_value=1000.0, 
+                                        key=f"peso_{ej_id}"
+                                    )
                                 
-                                st.markdown("---")
-                                st.markdown("**Registra tu desempeño real:**")
+                                with col_n:
+                                    notas = st.text_input(
+                                        f"Notas (opcional)", 
+                                        key=f"notas_{ej_id}", 
+                                        placeholder="Ej: Me sentí fuerte"
+                                    )
                                 
-                                # Registrar resultado
-                                with st.form(f"form_ejer_{idx}"):
-                                    col_r, col_p, col_n = st.columns([1, 1, 2])
-                                    
-                                    with col_r:
-                                        reps_real = st.number_input(f"Reps completadas", 0, 100, key=f"reps_{idx}")
-                                    
-                                    with col_p:
-                                        peso_real = st.number_input(f"Peso (lbs)", 0.0, 1000.0, key=f"peso_{idx}")
-                                    
-                                    with col_n:
-                                        notas = st.text_input(f"Notas (opcional)", key=f"notas_{idx}", label_visibility="visible")
-                                    
-                                    col_submit1, col_submit2 = st.columns(2)
-                                    with col_submit1:
-                                        if st.form_submit_button(f"✅ Registrar {ej['ejercicio']}", use_container_width=True):
-                                            if reps_real > 0 and peso_real > 0:
-                                                ejercicios_datos.append({
-                                                    "nombre": ej['ejercicio'],
-                                                    "reps_completadas": reps_real,
-                                                    "peso_levantado": peso_real,
-                                                    "notas": notas,
-                                                    "series_planificadas": int(ej['series']),
-                                                    "reps_planificadas": ej.get('detalles_sets', [{}])[0].get('reps', 0),
-                                                    "peso_planificado": ej.get('detalles_sets', [{}])[0].get('libras', 0)
-                                                })
-                                                st.session_state.ejercicios_completados_hoy[idx] = True
-                                                st.success(f"✅ {ej['ejercicio']} registrado!")
-                                            else:
-                                                st.warning("⚠️ Debes ingresar reps y peso")
+                                if st.form_submit_button(
+                                    f"✅ Guardar {ej['ejercicio']}", 
+                                    use_container_width=True,
+                                    key=f"submit_{ej_id}"
+                                ):
+                                    if reps_real > 0 and peso_real > 0:
+                                        # Crear objeto de ejercicio completado
+                                        ejercicio_completado = {
+                                            "nombre": ej['ejercicio'],
+                                            "reps_completadas": int(reps_real),
+                                            "peso_levantado": float(peso_real),
+                                            "notas": notas,
+                                            "series_planificadas": int(ej.get('series', 3)),
+                                            "reps_planificadas": str(ej.get('detalles_sets', [{}])[0].get('reps', '8-12')),
+                                            "peso_planificado": float(ej.get('detalles_sets', [{}])[0].get('libras', 0)),
+                                            "timestamp": str(hoy_datetime)
+                                        }
+                                        
+                                        # Guardar en historial_entrenamientos
+                                        historial = st.session_state.data.get("historial_entrenamientos", [])
+                                        
+                                        # Buscar si ya existe un entrenamiento para hoy
+                                        entrenamiento_hoy_idx = None
+                                        for i, ent in enumerate(historial):
+                                            if ent.get("fecha") == hoy_fecha and ent.get("dia") == dia_hoy:
+                                                entrenamiento_hoy_idx = i
+                                                break
+                                        
+                                        if entrenamiento_hoy_idx is not None:
+                                            # Agregar el ejercicio al entrenamiento existente
+                                            # Evitar duplicados
+                                            ejercicios_list = historial[entrenamiento_hoy_idx].get("ejercicios", [])
+                                            # Eliminar si ya existe este ejercicio
+                                            ejercicios_list = [e for e in ejercicios_list if e.get("nombre") != ej['ejercicio']]
+                                            # Agregar el nuevo
+                                            ejercicios_list.append(ejercicio_completado)
+                                            historial[entrenamiento_hoy_idx]["ejercicios"] = ejercicios_list
+                                        else:
+                                            # Crear nuevo entrenamiento para hoy
+                                            nuevo_entrenamiento = {
+                                                "fecha": hoy_fecha,
+                                                "hora": hoy_datetime.strftime("%H:%M"),
+                                                "dia": dia_hoy,
+                                                "ejercicios": [ejercicio_completado],
+                                                "duracion_min": 0
+                                            }
+                                            historial.append(nuevo_entrenamiento)
+                                        
+                                        st.session_state.data["historial_entrenamientos"] = historial
+                                        
+                                        # Actualizar PR por ejercicio
+                                        pr_data = st.session_state.data.get("pr_por_ejercicio", {})
+                                        ej_nombre = ej['ejercicio']
+                                        peso_levantado = float(peso_real)
+                                        
+                                        if ej_nombre not in pr_data or peso_levantado > pr_data[ej_nombre]:
+                                            pr_data[ej_nombre] = peso_levantado
+                                        
+                                        st.session_state.data["pr_por_ejercicio"] = pr_data
+                                        
+                                        # Guardar cambios
+                                        guardar_todo(st.session_state.data)
+                                        
+                                        # Marcar como completado
+                                        st.session_state.ejercicios_completados_hoy[ej_id] = True
+                                        
+                                        st.success(f"✅ ¡{ej['ejercicio']} guardado exitosamente!")
+                                        st.balloons()
+                                    else:
+                                        st.warning("⚠️ Por favor completa reps y peso")
                 
                 st.markdown("---")
                 
                 # Resumen del entrenamiento
-                completados = sum(1 for v in st.session_state.ejercicios_completados_hoy.values() if v)
+                completados = sum(1 for k, v in st.session_state.ejercicios_completados_hoy.items() if k.startswith(hoy_fecha) and v)
                 total = len(ejercicios_hoy)
                 
-                st.markdown(f"### 📊 Progreso de Hoy")
+                st.markdown("### 📊 Progreso de Hoy")
                 col_p1, col_p2, col_p3 = st.columns(3)
+                
                 with col_p1:
-                    st.metric("Ejercicios Completados", f"{completados}/{total}")
+                    st.markdown(f"""
+                    <div class='stat-card'>
+                        <h4 style='margin: 0; font-size: 0.9rem;'>Completados</h4>
+                        <h2 style='margin: 10px 0; color: white;'>{completados}/{total}</h2>
+                    </div>
+                    """, unsafe_allow_html=True)
+                
                 with col_p2:
                     porcentaje = int((completados / total * 100) if total > 0 else 0)
-                    st.metric("Porcentaje", f"{porcentaje}%")
-                with col_p3:
-                    if completados == total:
-                        st.success("¡ENTRENAMIENTO COMPLETO! 🎉")
-                    else:
-                        st.info(f"Te faltan {total - completados} ejercicio(s)")
+                    st.markdown(f"""
+                    <div class='stat-card'>
+                        <h4 style='margin: 0; font-size: 0.9rem;'>Progreso</h4>
+                        <h2 style='margin: 10px 0; color: white;'>{porcentaje}%</h2>
+                    </div>
+                    """, unsafe_allow_html=True)
                 
-                # Botón para guardar todo el entrenamiento
-                if st.button("💾 Guardar Entrenamiento Completo", key="save_all_training", use_container_width=True):
-                    if completados > 0:
-                        entrenamiento = registrar_entrenamiento(dia_hoy, ejercicios_datos)
-                        st.session_state.data["historial_entrenamientos"].append(entrenamiento)
-                        
-                        # Actualizar PR por ejercicio
-                        pr_data = st.session_state.data.get("pr_por_ejercicio", {})
-                        for ej_data in ejercicios_datos:
-                            ej_nombre = ej_data["nombre"]
-                            peso_levantado = ej_data["peso_levantado"]
-                            if ej_nombre not in pr_data or peso_levantado > pr_data[ej_nombre]:
-                                pr_data[ej_nombre] = peso_levantado
-                        st.session_state.data["pr_por_ejercicio"] = pr_data
-                        
-                        guardar_todo(st.session_state.data)
-                        st.success("¡Entrenamiento guardado exitosamente!")
-                        st.balloons()
-                        
-                        # Limpiar estado
-                        st.session_state.ejercicios_completados_hoy = {idx: False for idx in range(len(ejercicios_hoy))}
-                        st.rerun()
+                with col_p3:
+                    if completados == total and total > 0:
+                        st.markdown("""
+                        <div style='background: linear-gradient(135deg, rgba(168, 201, 168, 0.15) 0%, rgba(168, 201, 176, 0.15) 100%); 
+                                    padding: 20px; border-radius: 12px; border-left: 5px solid #a8c9a8; text-align: center;'>
+                            <h3 style='margin: 0; color: #7a89a8;'>🎉 ¡ENTRENAMIENTO COMPLETO!</h3>
+                        </div>
+                        """, unsafe_allow_html=True)
                     else:
-                        st.warning("⚠️ Debes registrar al menos un ejercicio")
+                        faltantes = total - completados
+                        st.markdown(f"""
+                        <div style='background: linear-gradient(135deg, rgba(208, 192, 168, 0.12) 0%, rgba(201, 176, 144, 0.12) 100%); 
+                                    padding: 20px; border-radius: 12px; border-left: 5px solid #d0c0a8;'>
+                            <p style='margin: 0; color: #7a89a8; text-align: center;'>Te faltan <strong>{faltantes}</strong> ejercicio(s)</p>
+                        </div>
+                        """, unsafe_allow_html=True)
             else:
                 st.info(f"📅 {ejercicios_hoy}")
         else:
-            st.warning(f"📅 No hay rutina para {dia_hoy}")
+            st.markdown(f"""
+            <div style='background: linear-gradient(135deg, rgba(208, 168, 168, 0.12) 0%, rgba(192, 143, 143, 0.12) 100%); 
+                        padding: 20px; border-radius: 12px; border-left: 5px solid #d0a8a8;'>
+                <p style='margin: 0; color: #5a5a5a;'>📅 No hay rutina programada para <strong>{dia_hoy}</strong>. ¡Disfruta de tu día de descanso!</p>
+            </div>
+            """, unsafe_allow_html=True)
 
     with t_alternativas:
         st.markdown("### 🔄 Ejercicios Alternativos")
@@ -2225,78 +2507,178 @@ else:
 
 
     with t_progreso:
-        st.markdown("### 📊 Evolución y Análisis Nutricional")
+        st.markdown("### 📊 Tu Progreso y Evolución")
         
-        c1, c2 = st.columns([1, 2])
+        # Tabs para diferentes vistas de progreso
+        tab_peso, tab_entrenamientos, tab_records = st.tabs(["⚖️ Peso", "💪 Entrenamientos", "🏆 Records"])
         
-        with c1:
-            st.markdown("#### ⚖️ Registrar Peso")
-            with st.form("log_peso"):
-                peso_actual = float(u.get('peso_lb', 160.0)) if u.get('peso_lb') else 160.0
-                n_p = st.number_input("Peso de hoy (Lbs)", 50.0, 500.0, peso_actual)
-                if st.form_submit_button("Anotar Peso"):
-                    from datetime import date
-                    hoy = str(date.today())
-                    st.session_state.data["historial_pesos"].append({"fecha": hoy, "peso": n_p})
-                    st.session_state.data["user"]["peso_lb"] = n_p
-                    guardar_todo(st.session_state.data)
-                    st.success(f"¡Peso de {n_p} lbs registrado!")
-                    st.rerun()
+        with tab_peso:
+            c1, c2 = st.columns([1, 2])
             
-            cal, p, g, c = calcular_macros(u)
-            st.markdown(f"""
-                <div class="exercise-card" style="border-left-color: var(--secondary);">
-                    <h4 style="margin:0;">🔥 Calorías Objetivo</h4>
-                    <h2 style="margin:0; color: var(--secondary);">{cal} kcal</h2>
-                </div>
-            """, unsafe_allow_html=True)
-            st.markdown(f"**Macros Directriz:**")
-            st.write(f"🥩 Proteína: {p}g | 🍞 Carbos: {c}g | 🥑 Grasas: {g}g")
-
-        with c2:
-            st.markdown("#### 📉 Tendencia de Peso")
-            historial = st.session_state.data.get("historial_pesos", [])
-            if historial:
-                df = pd.DataFrame(historial)
-                df['fecha'] = pd.to_datetime(df['fecha'])
-                st.line_chart(df.set_index('fecha')['peso'])
+            with c1:
+                st.markdown("#### Registrar Peso")
+                with st.form("log_peso"):
+                    peso_actual = float(u.get('peso_lb', 160.0)) if u.get('peso_lb') else 160.0
+                    n_p = st.number_input("Peso de hoy (Lbs)", 50.0, 500.0, peso_actual)
+                    if st.form_submit_button("✅ Guardar Peso"):
+                        from datetime import date
+                        hoy = str(date.today())
+                        st.session_state.data["historial_pesos"].append({"fecha": hoy, "peso": n_p})
+                        st.session_state.data["user"]["peso_lb"] = n_p
+                        guardar_todo(st.session_state.data)
+                        st.success(f"✅ Peso de {n_p} lbs registrado!")
+                        st.rerun()
                 
-                # Estadísticas
-                pesos = [h['peso'] for h in historial]
-                st.metric("Peso Inicial", f"{pesos[0]:.1f} lbs", f"{pesos[-1] - pesos[0]:.1f} lbs")
-            else:
-                st.info("Aún no tienes registros de peso. ¡Empieza hoy!")
-            
-            st.markdown("#### 📅 Historial de Entrenamientos")
-            historial_ent = st.session_state.data.get("historial_entrenamientos", [])
-            if historial_ent:
-                entrenamientos_df = pd.DataFrame(historial_ent)
-                if len(entrenamientos_df) > 0:
-                    st.metric("Total Entrenamientos", len(entrenamientos_df))
+                cal, p, g, c = calcular_macros(u)
+                st.markdown(f"""
+                    <div style='background: linear-gradient(135deg, #9ba8c0 0%, #a8c9b0 100%);
+                                border-radius: 12px; padding: 20px; color: white; text-align: center;'>
+                        <h4 style='margin: 0; font-size: 0.9rem;'>🔥 Calorías Objetivo</h4>
+                        <h2 style='margin: 10px 0; font-size: 2.5rem;'>{cal} kcal</h2>
+                        <p style='margin: 0; font-size: 0.85rem; opacity: 0.9;'>Consumo diario recomendado</p>
+                    </div>
+                """, unsafe_allow_html=True)
+                
+                st.markdown("#### Macros Recomendados")
+                st.markdown(f"""
+                    <div style='background: linear-gradient(135deg, rgba(155, 168, 192, 0.1) 0%, rgba(201, 176, 208, 0.1) 100%);
+                                border: 1px solid #d0c0a8; border-radius: 12px; padding: 15px;'>
+                        <p style='margin: 5px 0; color: #5a5a5a;'><strong>🥩 Proteína:</strong> {p}g</p>
+                        <p style='margin: 5px 0; color: #5a5a5a;'><strong>🍞 Carbos:</strong> {c}g</p>
+                        <p style='margin: 5px 0; color: #5a5a5a;'><strong>🥑 Grasas:</strong> {g}g</p>
+                    </div>
+                """, unsafe_allow_html=True)
+
+            with c2:
+                st.markdown("#### Tendencia de Peso")
+                historial = st.session_state.data.get("historial_pesos", [])
+                if historial and len(historial) > 1:
+                    df = pd.DataFrame(historial)
+                    df['fecha'] = pd.to_datetime(df['fecha'])
                     
-                    # Mostrar últimos entrenamientos con detalles
-                    st.markdown("**Últimos Entrenamientos:**")
-                    for entrenamiento in historial_ent[-5:]:  # Mostrar últimos 5
-                        fecha = entrenamiento.get('fecha', 'N/A')
-                        dia = entrenamiento.get('dia', 'N/A')
-                        ejercicios = entrenamiento.get('ejercicios', [])
-                        
-                        with st.expander(f"📅 {fecha} - {dia} ({len(ejercicios)} ejercicios)"):
-                            for ej in ejercicios:
-                                st.write(f"✅ **{ej['nombre']}**: {ej['reps_completadas']} reps × {ej['peso_levantado']} lbs")
-                                if ej.get('notas'):
-                                    st.caption(f"📝 {ej['notas']}")
-            else:
-                st.info("Aún no has registrado entrenamientos.")
+                    # Gráfico mejorado
+                    st.line_chart(df.set_index('fecha')['peso'], use_container_width=True)
+                    
+                    # Estadísticas
+                    pesos = [h['peso'] for h in historial]
+                    col_s1, col_s2, col_s3 = st.columns(3)
+                    
+                    with col_s1:
+                        st.metric("Peso Actual", f"{pesos[-1]:.1f} lbs")
+                    
+                    with col_s2:
+                        diferencia = pesos[-1] - pesos[0]
+                        st.metric("Cambio Total", f"{diferencia:.1f} lbs", delta=f"{diferencia:.1f}")
+                    
+                    with col_s3:
+                        st.metric("Registros", len(historial))
+                else:
+                    st.markdown("""
+                    <div style='background: linear-gradient(135deg, rgba(168, 201, 176, 0.12) 0%, rgba(201, 192, 168, 0.12) 100%);
+                                border-left: 4px solid #a8c9b0; border-radius: 8px; padding: 20px; text-align: center;'>
+                        <p style='margin: 0; color: #5a5a5a;'>📝 Registra tu peso diariamente para ver la tendencia</p>
+                    </div>
+                    """, unsafe_allow_html=True)
+        
+        with tab_entrenamientos:
+            st.markdown("#### 💪 Historial de Entrenamientos")
+            historial_ent = st.session_state.data.get("historial_entrenamientos", [])
             
-            st.markdown("#### 🏆 Personal Records (PR)")
-            pr_data = st.session_state.data.get("pr_por_ejercicio", {})
-            if pr_data:
-                st.markdown("**Tus mejores pesos levantados:**")
-                for ejercicio, peso in sorted(pr_data.items(), key=lambda x: x[1], reverse=True):
-                    st.write(f"🥇 **{ejercicio}**: {peso} lbs")
+            if historial_ent:
+                col_total, col_semana, col_mes = st.columns(3)
+                
+                with col_total:
+                    st.markdown(f"""
+                    <div class='stat-card'>
+                        <h4 style='margin: 0; font-size: 0.9rem;'>Total Entrenamientos</h4>
+                        <h2 style='margin: 10px 0; color: white;'>{len(historial_ent)}</h2>
+                    </div>
+                    """, unsafe_allow_html=True)
+                
+                with col_semana:
+                    from datetime import date, timedelta
+                    hace_una_semana = str(date.today() - timedelta(days=7))
+                    ent_semana = sum(1 for e in historial_ent if e.get('fecha', '') >= hace_una_semana)
+                    st.markdown(f"""
+                    <div class='stat-card'>
+                        <h4 style='margin: 0; font-size: 0.9rem;'>Esta Semana</h4>
+                        <h2 style='margin: 10px 0; color: white;'>{ent_semana}</h2>
+                    </div>
+                    """, unsafe_allow_html=True)
+                
+                with col_mes:
+                    hace_un_mes = str(date.today() - timedelta(days=30))
+                    ent_mes = sum(1 for e in historial_ent if e.get('fecha', '') >= hace_un_mes)
+                    st.markdown(f"""
+                    <div class='stat-card'>
+                        <h4 style='margin: 0; font-size: 0.9rem;'>Este Mes</h4>
+                        <h2 style='margin: 10px 0; color: white;'>{ent_mes}</h2>
+                    </div>
+                    """, unsafe_allow_html=True)
+                
+                st.markdown("---")
+                st.markdown("#### 📅 Últimos Entrenamientos")
+                
+                for entrenamiento in reversed(historial_ent[-10:]):  # Mostrar últimos 10
+                    fecha = entrenamiento.get('fecha', 'N/A')
+                    dia = entrenamiento.get('dia', 'N/A')
+                    ejercicios = entrenamiento.get('ejercicios', [])
+                    
+                    with st.expander(f"📅 {fecha} · {dia} · {len(ejercicios)} ejercicios"):
+                        for ej in ejercicios:
+                            col_nom, col_datos = st.columns([2, 1])
+                            
+                            with col_nom:
+                                st.markdown(f"""
+                                <div style='color: #5a5a5a;'>
+                                    <strong>✅ {ej['nombre']}</strong>
+                                </div>
+                                """, unsafe_allow_html=True)
+                            
+                            with col_datos:
+                                st.markdown(f"""
+                                <div style='text-align: right; color: #7a89a8;'>
+                                    {ej.get('reps_completadas', 0)} reps × {ej.get('peso_levantado', 0)} lbs
+                                </div>
+                                """, unsafe_allow_html=True)
+                            
+                            if ej.get('notas'):
+                                st.caption(f"📝 {ej['notas']}")
             else:
-                st.info("Aún no tienes records. ¡Empieza a entrenar!")
+                st.markdown("""
+                <div style='background: linear-gradient(135deg, rgba(168, 201, 176, 0.12) 0%, rgba(201, 192, 168, 0.12) 100%);
+                            border-left: 4px solid #a8c9b0; border-radius: 8px; padding: 20px; text-align: center;'>
+                    <p style='margin: 0; color: #5a5a5a;'>💪 Completa tus primeros entrenamientos para ver el historial aquí</p>
+                </div>
+                """, unsafe_allow_html=True)
+        
+        with tab_records:
+            st.markdown("#### 🏆 Tus Personal Records")
+            pr_data = st.session_state.data.get("pr_por_ejercicio", {})
+            
+            if pr_data:
+                # Ordenar PRs de mayor a menor
+                pr_ordenados = sorted(pr_data.items(), key=lambda x: x[1], reverse=True)
+                
+                # Mostrar como tarjetas
+                cols = st.columns(2)
+                for idx, (ejercicio, peso) in enumerate(pr_ordenados):
+                    with cols[idx % 2]:
+                        st.markdown(f"""
+                        <div style='background: linear-gradient(135deg, #9ba8c0 0%, #a8c9b0 100%);
+                                    border-radius: 12px; padding: 20px; color: white; text-align: center;
+                                    box-shadow: 0 2px 8px rgba(155, 168, 192, 0.2);'>
+                            <h4 style='margin: 0; font-size: 0.9rem; opacity: 0.9;'>🥇 {ejercicio}</h4>
+                            <h2 style='margin: 10px 0; font-size: 2rem;'>{peso} lbs</h2>
+                        </div>
+                        """, unsafe_allow_html=True)
+            else:
+                st.markdown("""
+                <div style='background: linear-gradient(135deg, rgba(168, 201, 176, 0.12) 0%, rgba(201, 192, 168, 0.12) 100%);
+                            border-left: 4px solid #a8c9b0; border-radius: 8px; padding: 20px; text-align: center;'>
+                    <p style='margin: 0; color: #5a5a5a;'>🏆 Completa entrenamientos para establecer tus primeros records</p>
+                </div>
+                """, unsafe_allow_html=True)
 
     with t_perfil:
         st.markdown("### ⚙️ Configuración de Perfil")
