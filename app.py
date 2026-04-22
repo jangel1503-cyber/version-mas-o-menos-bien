@@ -8,6 +8,7 @@ import google.generativeai as genai
 # --- CONFIGURACIÓN ---
 st.set_page_config(page_title="Gym Pro AI", page_icon="💪", layout="wide")
 DB_FILE = "gym_data.json"
+USERS_FILE = "user_data.json"
 
 # Cargar API key desde secrets (Streamlit Cloud) o variable local
 try:
@@ -17,6 +18,60 @@ except (KeyError, FileNotFoundError):
 
 genai.configure(api_key=GEMINI_API_KEY)
 model = genai.GenerativeModel('gemini-2.0-flash')
+
+# --- GESTIÓN DE USUARIOS ---
+def cargar_usuarios():
+    """Carga la base de datos de usuarios desde user_data.json"""
+    if os.path.exists(USERS_FILE):
+        try:
+            with open(USERS_FILE, "r", encoding='utf-8') as f:
+                return json.load(f)
+        except:
+            return {}
+    return {}
+
+def guardar_usuarios(usuarios):
+    """Guarda la base de datos de usuarios en user_data.json"""
+    with open(USERS_FILE, "w", encoding='utf-8') as f:
+        json.dump(usuarios, f, ensure_ascii=False, indent=4)
+
+def usuario_existe(username):
+    """Verifica si un usuario ya existe"""
+    usuarios = cargar_usuarios()
+    return username.lower() in usuarios
+
+def validar_credenciales(username, password):
+    """Valida el nombre de usuario y contraseña"""
+    usuarios = cargar_usuarios()
+    user_lower = username.lower()
+    if user_lower in usuarios:
+        return usuarios[user_lower].get("password") == password
+    return False
+
+def registrar_usuario(username, password, datos_perfil):
+    """Registra un nuevo usuario con sus datos de perfil"""
+    usuarios = cargar_usuarios()
+    usuario_lower = username.lower()
+    
+    if usuario_lower in usuarios:
+        return False, "El usuario ya existe"
+    
+    usuarios[usuario_lower] = {
+        "username": username,
+        "password": password,
+        "datos_perfil": datos_perfil,
+        "fecha_registro": str(pd.Timestamp.now())
+    }
+    guardar_usuarios(usuarios)
+    return True, "Usuario registrado exitosamente"
+
+def obtener_datos_usuario(username):
+    """Obtiene los datos del perfil de un usuario"""
+    usuarios = cargar_usuarios()
+    user_lower = username.lower()
+    if user_lower in usuarios:
+        return usuarios[user_lower].get("datos_perfil", {})
+    return None
 
 
 
@@ -53,30 +108,28 @@ LISTA_OBJETIVOS = [
 
 # --- PERSISTENCIA ---
 def guardar_todo(datos):
-    with open(DB_FILE, "w", encoding='utf-8') as f:
-        json.dump(datos, f, ensure_ascii=False, indent=4)
-
-def cargar_todo():
+    """Guarda datos del usuario actual en gym_data.json"""
+    usuario = st.session_state.usuario_logueado if st.session_state.usuario_logueado else "default"
+    
+    # Cargar datos existentes
+    todos_datos = {}
     if os.path.exists(DB_FILE):
         try:
             with open(DB_FILE, "r", encoding='utf-8') as f:
-                data = json.load(f)
-                # Asegurar compatibilidad
-                if "historial_pesos" not in data:
-                    data["historial_pesos"] = []
-                if "user" in data and "dias_entreno" not in data["user"]:
-                    data["user"]["dias_entreno"] = 5
-                if "historial_entrenamientos" not in data:
-                    data["historial_entrenamientos"] = []
-                if "pr_por_ejercicio" not in data:  # Personal Records
-                    data["pr_por_ejercicio"] = {}
-                if "fecha_ultima_rotacion" not in data:
-                    data["fecha_ultima_rotacion"] = None
-                if "dieta_semanal" not in data:
-                    data["dieta_semanal"] = {}
-                return data
-        except: pass
-    return {
+                todos_datos = json.load(f)
+        except:
+            todos_datos = {}
+    
+    # Guardar datos del usuario especifico
+    todos_datos[usuario] = datos
+    with open(DB_FILE, "w", encoding='utf-8') as f:
+        json.dump(todos_datos, f, ensure_ascii=False, indent=4)
+
+def cargar_todo():
+    """Carga datos del usuario actual desde gym_data.json"""
+    usuario = st.session_state.usuario_logueado if st.session_state.usuario_logueado else "default"
+    
+    estructura_vacia = {
         "perfil_completado": False, 
         "user": {"dias_entreno": 5}, 
         "rutina_semanal": {}, 
@@ -86,6 +139,36 @@ def cargar_todo():
         "fecha_ultima_rotacion": None,
         "dieta_semanal": {}
     }
+    
+    if os.path.exists(DB_FILE):
+        try:
+            with open(DB_FILE, "r", encoding='utf-8') as f:
+                todos_datos = json.load(f)
+                if usuario in todos_datos:
+                    data = todos_datos[usuario]
+                else:
+                    data = estructura_vacia.copy()
+                
+                # Asegurar compatibilidad
+                if "historial_pesos" not in data:
+                    data["historial_pesos"] = []
+                if "user" in data and "dias_entreno" not in data["user"]:
+                    data["user"]["dias_entreno"] = 5
+                if "historial_entrenamientos" not in data:
+                    data["historial_entrenamientos"] = []
+                if "pr_por_ejercicio" not in data:
+                    data["pr_por_ejercicio"] = {}
+                if "fecha_ultima_rotacion" not in data:
+                    data["fecha_ultima_rotacion"] = None
+                if "dieta_semanal" not in data:
+                    data["dieta_semanal"] = {}
+                return data
+        except: 
+            pass
+    return estructura_vacia
+
+if 'usuario_logueado' not in st.session_state:
+    st.session_state.usuario_logueado = None
 
 if 'data' not in st.session_state:
     st.session_state.data = cargar_todo()
@@ -998,7 +1081,109 @@ def obtener_musculos_del_dia(ejercicios_dia):
     return sorted(list(musculos_unicos))
 
 # --- INTERFAZ ---
-if not st.session_state.data.get("perfil_completado", False):
+# PANTALLA DE LOGIN/REGISTRO
+if not st.session_state.usuario_logueado:
+    st.markdown('<h1 class="main-header">💪 Gym Pro AI</h1>', unsafe_allow_html=True)
+    st.markdown("### Tu Entrenador Personal Inteligente")
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("#### 🔐 Iniciar Sesión")
+        with st.form("login_form"):
+            login_user = st.text_input("Nombre de usuario", key="login_user")
+            login_pass = st.text_input("Contraseña", type="password", key="login_pass")
+            login_btn = st.form_submit_button("🚀 Iniciar Sesión", use_container_width=True)
+            
+            if login_btn:
+                if login_user and login_pass:
+                    if validar_credenciales(login_user, login_pass):
+                        st.session_state.usuario_logueado = login_user.lower()
+                        # Cargar datos del usuario
+                        datos = obtener_datos_usuario(login_user)
+                        st.session_state.data = {
+                            "perfil_completado": True,
+                            "user": datos,
+                            "rutina_semanal": {},
+                            "historial_pesos": [],
+                            "historial_entrenamientos": [],
+                            "pr_por_ejercicio": {},
+                            "fecha_ultima_rotacion": None,
+                            "dieta_semanal": {}
+                        }
+                        # Intentar cargar datos adicionales del archivo gym_data.json del usuario
+                        try:
+                            if os.path.exists(DB_FILE):
+                                with open(DB_FILE, "r", encoding='utf-8') as f:
+                                    all_data = json.load(f)
+                                    if st.session_state.usuario_logueado in all_data:
+                                        st.session_state.data.update(all_data[st.session_state.usuario_logueado])
+                        except:
+                            pass
+                        st.success("¡Sesión iniciada correctamente!")
+                        st.rerun()
+                    else:
+                        st.error("❌ Usuario o contraseña incorrectos")
+                else:
+                    st.warning("⚠️ Completa todos los campos")
+    
+    with col2:
+        st.markdown("#### 📝 Registrarse")
+        with st.form("signup_form"):
+            st.markdown("**Crear nueva cuenta**")
+            signup_user = st.text_input("Nombre de usuario", key="signup_user")
+            signup_pass = st.text_input("Contraseña", type="password", key="signup_pass")
+            signup_pass_conf = st.text_input("Confirmar contraseña", type="password", key="signup_pass_conf")
+            
+            st.markdown("**Datos de perfil**")
+            nombre = st.text_input("¿Cuál es tu nombre completo?")
+            sexo = st.selectbox("Sexo", ["Masculino", "Femenino"], index=0)
+            
+            st.markdown("**Medidas**")
+            c_p, c_ft, c_in, c_ed = st.columns(4)
+            peso = c_p.number_input("Peso (Lbs)", 50.0, 500.0, 160.0)
+            pies = c_ft.number_input("Pies", 3, 8, 5)
+            pulgadas = c_in.number_input("Pulgadas", 0, 11, 7)
+            edad = c_ed.number_input("Edad", 12, 100, 25)
+            
+            st.markdown("**Entrenamiento**")
+            c_d, c_o = st.columns([1, 2])
+            dias_e = c_d.selectbox("Días de Entreno", [3, 4, 5], index=2)
+            objs = c_o.multiselect("Selecciona tus metas:", LISTA_OBJETIVOS)
+            
+            signup_btn = st.form_submit_button("✅ Crear Cuenta", use_container_width=True)
+            
+            if signup_btn:
+                if not signup_user or not signup_pass:
+                    st.error("❌ Usuario y contraseña son requeridos")
+                elif signup_pass != signup_pass_conf:
+                    st.error("❌ Las contraseñas no coinciden")
+                elif usuario_existe(signup_user):
+                    st.error("❌ El usuario ya existe")
+                elif not nombre or not objs:
+                    st.error("❌ Completa nombre y selecciona al menos un objetivo")
+                else:
+                    # Calcular estatura en metros
+                    est_m = ((pies * 12) + pulgadas) * 0.0254
+                    datos_perfil = {
+                        "nombre": nombre,
+                        "sexo": sexo,
+                        "peso_lb": peso,
+                        "pies": pies,
+                        "pulgadas": pulgadas,
+                        "estatura_m": est_m,
+                        "edad": edad,
+                        "dias_entreno": dias_e,
+                        "objetivos": objs
+                    }
+                    exito, mensaje = registrar_usuario(signup_user, signup_pass, datos_perfil)
+                    if exito:
+                        st.success(mensaje)
+                        st.info("✅ Ahora puedes iniciar sesión con tu nueva cuenta")
+                    else:
+                        st.error(f"❌ {mensaje}")
+
+elif not st.session_state.data.get("perfil_completado", False):
     st.markdown('<h1 class="main-header">💪 Gym Pro AI</h1>', unsafe_allow_html=True)
     st.markdown("### Bienvenido. Vamos a construir tu mejor versión.")
     
@@ -1054,21 +1239,30 @@ else:
         """, unsafe_allow_html=True)
         st.info(f"📍 Meta: {len(u.get('objetivos', []))} objetivos seleccionados.")
         
-        if not st.session_state.get('confirmar_reinicio', False):
-            if st.button("⚠️ Reiniciar App", use_container_width=True):
-                st.session_state.confirmar_reinicio = True
+        col_logout, col_reinicio = st.columns(2)
+        
+        with col_logout:
+            if st.button("🚪 Cerrar Sesión", use_container_width=True):
+                st.session_state.usuario_logueado = None
+                st.session_state.data = {"perfil_completado": False, "user": {}, "rutina_semanal": {}, "historial_pesos": [], "historial_entrenamientos": [], "pr_por_ejercicio": {}, "fecha_ultima_rotacion": None, "dieta_semanal": {}}
                 st.rerun()
-        else:
-            st.warning("¿Estás seguro?")
-            c1, c2 = st.columns(2)
-            if c1.button("✅ Sí", use_container_width=True):
-                st.session_state.data = {"perfil_completado": False, "user": {}, "rutina_semanal": {}, "historial_pesos": [], "historial_entrenamientos": [], "pr_por_ejercicio": {}, "fecha_ultima_rotacion": None}
-                st.session_state.confirmar_reinicio = False
-                guardar_todo(st.session_state.data)
-                st.rerun()
-            if c2.button("❌ No", use_container_width=True):
-                st.session_state.confirmar_reinicio = False
-                st.rerun()
+        
+        with col_reinicio:
+            if not st.session_state.get('confirmar_reinicio', False):
+                if st.button("⚠️ Reiniciar App", use_container_width=True):
+                    st.session_state.confirmar_reinicio = True
+                    st.rerun()
+            else:
+                st.warning("¿Estás seguro?")
+                c1, c2 = st.columns(2)
+                if c1.button("✅ Sí", use_container_width=True):
+                    st.session_state.data = {"perfil_completado": False, "user": {}, "rutina_semanal": {}, "historial_pesos": [], "historial_entrenamientos": [], "pr_por_ejercicio": {}, "fecha_ultima_rotacion": None, "dieta_semanal": {}}
+                    st.session_state.confirmar_reinicio = False
+                    guardar_todo(st.session_state.data)
+                    st.rerun()
+                if c2.button("❌ No", use_container_width=True):
+                    st.session_state.confirmar_reinicio = False
+                    st.rerun()
 
     # --- DASHBOARD PRINCIPAL ---
     st.markdown(f'<h1 class="main-header">Panel de Control: {u.get("nombre")}</h1>', unsafe_allow_html=True)
