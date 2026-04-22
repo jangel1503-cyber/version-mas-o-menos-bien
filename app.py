@@ -6,9 +6,332 @@ import pandas as pd
 import google.generativeai as genai
 
 # --- CONFIGURACIÓN ---
-st.set_page_config(page_title="Gym Pro AI", page_icon="💪", layout="wide")
+st.set_page_config(page_title="Gym Pro AI", page_icon="💪", layout="wide", initial_sidebar_state="expanded")
 DB_FILE = "gym_data.json"
 USERS_FILE = "user_data.json"
+
+# --- ESTILOS CSS PERSONALIZADOS ---
+def aplicar_estilos():
+    """Aplica estilos CSS profesionales a la aplicación"""
+    estilos = """
+    <style>
+    /* Variables de color */
+    :root {
+        --primary: #FF6B35;
+        --primary-dark: #E55A2B;
+        --secondary: #4ECDC4;
+        --accent: #FFE66D;
+        --dark: #2C3E50;
+        --light: #ECF0F1;
+        --success: #27AE60;
+        --danger: #E74C3C;
+    }
+    
+    /* Fondo gradiente */
+    [data-testid="stAppViewContainer"] {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        color: #ecf0f1;
+    }
+    
+    /* Headers principales */
+    .main-header {
+        font-size: 3.5rem !important;
+        font-weight: 900 !important;
+        background: linear-gradient(135deg, #FF6B35 0%, #FFE66D 100%) !important;
+        -webkit-background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
+        background-clip: text !important;
+        text-align: center !important;
+        margin-bottom: 1rem !important;
+        text-shadow: 0px 4px 8px rgba(0,0,0,0.2) !important;
+    }
+    
+    /* Subtítulos */
+    h2, h3 {
+        color: #FFE66D !important;
+        font-weight: 800 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 1px !important;
+    }
+    
+    h4 {
+        color: #4ECDC4 !important;
+        font-weight: 700 !important;
+    }
+    
+    /* Tarjetas de ejercicios */
+    .exercise-card {
+        background: linear-gradient(135deg, rgba(255, 107, 53, 0.1) 0%, rgba(78, 205, 196, 0.1) 100%) !important;
+        border-left: 5px solid #FF6B35 !important;
+        border-radius: 12px !important;
+        padding: 20px !important;
+        margin: 15px 0 !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+        backdrop-filter: blur(10px) !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    .exercise-card:hover {
+        transform: translateX(5px) !important;
+        box-shadow: 0 6px 20px rgba(255, 107, 53, 0.3) !important;
+    }
+    
+    /* Botones mejorados */
+    button {
+        border-radius: 8px !important;
+        font-weight: 700 !important;
+        transition: all 0.3s ease !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
+    }
+    
+    /* Botones primarios */
+    [data-testid="baseButton-primary"] {
+        background: linear-gradient(135deg, #FF6B35 0%, #FFB84D 100%) !important;
+        color: white !important;
+        box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4) !important;
+    }
+    
+    [data-testid="baseButton-primary"]:hover {
+        box-shadow: 0 6px 20px rgba(255, 107, 53, 0.6) !important;
+        transform: translateY(-2px) !important;
+    }
+    
+    /* Tabs */
+    [data-baseweb="tab-list"] {
+        border-bottom: 2px solid #FF6B35 !important;
+    }
+    
+    [data-baseweb="tab"] {
+        color: #bbb !important;
+        font-weight: 600 !important;
+    }
+    
+    [aria-selected="true"] {
+        color: #FFE66D !important;
+        border-bottom: 3px solid #FF6B35 !important;
+    }
+    
+    /* Métricas */
+    [data-testid="metric-container"] {
+        background: linear-gradient(135deg, rgba(255, 107, 53, 0.15) 0%, rgba(78, 205, 196, 0.15) 100%) !important;
+        border-radius: 12px !important;
+        padding: 20px !important;
+        border: 1px solid #FF6B35 !important;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2) !important;
+    }
+    
+    /* Inputs */
+    input, textarea, select {
+        background-color: rgba(44, 62, 80, 0.6) !important;
+        border: 2px solid #FF6B35 !important;
+        color: #ecf0f1 !important;
+        border-radius: 8px !important;
+        font-weight: 600 !important;
+        padding: 10px !important;
+    }
+    
+    input:focus, textarea:focus, select:focus {
+        border-color: #FFE66D !important;
+        box-shadow: 0 0 10px rgba(255, 230, 109, 0.3) !important;
+    }
+    
+    /* Expanders */
+    [data-testid="stExpander"] {
+        background: rgba(44, 62, 80, 0.5) !important;
+        border: 1px solid #FF6B35 !important;
+        border-radius: 8px !important;
+    }
+    
+    /* Info boxes */
+    [data-testid="stInfo"] {
+        background: linear-gradient(135deg, rgba(78, 205, 196, 0.2) 0%, rgba(52, 152, 219, 0.2) 100%) !important;
+        border-left: 4px solid #4ECDC4 !important;
+        border-radius: 8px !important;
+    }
+    
+    [data-testid="stSuccess"] {
+        background: linear-gradient(135deg, rgba(39, 174, 96, 0.2) 0%, rgba(46, 204, 113, 0.2) 100%) !important;
+        border-left: 4px solid #27AE60 !important;
+        border-radius: 8px !important;
+    }
+    
+    [data-testid="stWarning"] {
+        background: linear-gradient(135deg, rgba(241, 196, 15, 0.2) 0%, rgba(230, 126, 34, 0.2) 100%) !important;
+        border-left: 4px solid #F39C12 !important;
+        border-radius: 8px !important;
+    }
+    
+    [data-testid="stError"] {
+        background: linear-gradient(135deg, rgba(231, 76, 60, 0.2) 0%, rgba(192, 57, 43, 0.2) 100%) !important;
+        border-left: 4px solid #E74C3C !important;
+        border-radius: 8px !important;
+    }
+    
+    /* Checkboxes */
+    [data-testid="stCheckbox"] {
+        padding: 10px !important;
+    }
+    
+    /* Sidebar */
+    [data-testid="stSidebar"] {
+        background: linear-gradient(180deg, rgba(26, 26, 46, 0.95) 0%, rgba(22, 33, 62, 0.95) 100%) !important;
+        border-right: 2px solid #FF6B35 !important;
+    }
+    
+    /* Textos generales */
+    p, span, div {
+        color: #ecf0f1 !important;
+    }
+    
+    /* Enlace */
+    a {
+        color: #FFE66D !important;
+        text-decoration: none !important;
+        font-weight: 600 !important;
+    }
+    
+    a:hover {
+        color: #FF6B35 !important;
+        text-decoration: underline !important;
+    }
+    
+    /* Divisor */
+    hr {
+        border-color: #FF6B35 !important;
+        margin: 2rem 0 !important;
+    }
+    
+    /* DataFrames */
+    [data-testid="stDataFrame"] {
+        background-color: rgba(44, 62, 80, 0.5) !important;
+    }
+    
+    /* Cards personalizadas */
+    .stat-card {
+        background: linear-gradient(135deg, #FF6B35 0%, #FFB84D 100%) !important;
+        border-radius: 12px !important;
+        padding: 20px !important;
+        color: white !important;
+        text-align: center !important;
+        box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4) !important;
+        font-weight: 700 !important;
+    }
+    
+    .progress-bar {
+        background: linear-gradient(90deg, #FF6B35 0%, #FFE66D 100%) !important;
+        border-radius: 10px !important;
+        height: 25px !important;
+    }
+    
+    /* Animaciones */
+    @keyframes slideIn {
+        from { opacity: 0; transform: translateX(-20px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+    
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
+    
+    .pulse {
+        animation: pulse 2s infinite;
+    }
+    
+    .slide-in {
+        animation: slideIn 0.5s ease-out;
+    }
+    
+    /* Scrollbar personalizada */
+    ::-webkit-scrollbar {
+        width: 10px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: rgba(44, 62, 80, 0.5);
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: #FF6B35;
+        border-radius: 10px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: #FFE66D;
+    }
+    
+    /* Mejoras para elementos específicos */
+    .sidebar-label {
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #FFE66D;
+        margin: 20px 0 10px 0;
+    }
+    
+    /* Improvement para tarjetas de dieta */
+    .meal-card {
+        background: linear-gradient(135deg, rgba(255, 107, 53, 0.08) 0%, rgba(78, 205, 196, 0.08) 100%) !important;
+        border-left: 5px solid;
+        border-radius: 10px !important;
+        padding: 15px !important;
+        margin: 10px 0 !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    .meal-card:hover {
+        transform: translateX(3px) !important;
+        box-shadow: 0 4px 12px rgba(255, 107, 53, 0.2) !important;
+    }
+    
+    /* Headers en tabs mejorados */
+    h3 {
+        border-bottom: 3px solid #FF6B35 !important;
+        padding-bottom: 10px !important;
+    }
+    
+    /* Botones pequeños */
+    .small-btn {
+        font-size: 0.9rem !important;
+        padding: 8px 12px !important;
+        border-radius: 6px !important;
+    }
+    
+    /* Badges de progreso */
+    .progress-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, #FF6B35 0%, #FFE66D 100%) !important;
+        color: white !important;
+        padding: 5px 12px !important;
+        border-radius: 20px !important;
+        font-weight: 700 !important;
+        font-size: 0.85rem !important;
+    }
+    
+    /* Tooltips mejorados */
+    [data-tooltip] {
+        cursor: help;
+        border-bottom: 1px dotted #FF6B35;
+    }
+    
+    /* Animación de carga mejorada */
+    @keyframes shimmer {
+        0% { opacity: 0.5; }
+        50% { opacity: 1; }
+        100% { opacity: 0.5; }
+    }
+    
+    .shimmer {
+        animation: shimmer 1.5s infinite;
+    }
+    
+    </style>
+    """
+    st.markdown(estilos, unsafe_allow_html=True)
+
+# Aplicar estilos al cargar la página
+aplicar_estilos()
 
 # Cargar API key desde secrets (Streamlit Cloud) o variable local
 try:
@@ -1144,16 +1467,34 @@ def obtener_musculos_del_dia(ejercicios_dia):
 # --- INTERFAZ ---
 # PANTALLA DE LOGIN/REGISTRO
 if not st.session_state.usuario_logueado:
-    st.markdown('<h1 class="main-header">💪 Gym Pro AI</h1>', unsafe_allow_html=True)
-    st.markdown("### Tu Entrenador Personal Inteligente")
+    # Header mejorado
+    st.markdown('<h1 class="main-header">💪 GYM PRO AI</h1>', unsafe_allow_html=True)
+    
+    # Subtítulo con estilo
+    col_header = st.columns([1])[0]
+    with col_header:
+        st.markdown("""
+        <div style='text-align: center; padding: 20px; background: linear-gradient(135deg, rgba(255, 107, 53, 0.1) 0%, rgba(78, 205, 196, 0.1) 100%); 
+                    border-radius: 12px; border: 2px solid #FF6B35; margin-bottom: 30px;'>
+            <h3 style='color: #4ECDC4; margin: 0; font-size: 1.5rem;'>Tu Entrenador Personal Inteligente</h3>
+            <p style='color: #FFE66D; margin: 10px 0 0 0; font-size: 1rem;'>Entrenamientos personalizados con IA | Nutrición optimizada | Progreso garantizado</p>
+        </div>
+        """, unsafe_allow_html=True)
     
     col1, col2 = st.columns(2)
     
     with col1:
-        st.markdown("#### 🔐 Iniciar Sesión")
+        st.markdown("""
+        <div style='background: linear-gradient(135deg, rgba(255, 107, 53, 0.15) 0%, rgba(255, 184, 77, 0.15) 100%); 
+                    padding: 30px; border-radius: 12px; border: 2px solid #FF6B35; text-align: center;'>
+            <h2 style='color: #FF6B35; margin-top: 0;'>🔐 Iniciar Sesión</h2>
+        </div>
+        """, unsafe_allow_html=True)
+        
         with st.form("login_form"):
-            login_user = st.text_input("Nombre de usuario", key="login_user")
-            login_pass = st.text_input("Contraseña", type="password", key="login_pass")
+            login_user = st.text_input("👤 Nombre de usuario", key="login_user", placeholder="Ingresa tu usuario")
+            login_pass = st.text_input("🔑 Contraseña", type="password", key="login_pass", placeholder="Ingresa tu contraseña")
+            
             login_btn = st.form_submit_button("🚀 Iniciar Sesión", use_container_width=True)
             
             if login_btn:
@@ -1189,7 +1530,8 @@ if not st.session_state.usuario_logueado:
                             # Guardar esta estructura en gym_data.json
                             guardar_todo(st.session_state.data)
                         
-                        st.success("¡Sesión iniciada correctamente!")
+                        st.success("✅ ¡Sesión iniciada correctamente!")
+                        st.balloons()
                         st.rerun()
                     else:
                         st.error("❌ Usuario o contraseña incorrectos")
@@ -1197,34 +1539,42 @@ if not st.session_state.usuario_logueado:
                     st.warning("⚠️ Completa todos los campos")
     
     with col2:
-        st.markdown("#### 📝 Registrarse")
+        st.markdown("""
+        <div style='background: linear-gradient(135deg, rgba(78, 205, 196, 0.15) 0%, rgba(52, 152, 219, 0.15) 100%); 
+                    padding: 30px; border-radius: 12px; border: 2px solid #4ECDC4; text-align: center;'>
+            <h2 style='color: #4ECDC4; margin-top: 0;'>📝 Registrarse</h2>
+        </div>
+        """, unsafe_allow_html=True)
+        
         with st.form("signup_form"):
-            st.markdown("**Crear nueva cuenta**")
-            signup_user = st.text_input("Nombre de usuario", key="signup_user")
-            signup_pass = st.text_input("Contraseña", type="password", key="signup_pass")
-            signup_pass_conf = st.text_input("Confirmar contraseña", type="password", key="signup_pass_conf")
+            st.markdown("**👤 Crear nueva cuenta**")
+            signup_user = st.text_input("Nombre de usuario", key="signup_user", placeholder="Elige tu usuario")
+            signup_pass = st.text_input("Contraseña", type="password", key="signup_pass", placeholder="Mínimo 6 caracteres")
+            signup_pass_conf = st.text_input("Confirmar contraseña", type="password", key="signup_pass_conf", placeholder="Repite tu contraseña")
             
-            st.markdown("**Datos de perfil**")
-            nombre = st.text_input("¿Cuál es tu nombre completo?")
+            st.markdown("**📋 Datos de perfil**")
+            nombre = st.text_input("¿Cuál es tu nombre completo?", placeholder="Ej: Juan Pérez")
             sexo = st.selectbox("Sexo", ["Masculino", "Femenino"], index=0)
             
-            st.markdown("**Medidas**")
+            st.markdown("**📏 Medidas**")
             c_p, c_ft, c_in, c_ed = st.columns(4)
             peso = c_p.number_input("Peso (Lbs)", 50.0, 500.0, 160.0)
             pies = c_ft.number_input("Pies", 3, 8, 5)
-            pulgadas = c_in.number_input("Pulgadas", 0, 11, 7)
+            pulgadas = c_in.number_input("Pulg", 0, 11, 7)
             edad = c_ed.number_input("Edad", 12, 100, 25)
             
-            st.markdown("**Entrenamiento**")
+            st.markdown("**💪 Entrenamiento**")
             c_d, c_o = st.columns([1, 2])
-            dias_e = c_d.selectbox("Días de Entreno", [3, 4, 5], index=2)
-            objs = c_o.multiselect("Selecciona tus metas:", LISTA_OBJETIVOS)
+            dias_e = c_d.selectbox("Días/Semana", [3, 4, 5], index=2)
+            objs = c_o.multiselect("🎯 Tus metas:", LISTA_OBJETIVOS, max_selections=5)
             
             signup_btn = st.form_submit_button("✅ Crear Cuenta", use_container_width=True)
             
             if signup_btn:
                 if not signup_user or not signup_pass:
                     st.error("❌ Usuario y contraseña son requeridos")
+                elif len(signup_pass) < 6:
+                    st.error("❌ La contraseña debe tener al menos 6 caracteres")
                 elif signup_pass != signup_pass_conf:
                     st.error("❌ Las contraseñas no coinciden")
                 elif usuario_existe(signup_user):
@@ -1308,36 +1658,46 @@ else:
                 <p style="color: grey;">Tu Entrenador Personal Inteligente</p>
             </div>
             <hr style="margin: 10px 0; border: 0.1px solid rgba(255,255,255,0.1);">
-            <p class="sidebar-label">Perfil de Usuario</p>
-            <h3>👤 {nombre_usuario}</h3>            <p>⚧️ Sexo: {sexo_usuario}</p>            <p>🎂 Edad: {edad_usuario} años</p>
-            <p>🎯 {objetivo_principal}</p>
+            <p class="sidebar-label" style="color: #FFE66D; font-size: 0.9rem; font-weight: 700; text-transform: uppercase;">👤 Perfil de Usuario</p>
+            <h3 style="color: #FF6B35; margin: 10px 0;">{nombre_usuario}</h3>
+            <p style="color: #bbb; margin: 5px 0;">⚧️ {sexo_usuario}</p>
+            <p style="color: #bbb; margin: 5px 0;">🎂 {edad_usuario} años</p>
+            <p style="color: #4ECDC4; margin: 5px 0; font-weight: 600;">🎯 {objetivo_principal}</p>
         """, unsafe_allow_html=True)
-        st.info(f"📍 Meta: {len(objetivos_usuario)} objetivos seleccionados.")
+        st.info(f"📍 **Meta**: {len(objetivos_usuario)} objetivos seleccionados")
         
-        col_logout, col_reinicio = st.columns(2)
+        st.markdown("---")
+        
+        col_logout, col_reinicio = st.columns([1, 1])
         
         with col_logout:
-            if st.button("🚪 Cerrar Sesión", use_container_width=True):
+            if st.button("🚪 Salir", use_container_width=True, help="Cerrar sesión"):
+                st.success("👋 ¡Hasta luego!")
+                import time
+                time.sleep(1)
                 st.session_state.usuario_logueado = None
                 st.session_state.data = {"perfil_completado": False, "user": {}, "rutina_semanal": {}, "historial_pesos": [], "historial_entrenamientos": [], "pr_por_ejercicio": {}, "fecha_ultima_rotacion": None, "dieta_semanal": {}}
                 st.rerun()
         
         with col_reinicio:
             if not st.session_state.get('confirmar_reinicio', False):
-                if st.button("⚠️ Reiniciar App", use_container_width=True):
+                if st.button("⚠️ Reiniciar", use_container_width=True, help="Reiniciar datos"):
                     st.session_state.confirmar_reinicio = True
                     st.rerun()
             else:
-                st.warning("¿Estás seguro?")
+                st.warning("❓ ¿Estás seguro? Se borrarán todos los datos.")
                 c1, c2 = st.columns(2)
-                if c1.button("✅ Sí", use_container_width=True):
+                if c1.button("✅ Sí", use_container_width=True, key="confirm_yes"):
                     st.session_state.data = {"perfil_completado": False, "user": {}, "rutina_semanal": {}, "historial_pesos": [], "historial_entrenamientos": [], "pr_por_ejercicio": {}, "fecha_ultima_rotacion": None, "dieta_semanal": {}}
                     st.session_state.confirmar_reinicio = False
                     guardar_todo(st.session_state.data)
+                    st.success("✅ Datos reiniciados")
                     st.rerun()
-                if c2.button("❌ No", use_container_width=True):
+                if c2.button("❌ No", use_container_width=True, key="confirm_no"):
                     st.session_state.confirmar_reinicio = False
                     st.rerun()
+        
+        st.markdown("---")
         
         # Panel de depuración para verificar datos
         with st.expander("🔍 Verificar Datos Guardados"):
@@ -1359,16 +1719,55 @@ else:
                 st.write("❌ Error leyendo gym_data.json")
 
     # --- DASHBOARD PRINCIPAL ---
-    st.markdown(f'<h1 class="main-header">Panel de Control: {u.get("nombre")}</h1>', unsafe_allow_html=True)
+    nombre_usuario = u.get("nombre", "Usuario")
+    st.markdown(f'<h1 class="main-header">¡Bienvenido, {nombre_usuario}! 💪</h1>', unsafe_allow_html=True)
     
-    # Métrica de Salud Siempre Visible
-    c1, c2, c3 = st.columns(3)
-    with c1:
-        st.metric("IMC Actual", imc, help="Índice de Masa Corporal")
-    with c2:
-        st.metric("Estado Físico", estado)
-    with c3:
-        st.metric("Peso Ideal (Lbs)", f"{p_min} - {p_max}")
+    # Barra de métricas mejorada
+    st.markdown("---")
+    st.markdown("### 📊 Tu Estado Actual")
+    
+    col_imc, col_estado, col_ideal, col_dias = st.columns(4)
+    
+    with col_imc:
+        st.markdown(f"""
+        <div class="stat-card">
+            <h4 style="margin: 0; font-size: 0.9rem;">📏 IMC</h4>
+            <h2 style="margin: 10px 0; color: white; font-size: 2.5rem;">{imc}</h2>
+            <p style="margin: 0; font-size: 0.85rem; opacity: 0.9;">Índice de Masa Corporal</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col_estado:
+        color_estado = "#27AE60" if estado == "Peso normal" else "#F39C12" if estado == "Sobrepeso" else "#E74C3C"
+        st.markdown(f"""
+        <div style='background: linear-gradient(135deg, rgba({','.join(map(str, [39, 174, 96][:3]))}, 0.2) 0%, rgba(46, 204, 113, 0.2) 100%); 
+                    border-radius: 12px; padding: 20px; border: 2px solid {color_estado}; text-align: center;'>
+            <h4 style='margin: 0; font-size: 0.9rem; color: {color_estado};'>💪 Estado</h4>
+            <h2 style='margin: 10px 0; color: {color_estado}; font-size: 1.8rem;'>{estado}</h2>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col_ideal:
+        st.markdown(f"""
+        <div style='background: linear-gradient(135deg, rgba(52, 152, 219, 0.2) 0%, rgba(41, 128, 185, 0.2) 100%); 
+                    border-radius: 12px; padding: 20px; border: 2px solid #3498DB; text-align: center;'>
+            <h4 style='margin: 0; font-size: 0.9rem; color: #3498DB;'>⚖️ Peso Ideal</h4>
+            <h2 style='margin: 10px 0; color: #3498DB; font-size: 1.8rem;'>{p_min}-{p_max}</h2>
+            <p style='margin: 0; font-size: 0.85rem; color: #bbb;'>en Lbs</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col_dias:
+        st.markdown(f"""
+        <div style='background: linear-gradient(135deg, rgba(155, 89, 182, 0.2) 0%, rgba(142, 68, 173, 0.2) 100%); 
+                    border-radius: 12px; padding: 20px; border: 2px solid #9B59B6; text-align: center;'>
+            <h4 style='margin: 0; font-size: 0.9rem; color: #9B59B6;'>📅 Días</h4>
+            <h2 style='margin: 10px 0; color: #9B59B6; font-size: 1.8rem;'>{u.get("dias_entreno", 5)}</h2>
+            <p style='margin: 0; font-size: 0.85rem; color: #bbb;'>entrenos/semana</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    st.markdown("---")
 
     t_rutina, t_entrenamiento, t_dieta, t_progreso, t_alternativas, t_recomendaciones, t_perfil = st.tabs(
         ["📅 Mi Rutina", "💪 Entrenar Hoy", "🍽️ Mi Dieta", "📈 Progreso", "🔄 Alternativas", "🤖 Recomendaciones", "👤 Perfil"]
@@ -1378,20 +1777,21 @@ else:
         st.markdown("### 🏋️ Tu Plan de Entrenamiento Personalizado")
         
         # Botones de acción en la parte superior
-        col_btn1, col_btn2 = st.columns([1, 1])
+        col_btn1, col_btn2, col_info = st.columns([1, 1, 2])
         with col_btn1:
-            if st.button("🤖 Generar Rutina Inteligente", use_container_width=True, help="Crea una nueva rutina basada en tus objetivos"):
-                with st.spinner("IA generando rutina personalizada..."):
+            if st.button("🤖 Generar Rutina", use_container_width=True, help="Crea una nueva rutina basada en tus objetivos"):
+                with st.spinner("⏳ IA generando rutina personalizada..."):
                     st.session_state.data["rutina_semanal"] = generar_rutina_ia(u)
                     guardar_todo(st.session_state.data)
-                st.success("¡Nueva rutina generada con IA!")
+                st.success("✅ ¡Nueva rutina generada con IA!")
+                st.balloons()
                 st.rerun()
         
         with col_btn2:
-            if st.button("🔄 Regenerar Rutina", use_container_width=True, help="Crea una nueva rutina basada en tus objetivos actuales"):
+            if st.button("🔄 Regenerar", use_container_width=True, help="Crea una nueva rutina"):
                 st.session_state.data["rutina_semanal"] = generar_rutina_ia(u)
                 guardar_todo(st.session_state.data)
-                st.success("¡Nueva rutina generada con IA!")
+                st.success("✅ ¡Nueva rutina generada!")
                 st.rerun()
         
         st.markdown("---")
