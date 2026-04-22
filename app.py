@@ -1377,6 +1377,25 @@ else:
     with t_rutina:
         st.markdown("### 🏋️ Tu Plan de Entrenamiento Personalizado")
         
+        # Botones de acción en la parte superior
+        col_btn1, col_btn2 = st.columns([1, 1])
+        with col_btn1:
+            if st.button("🤖 Generar Rutina Inteligente", use_container_width=True, help="Crea una nueva rutina basada en tus objetivos"):
+                with st.spinner("IA generando rutina personalizada..."):
+                    st.session_state.data["rutina_semanal"] = generar_rutina_ia(u)
+                    guardar_todo(st.session_state.data)
+                st.success("¡Nueva rutina generada con IA!")
+                st.rerun()
+        
+        with col_btn2:
+            if st.button("🔄 Regenerar Rutina", use_container_width=True, help="Crea una nueva rutina basada en tus objetivos actuales"):
+                st.session_state.data["rutina_semanal"] = generar_rutina_ia(u)
+                guardar_todo(st.session_state.data)
+                st.success("¡Nueva rutina generada con IA!")
+                st.rerun()
+        
+        st.markdown("---")
+        
         # Recargar siempre los datos más frescos
         st.session_state.data = cargar_todo()
         rutina = st.session_state.data.get("rutina_semanal", {})
@@ -1598,43 +1617,123 @@ else:
                 for actividad in warmup.get('warmup', []):
                     st.write(f"⏱️ {actividad['actividad']} - {actividad['duracion_min']} min")
             
+            st.markdown("---")
+            st.markdown("#### 📋 Marcar Ejercicios Completados")
+            
             # Entrenamientos
             if isinstance(ejercicios_hoy, list):
-                ejercicios_registrados = []
+                # Crear un contenedor para trackear ejercicios completados
+                if 'ejercicios_completados_hoy' not in st.session_state:
+                    st.session_state.ejercicios_completados_hoy = {idx: False for idx in range(len(ejercicios_hoy))}
+                
+                ejercicios_datos = []
+                
                 for idx, ej in enumerate(ejercicios_hoy):
-                    with st.expander(f"🏋️ {ej['ejercicio']}", expanded=(idx == 0)):
-                        st.info(f"💡 {ej.get('tip', '')}")
+                    with st.container():
+                        # Checkbox para marcar como completado
+                        col_check, col_content = st.columns([0.5, 9.5])
                         
-                        # Mostrar plan
-                        for s_idx, detalle in enumerate(ej.get('detalles_sets', [])):
-                            col1, col2, col3, col4 = st.columns(4)
-                            col1.write(f"**Set {s_idx+1}**")
-                            col2.write(f"🔢 {detalle['reps']} reps")
-                            col3.write(f"⚖️ {detalle['libras']} lbs")
-                            col4.write(f"⏱️ {calcular_tiempo_descanso(u.get('objetivos', [''])[0] if u.get('objetivos') else 'hipertrofia', detalle['reps'])}")
+                        with col_check:
+                            completado = st.checkbox(
+                                "✓",
+                                value=st.session_state.ejercicios_completados_hoy.get(idx, False),
+                                key=f"check_{idx}",
+                                label_visibility="collapsed"
+                            )
+                            st.session_state.ejercicios_completados_hoy[idx] = completado
                         
-                        # Registrar resultado
-                        with st.form(f"form_ejer_{idx}"):
-                            reps_real = st.number_input(f"Reps completadas", 0, 100, key=f"reps_{idx}")
-                            peso_real = st.number_input(f"Peso levantado (lbs)", 0.0, 1000.0, key=f"peso_{idx}")
-                            notas = st.text_area(f"Notas", key=f"notas_{idx}")
+                        with col_content:
+                            # Estilo visual dependiendo si está completado
+                            style = "border: 2px solid #4CAF50; background-color: rgba(76, 175, 80, 0.1);" if completado else "border: 2px solid #ddd;"
                             
-                            if st.form_submit_button(f"✅ Completado {ej['ejercicio']}", key=f"submit_{idx}"):
-                                ejercicios_registrados.append({
-                                    "nombre": ej['ejercicio'],
-                                    "reps_completadas": reps_real,
-                                    "peso_levantado": peso_real,
-                                    "notas": notas
-                                })
-                                st.success("✅ Registrado!")
+                            with st.expander(f"{'✅' if completado else '🏋️'} {ej['ejercicio']}", expanded=(idx == 0)):
+                                col_info1, col_info2 = st.columns(2)
+                                
+                                with col_info1:
+                                    st.info(f"💡 {ej.get('tip', '')}")
+                                
+                                with col_info2:
+                                    st.markdown(f"**Plan del día:**")
+                                    for s_idx, detalle in enumerate(ej.get('detalles_sets', [])):
+                                        st.write(f"Set {s_idx+1}: {detalle['reps']} reps × {detalle['libras']} lbs (⏱️ {calcular_tiempo_descanso(u.get('objetivos', [''])[0] if u.get('objetivos') else 'hipertrofia', detalle['reps'])})")
+                                
+                                st.markdown("---")
+                                st.markdown("**Registra tu desempeño real:**")
+                                
+                                # Registrar resultado
+                                with st.form(f"form_ejer_{idx}"):
+                                    col_r, col_p, col_n = st.columns([1, 1, 2])
+                                    
+                                    with col_r:
+                                        reps_real = st.number_input(f"Reps completadas", 0, 100, key=f"reps_{idx}")
+                                    
+                                    with col_p:
+                                        peso_real = st.number_input(f"Peso (lbs)", 0.0, 1000.0, key=f"peso_{idx}")
+                                    
+                                    with col_n:
+                                        notas = st.text_input(f"Notas (opcional)", key=f"notas_{idx}", label_visibility="visible")
+                                    
+                                    col_submit1, col_submit2 = st.columns(2)
+                                    with col_submit1:
+                                        if st.form_submit_button(f"✅ Registrar {ej['ejercicio']}", use_container_width=True):
+                                            if reps_real > 0 and peso_real > 0:
+                                                ejercicios_datos.append({
+                                                    "nombre": ej['ejercicio'],
+                                                    "reps_completadas": reps_real,
+                                                    "peso_levantado": peso_real,
+                                                    "notas": notas,
+                                                    "series_planificadas": int(ej['series']),
+                                                    "reps_planificadas": ej.get('detalles_sets', [{}])[0].get('reps', 0),
+                                                    "peso_planificado": ej.get('detalles_sets', [{}])[0].get('libras', 0)
+                                                })
+                                                st.session_state.ejercicios_completados_hoy[idx] = True
+                                                st.success(f"✅ {ej['ejercicio']} registrado!")
+                                            else:
+                                                st.warning("⚠️ Debes ingresar reps y peso")
+                
+                st.markdown("---")
+                
+                # Resumen del entrenamiento
+                completados = sum(1 for v in st.session_state.ejercicios_completados_hoy.values() if v)
+                total = len(ejercicios_hoy)
+                
+                st.markdown(f"### 📊 Progreso de Hoy")
+                col_p1, col_p2, col_p3 = st.columns(3)
+                with col_p1:
+                    st.metric("Ejercicios Completados", f"{completados}/{total}")
+                with col_p2:
+                    porcentaje = int((completados / total * 100) if total > 0 else 0)
+                    st.metric("Porcentaje", f"{porcentaje}%")
+                with col_p3:
+                    if completados == total:
+                        st.success("¡ENTRENAMIENTO COMPLETO! 🎉")
+                    else:
+                        st.info(f"Te faltan {total - completados} ejercicio(s)")
                 
                 # Botón para guardar todo el entrenamiento
-                if st.button("💾 Guardar Entrenamiento Completo", key="save_all_training"):
-                    entrenamiento = registrar_entrenamiento(dia_hoy, ejercicios_registrados)
-                    st.session_state.data["historial_entrenamientos"].append(entrenamiento)
-                    guardar_todo(st.session_state.data)
-                    st.success("¡Entrenamiento guardado!")
-                    st.balloons()
+                if st.button("💾 Guardar Entrenamiento Completo", key="save_all_training", use_container_width=True):
+                    if completados > 0:
+                        entrenamiento = registrar_entrenamiento(dia_hoy, ejercicios_datos)
+                        st.session_state.data["historial_entrenamientos"].append(entrenamiento)
+                        
+                        # Actualizar PR por ejercicio
+                        pr_data = st.session_state.data.get("pr_por_ejercicio", {})
+                        for ej_data in ejercicios_datos:
+                            ej_nombre = ej_data["nombre"]
+                            peso_levantado = ej_data["peso_levantado"]
+                            if ej_nombre not in pr_data or peso_levantado > pr_data[ej_nombre]:
+                                pr_data[ej_nombre] = peso_levantado
+                        st.session_state.data["pr_por_ejercicio"] = pr_data
+                        
+                        guardar_todo(st.session_state.data)
+                        st.success("¡Entrenamiento guardado exitosamente!")
+                        st.balloons()
+                        
+                        # Limpiar estado
+                        st.session_state.ejercicios_completados_hoy = {idx: False for idx in range(len(ejercicios_hoy))}
+                        st.rerun()
+                    else:
+                        st.warning("⚠️ Debes registrar al menos un ejercicio")
             else:
                 st.info(f"📅 {ejercicios_hoy}")
         else:
@@ -1774,9 +1873,30 @@ else:
                 entrenamientos_df = pd.DataFrame(historial_ent)
                 if len(entrenamientos_df) > 0:
                     st.metric("Total Entrenamientos", len(entrenamientos_df))
-                    st.dataframe(entrenamientos_df[['fecha', 'dia', 'duracion_min']], use_container_width=True)
+                    
+                    # Mostrar últimos entrenamientos con detalles
+                    st.markdown("**Últimos Entrenamientos:**")
+                    for entrenamiento in historial_ent[-5:]:  # Mostrar últimos 5
+                        fecha = entrenamiento.get('fecha', 'N/A')
+                        dia = entrenamiento.get('dia', 'N/A')
+                        ejercicios = entrenamiento.get('ejercicios', [])
+                        
+                        with st.expander(f"📅 {fecha} - {dia} ({len(ejercicios)} ejercicios)"):
+                            for ej in ejercicios:
+                                st.write(f"✅ **{ej['nombre']}**: {ej['reps_completadas']} reps × {ej['peso_levantado']} lbs")
+                                if ej.get('notas'):
+                                    st.caption(f"📝 {ej['notas']}")
             else:
                 st.info("Aún no has registrado entrenamientos.")
+            
+            st.markdown("#### 🏆 Personal Records (PR)")
+            pr_data = st.session_state.data.get("pr_por_ejercicio", {})
+            if pr_data:
+                st.markdown("**Tus mejores pesos levantados:**")
+                for ejercicio, peso in sorted(pr_data.items(), key=lambda x: x[1], reverse=True):
+                    st.write(f"🥇 **{ejercicio}**: {peso} lbs")
+            else:
+                st.info("Aún no tienes records. ¡Empieza a entrenar!")
 
     with t_perfil:
         st.markdown("### ⚙️ Configuración de Perfil")
@@ -1820,10 +1940,6 @@ else:
                 st.rerun()
 
         st.markdown("---")
-        if st.button("🔄 Regenerar Rutina Inteligente", help="Crea una nueva rutina basada en tus objetivos actuales"):
-            st.session_state.data["rutina_semanal"] = generar_rutina_ia(u)
-            guardar_todo(st.session_state.data)
-            st.success("¡Nueva rutina generada con IA!")
-            st.rerun()
+        st.info("💡 Tip: Ve a la sección 'Mi Rutina' para regenerar tu rutina inteligente con los nuevos datos.")
 
 
