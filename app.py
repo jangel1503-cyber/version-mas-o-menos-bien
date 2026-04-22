@@ -26,35 +26,45 @@ safety_settings = [
     {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
 ]
 
-# --- LÓGICA DE MODELO INTELIGENTE ---
-# Intentamos usar 'gemini-1.5-flash', si falla usamos 'gemini-pro'
-def obtener_modelo():
-    try:
-        # Intento 1: El modelo más moderno
-        return genai.GenerativeModel(model_name='gemini-1.5-flash', safety_settings=safety_settings)
-    except:
-        # Intento 2: El modelo estándar más compatible
-        return genai.GenerativeModel(model_name='gemini-pro', safety_settings=safety_settings)
+# --- LÓGICA DE SELECCIÓN DE MODELO (SOLUCIÓN AL ERROR 404) ---
+@st.cache_resource
+def inicializar_modelo():
+    # Lista de nombres de modelos en orden de modernidad/compatibilidad
+    nombres_modelos = [
+        'gemini-1.5-flash',
+        'models/gemini-1.5-flash',
+        'gemini-pro'
+    ]
+    
+    for nombre in nombres_modelos:
+        try:
+            m = genai.GenerativeModel(model_name=nombre, safety_settings=safety_settings)
+            # Prueba rápida para ver si el modelo responde
+            m.generate_content("test", generation_config={"max_output_tokens": 1})
+            return m
+        except Exception:
+            continue
+    return None
 
-model = obtener_modelo()
+model = inicializar_modelo()
 
 # --- FUNCIÓN MAESTRA DE SEGURIDAD IA ---
 def llamar_ia_con_seguridad(prompt):
-    """Maneja las llamadas a la IA y captura errores de cuota o modelo."""
+    if model is None:
+        return "❌ **Error Crítico:** No se pudo conectar con ningún modelo de Google Gemini. Verifica tu API Key o actualiza la librería con `pip install -U google-generativeai`."
+    
     try:
         response = model.generate_content(prompt)
         if response and response.text:
             return response.text
-        return "La IA no pudo generar una respuesta. Por favor, intenta de nuevo."
+        return "La IA no pudo generar una respuesta clara. Intenta de nuevo."
     except Exception as e:
         err = str(e)
         if "429" in err or "quota" in err.lower():
-            return "⚠️ **Límite de la API alcanzado.** Espera 60 segundos antes de reintentar."
-        if "404" in err:
-            return "❌ **Error de configuración de Google:** El modelo no responde. Contacta a soporte."
+            return "⚠️ **Límite de cuota alcanzado:** Espera 60 segundos antes de reintentar."
         return f"❌ Error de conexión: {err}"
 
-# --- GESTIÓN DE USUARIOS Y ARCHIVOS ---
+# --- GESTIÓN DE USUARIOS ---
 def cargar_usuarios():
     if os.path.exists(USERS_FILE):
         try:
@@ -114,15 +124,15 @@ def obtener_analisis_ia(user_data):
     est_m = ((user_data['pies'] * 12) + user_data['pulgadas']) * 0.0254
     peso_kg = user_data['peso_lb'] * 0.453592
     imc = peso_kg / (est_m**2) if est_m > 0 else 0
-    prompt = f"Analiza estos datos de salud: Sexo {user_data['sexo']}, Edad {user_data['edad']}, IMC {imc:.2f}, Metas {user_data['objetivos']}. Dime su categoría de peso y consejos."
+    prompt = f"Analiza estos datos de salud: Sexo {user_data['sexo']}, Edad {user_data['edad']}, IMC {imc:.2f}, Metas {user_data['objetivos']}. Dime su categoría de peso y peso ideal en lbs."
     return llamar_ia_con_seguridad(prompt)
 
 def generar_dieta_ia(user_data):
-    prompt = f"Actúa como nutricionista. Crea un menú diario para {user_data['nombre']}, edad {user_data['edad']}, objetivos: {user_data['objetivos']}. Incluye calorías y macros."
+    prompt = f"Crea una dieta diaria para {user_data['nombre']}, edad {user_data['edad']}, objetivos: {user_data['objetivos']}. Incluye macros y menú."
     return llamar_ia_con_seguridad(prompt)
 
 def generar_rutina_ia(user_data):
-    prompt = f"Actúa como entrenador personal. Crea una rutina para {user_data['edad']} años, sexo {user_data['sexo']}, frecuencia {user_data['dias_entreno']} días/sem, meta: {user_data['objetivos']}."
+    prompt = f"Crea una rutina de ejercicios para {user_data['edad']} años, sexo {user_data['sexo']}, frecuencia {user_data['dias_entreno']} días/sem, meta: {user_data['objetivos']}."
     return llamar_ia_con_seguridad(prompt)
 
 # --- INTERFAZ ---
@@ -130,26 +140,24 @@ if "usuario_logueado" not in st.session_state:
     st.title("🏋️ Gym Pro AI")
     t1, t2 = st.tabs(["Login", "Registro"])
     with t1:
-        u = st.text_input("Usuario", key="u_login")
-        p = st.text_input("Contraseña", type="password", key="p_login")
-        if st.button("Ingresar"):
+        u = st.text_input("Usuario", key="u_log")
+        p = st.text_input("Contraseña", type="password", key="p_log")
+        if st.button("Entrar"):
             users = cargar_usuarios()
             if u in users and users[u]["password"] == p:
                 st.session_state.usuario_logueado = u
                 st.session_state.data = cargar_todo()
                 st.rerun()
-            else: st.error("Usuario o contraseña incorrectos.")
+            else: st.error("Acceso denegado.")
     with t2:
         nu = st.text_input("Nuevo Usuario", key="u_reg")
         np = st.text_input("Nueva Contraseña", type="password", key="p_reg")
         if st.button("Crear Cuenta"):
             users = cargar_usuarios()
             if nu and np:
-                if nu in users: st.warning("El usuario ya existe.")
-                else:
-                    users[nu] = {"password": np, "perfil": estructura_vacia(nu)["user"]}
-                    guardar_usuarios(users)
-                    st.success("¡Hecho! Inicia sesión.")
+                users[nu] = {"password": np, "perfil": estructura_vacia(nu)["user"]}
+                guardar_usuarios(users)
+                st.success("Cuenta creada.")
 
 else:
     with st.sidebar:
@@ -160,11 +168,11 @@ else:
             st.rerun()
 
     if opc == "Perfil":
-        st.header("📊 Perfil y Salud")
+        st.header("📊 Datos de Salud")
         user = st.session_state.data["user"]
         col1, col2 = st.columns([1, 1.2])
         with col1:
-            with st.form("perfil_form_v3"):
+            with st.form("form_perfil"):
                 n_nom = st.text_input("Nombre", value=user["nombre"])
                 n_edad = st.number_input("Edad", 14, 100, value=user.get("edad", 25))
                 n_sexo = st.selectbox("Sexo", ["Hombre", "Mujer"], index=0 if user["sexo"]=="Hombre" else 1)
@@ -182,37 +190,34 @@ else:
                         "objetivos": objs, "edad": n_edad, "dias_entreno": n_dias
                     }
                     st.session_state.data["user"] = new_data
-                    with st.spinner("IA Analizando..."):
+                    with st.spinner("Analizando con IA..."):
                         st.session_state.data["analisis_salud"] = obtener_analisis_ia(new_data)
                     guardar_todo(st.session_state.data)
                     actualizar_perfil_usuario(st.session_state.usuario_logueado, new_data)
                     st.rerun()
         with col2:
-            st.info(st.session_state.data.get("analisis_salud", "Completa tu perfil para ver el análisis."))
+            st.info(st.session_state.data.get("analisis_salud", "Sin análisis."))
 
     elif opc == "Dieta IA":
-        st.header("🍎 Plan Nutricional IA")
-        if st.button("Generar Plan"):
-            with st.spinner("Creando dieta..."):
-                st.session_state.data["dieta_semanal"] = generar_dieta_ia(st.session_state.data["user"])
-                guardar_todo(st.session_state.data)
+        st.header("🍎 Nutrición")
+        if st.button("Generar Dieta"):
+            st.session_state.data["dieta_semanal"] = generar_dieta_ia(st.session_state.data["user"])
+            guardar_todo(st.session_state.data)
         st.markdown(st.session_state.data["dieta_semanal"])
 
     elif opc == "Rutina IA":
-        st.header("🏋️ Entrenamiento IA")
+        st.header("🏋️ Entrenamiento")
         if st.button("Generar Rutina"):
-            with st.spinner("Diseñando rutina..."):
-                st.session_state.data["rutina_semanal"] = generar_rutina_ia(st.session_state.data["user"])
-                guardar_todo(st.session_state.data)
+            st.session_state.data["rutina_semanal"] = generar_rutina_ia(st.session_state.data["user"])
+            guardar_todo(st.session_state.data)
         st.markdown(st.session_state.data["rutina_semanal"])
 
     elif opc == "Progreso":
         st.header("📈 Mi Progreso")
-        nuevo_p = st.number_input("Peso hoy (lbs)", 50, 500)
-        if st.button("Registrar"):
+        nuevo_p = st.number_input("Peso (lbs)", 50, 500)
+        if st.button("Guardar"):
             st.session_state.data["historial_peso"].append({"fecha": str(pd.Timestamp.now().date()), "peso": nuevo_p})
             guardar_todo(st.session_state.data)
-            st.success("Registrado.")
             st.rerun()
         if st.session_state.data["historial_peso"]:
             st.line_chart(pd.DataFrame(st.session_state.data["historial_peso"]).set_index("fecha"))
