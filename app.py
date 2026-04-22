@@ -143,84 +143,100 @@ def generar_dieta_semanal(perfil_json):
     """Consulta a Gemini para generar plan de comidas personalizado"""
     try:
         prompt = f"""
-ERES UN NUTRICIONISTA CERTIFICADO CON 15+ AÑOS DE EXPERIENCIA.
+ERES UN NUTRICIONISTA CERTIFICADO CON 15+ AÑOS DE EXPERIENCIA EN DIETAS PERSONALIZADAS.
 
-GENERA UN PLAN DE COMIDAS SEMANAL ULTRA PERSONALIZADO (Lunes a Domingo).
+GENERA UN PLAN DE COMIDAS SEMANAL ULTRA PERSONALIZADO (Lunes a Domingo) CON ALIMENTOS REALES Y ESPECÍFICOS.
 
 PERFIL DEL CLIENTE:
 {json.dumps(perfil_json, indent=2, ensure_ascii=False)}
 
 CRÍTICOS - AJUSTA POR:
-- Objetivo: Si es PERDER GRASA → déficit calórico, proteína alta. Si es GANAR MASA → superávit calórico, proteína + carbos. Si es TONIFICAR → proteína moderada-alta.
-- Sexo: MUJERES → enfatiza fibra, menos calorías base. HOMBRES → calorías/proteína más altas.
-- Edad: >50 años → menos sal, más omega-3. <25 años → puede ser más flexible.
-- Nivel de energía para entrenar.
+- Objetivo: Si es PERDER GRASA → déficit calórico 20%, proteína alta 2.2g/kg. Si es GANAR MASA → superávit 10%, proteína 2g/kg + carbos. Si es TONIFICAR → proteína 1.8g/kg, equilibrio de macros.
+- Sexo: MUJERES → menos calorías base (ajusta -150-200kcal), enfatiza hierro y fibra. HOMBRES → calorías/proteína estándar, más volumen de carbos.
+- Edad: >50 años → menos sodio, más omega-3 y fibra. <25 años → puede ser más flexible, más carbos alrededor del entreno.
+- Nivel de energía: Si entrena 5+ días/semana → más carbos, cargas post-entreno con proteína inmediata.
 
-CADA DÍA DEBE INCLUIR:
-1. 🌅 DESAYUNO (calórico, proteína 25-35g)
-2. 🥪 MERIENDA MEDIA MAÑANA (snack 100-150 kcal)
-3. 🍽️ ALMUERZO (comida fuerte, proteína 30-40g)
-4. 🍌 MERIENDA MEDIA TARDE (post-entreno si aplica, 150-200 kcal)
-5. 🌙 CENA (proteína 25-30g, ligera)
+ALIMENTOS ESPECÍFICOS QUE DEBES USAR (NO GENÉRICOS):
+
+PROTEÍNAS: Pechuga de pollo, muslo de pollo, huevo, clara de huevo, salmón, atún, tilapia, pavo, carne molida 85%, carne de res magra, requesón, yogur griego, pollo desmenuzado
+
+CARBOHIDRATOS: Arroz integral, arroz blanco, avena, trigo sarraceno, papa blanca, papa dulce, batata, pan integral, pan de centeno, plátano, manzana, piña, arándanos, quinoa, lentejas, frijoles negros, pasta integral
+
+GRASAS: Aguacate, aceite de oliva, aceite de coco, mantequilla de maní, almendras, nueces, semillas de linaza, sardinas, huevos, coco rallado
+
+VERDURAS: Brócoli, espinaca, lechuga, tomate, pepino, zanahoria, calabacín, chayote, vainitas, choclo, maíz, cebolla, ajo
+
+CADA DÍA DEBE INCLUIR (5 COMIDAS ESPECÍFICAS):
+1. 🌅 DESAYUNO (500-700 kcal, proteína 25-35g) - ALIMENTOS REALES CONCRETOS
+2. 🥪 MERIENDA MEDIA MAÑANA (100-150 kcal, snack energético)
+3. 🍽️ ALMUERZO (600-800 kcal, proteína 35-45g) - LA COMIDA FUERTE CON 3-4 INGREDIENTES ESPECÍFICOS
+4. 🍌 MERIENDA MEDIA TARDE (150-200 kcal, post-entreno con proteína rápida)
+5. 🌙 CENA (400-500 kcal, proteína 25-30g, MÁS LIGERA QUE ALMUERZO)
 
 FORMATO JSON REQUERIDO (EXACTO):
 {{
   "objetivo_nutricional": "Déficit/Superávit/Mantenimiento",
-  "calorias_diarias_aprox": 2000,
-  "proteina_g": 150,
-  "carbos_g": 200,
-  "grasas_g": 65,
+  "calorias_diarias_aprox": 2100,
+  "proteina_g": 160,
+  "carbos_g": 210,
+  "grasas_g": 70,
   "plan_semanal": {{
     "Lunes": {{
       "desayuno": {{
-        "comida": "Ejemplo: Omelette de claras con espinaca",
-        "cantidad": "3 claras + 1 yema + 100g espinaca",
-        "calorias_aprox": 150,
+        "comida": "Omelette de 2 claras + 1 yema con cebolla y brócoli + tostadas de pan integral",
+        "cantidad": "3 huevos (2 claras + 1 yema) + 150g brócoli + 1/2 cebolla mediana + 2 tostadas de pan integral con 5g de mantequilla",
+        "ingredientes": "Huevos, brócoli, cebolla, pan integral, mantequilla",
+        "calorias_aprox": 350,
         "proteina_g": 28,
-        "tip": "Alto en proteína, bajo en grasas"
+        "tip": "Alto en proteína, fibra del brócoli, carbos complejos del pan integral"
       }},
       "merienda_manana": {{
-        "comida": "Ejemplo: Manzana con mantequilla de maní",
-        "cantidad": "1 manzana mediana + 15g PB",
-        "calorias_aprox": 130,
-        "tip": "Energía sostenida para el entreno"
+        "comida": "Manzana roja con mantequilla de maní",
+        "cantidad": "1 manzana roja mediana (180g) + 15g de mantequilla de maní natural (sin azúcar)",
+        "ingredientes": "Manzana, mantequilla de maní",
+        "calorias_aprox": 140,
+        "tip": "Energía sostenida para el entreno, glucosa + grasas saludables"
       }},
       "almuerzo": {{
-        "comida": "Ejemplo: Pecho de pollo con arroz integral",
-        "cantidad": "180g pecho + 100g arroz cocido + verduras",
-        "calorias_aprox": 550,
-        "proteina_g": 40,
-        "tip": "Comida principal, balanceada"
+        "comida": "Pechuga de pollo a la parrilla con arroz integral y ensalada de verduras",
+        "cantidad": "180g pechuga de pollo cocida + 100g arroz integral cocido + 250g ensalada (lechuga + tomate + pepino + zanahoria rallada) + 10ml aceite de oliva",
+        "ingredientes": "Pechuga de pollo, arroz integral, lechuga, tomate, pepino, zanahoria, aceite de oliva",
+        "calorias_aprox": 580,
+        "proteina_g": 42,
+        "tip": "Proteína magra, carbos complejos, vitaminas y minerales de las verduras"
       }},
       "merienda_tarde": {{
-        "comida": "Ejemplo: Batido proteico",
-        "cantidad": "30g whey + 200ml leche + plátano",
-        "calorias_aprox": 180,
-        "proteina_g": 30,
-        "tip": "Post-entreno, absorción rápida"
+        "comida": "Batido proteico post-entreno con plátano",
+        "cantidad": "30g proteína en polvo (whey) + 200ml leche descremada + 1 plátano mediano (120g) + 5g miel",
+        "ingredientes": "Proteína whey, leche, plátano, miel",
+        "calorias_aprox": 220,
+        "proteina_g": 32,
+        "tip": "Absorción rápida post-entreno, carbos rápidos + proteína para recuperación muscular"
       }},
       "cena": {{
-        "comida": "Ejemplo: Salmón a la parrilla con papa dulce",
-        "cantidad": "150g salmón + 150g papa dulce + ensalada",
-        "calorias_aprox": 350,
-        "proteina_g": 30,
-        "tip": "Omega-3, saciedad, ligera"
+        "comida": "Salmón a la parrilla con papa dulce y verduras al vapor",
+        "cantidad": "150g salmón cocido + 150g papa dulce cocida + 200g verduras (brócoli + chayote vapor) + 5ml aceite de oliva",
+        "ingredientes": "Salmón, papa dulce, brócoli, chayote, aceite de oliva",
+        "calorias_aprox": 420,
+        "proteina_g": 32,
+        "tip": "Omega-3 del salmón, carbos de lenta absorción, micronutrientes, cena ligera"
       }}
     }},
     "Martes": {{...}}
   }}
 }}
 
-OBLIGATORIO:
-- NUNCA comidas repetidas en el mismo día
-- Varía ingredientes entre días
-- RESPETA calorías totales del usuario
-- Incluye alternativas saludables
-- Personaliza según OBJETIVO específico
-- Comidas reales y prácticas, NO comidas de "revista"
-- Cada comida tiene CANTIDAD específica (no "una taza")
+RESTRICCIONES OBLIGATORIAS:
+- ALIMENTOS REALES: Especifica marca/tipo siempre que sea posible (ej: "pechuga de pollo sin piel" no "pollo")
+- CANTIDADES EXACTAS: Gramos, no "una porción" o "una taza"
+- INGREDIENTES LISTADOS: Cada comida debe listar todos los ingredientes específicos
+- VARIEDAD TOTAL: No repetir NINGÚN ALIMENTO en el mismo día. Entre días máximo 2 repeticiones de proteínas.
+- COMIDAS REALES: Alimentos prácticos que se consiguen en cualquier supermercado local
+- SIN SUPLEMENTOS INNECESARIOS: Solo proteína en polvo en merienda de tarde (post-entreno)
+- RESPETAR OBJETIVO: Si pierde grasa, baja calorías. Si gana masa, aumenta calorías y carbos.
+- CADA ALIMENTO TIENE RAZÓN: Explica por qué cada ingrediente (ej: "proteína de rápida absorción", "fibra para saciedad")
 
-Solo retorna JSON válido. Sin markdown, sin explicaciones adicionales.
+Solo retorna JSON válido. Sin markdown, sin explicaciones adicionales. IMPORTANTE: Todos los 7 días (Lunes-Domingo) con 5 comidas cada uno.
 """
         response = model.generate_content(prompt)
         respuesta_texto = response.text.strip()
