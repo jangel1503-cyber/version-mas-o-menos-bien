@@ -72,6 +72,8 @@ def cargar_todo():
                     data["pr_por_ejercicio"] = {}
                 if "fecha_ultima_rotacion" not in data:
                     data["fecha_ultima_rotacion"] = None
+                if "dieta_semanal" not in data:
+                    data["dieta_semanal"] = {}
                 return data
         except: pass
     return {
@@ -81,7 +83,8 @@ def cargar_todo():
         "historial_pesos": [],
         "historial_entrenamientos": [],
         "pr_por_ejercicio": {},
-        "fecha_ultima_rotacion": None
+        "fecha_ultima_rotacion": None,
+        "dieta_semanal": {}
     }
 
 if 'data' not in st.session_state:
@@ -133,6 +136,108 @@ def calcular_macros(u):
     carbs = (target - (prot * 4) - (grasas * 9)) / 4
     
     return round(target), round(prot), round(grasas), round(carbs)
+
+# --- GENERADOR DE DIETA IA ---
+@st.cache_data
+def generar_dieta_semanal(perfil_json):
+    """Consulta a Gemini para generar plan de comidas personalizado"""
+    try:
+        prompt = f"""
+ERES UN NUTRICIONISTA CERTIFICADO CON 15+ AÑOS DE EXPERIENCIA.
+
+GENERA UN PLAN DE COMIDAS SEMANAL ULTRA PERSONALIZADO (Lunes a Domingo).
+
+PERFIL DEL CLIENTE:
+{json.dumps(perfil_json, indent=2, ensure_ascii=False)}
+
+CRÍTICOS - AJUSTA POR:
+- Objetivo: Si es PERDER GRASA → déficit calórico, proteína alta. Si es GANAR MASA → superávit calórico, proteína + carbos. Si es TONIFICAR → proteína moderada-alta.
+- Sexo: MUJERES → enfatiza fibra, menos calorías base. HOMBRES → calorías/proteína más altas.
+- Edad: >50 años → menos sal, más omega-3. <25 años → puede ser más flexible.
+- Nivel de energía para entrenar.
+
+CADA DÍA DEBE INCLUIR:
+1. 🌅 DESAYUNO (calórico, proteína 25-35g)
+2. 🥪 MERIENDA MEDIA MAÑANA (snack 100-150 kcal)
+3. 🍽️ ALMUERZO (comida fuerte, proteína 30-40g)
+4. 🍌 MERIENDA MEDIA TARDE (post-entreno si aplica, 150-200 kcal)
+5. 🌙 CENA (proteína 25-30g, ligera)
+
+FORMATO JSON REQUERIDO (EXACTO):
+{{
+  "objetivo_nutricional": "Déficit/Superávit/Mantenimiento",
+  "calorias_diarias_aprox": 2000,
+  "proteina_g": 150,
+  "carbos_g": 200,
+  "grasas_g": 65,
+  "plan_semanal": {{
+    "Lunes": {{
+      "desayuno": {{
+        "comida": "Ejemplo: Omelette de claras con espinaca",
+        "cantidad": "3 claras + 1 yema + 100g espinaca",
+        "calorias_aprox": 150,
+        "proteina_g": 28,
+        "tip": "Alto en proteína, bajo en grasas"
+      }},
+      "merienda_manana": {{
+        "comida": "Ejemplo: Manzana con mantequilla de maní",
+        "cantidad": "1 manzana mediana + 15g PB",
+        "calorias_aprox": 130,
+        "tip": "Energía sostenida para el entreno"
+      }},
+      "almuerzo": {{
+        "comida": "Ejemplo: Pecho de pollo con arroz integral",
+        "cantidad": "180g pecho + 100g arroz cocido + verduras",
+        "calorias_aprox": 550,
+        "proteina_g": 40,
+        "tip": "Comida principal, balanceada"
+      }},
+      "merienda_tarde": {{
+        "comida": "Ejemplo: Batido proteico",
+        "cantidad": "30g whey + 200ml leche + plátano",
+        "calorias_aprox": 180,
+        "proteina_g": 30,
+        "tip": "Post-entreno, absorción rápida"
+      }},
+      "cena": {{
+        "comida": "Ejemplo: Salmón a la parrilla con papa dulce",
+        "cantidad": "150g salmón + 150g papa dulce + ensalada",
+        "calorias_aprox": 350,
+        "proteina_g": 30,
+        "tip": "Omega-3, saciedad, ligera"
+      }}
+    }},
+    "Martes": {{...}}
+  }}
+}}
+
+OBLIGATORIO:
+- NUNCA comidas repetidas en el mismo día
+- Varía ingredientes entre días
+- RESPETA calorías totales del usuario
+- Incluye alternativas saludables
+- Personaliza según OBJETIVO específico
+- Comidas reales y prácticas, NO comidas de "revista"
+- Cada comida tiene CANTIDAD específica (no "una taza")
+
+Solo retorna JSON válido. Sin markdown, sin explicaciones adicionales.
+"""
+        response = model.generate_content(prompt)
+        respuesta_texto = response.text.strip()
+        
+        # Limpiar marcadores de código
+        if respuesta_texto.startswith("```json"):
+            respuesta_texto = respuesta_texto[7:]
+        if respuesta_texto.startswith("```"):
+            respuesta_texto = respuesta_texto[3:]
+        if respuesta_texto.endswith("```"):
+            respuesta_texto = respuesta_texto[:-3]
+        
+        dieta_dict = json.loads(respuesta_texto.strip())
+        return dieta_dict
+    except Exception as e:
+        st.error(f"Error generando dieta con IA: {str(e)}")
+        return None
 
 # --- MOTOR DE RUTINA IA v2 ---
 EJERCICIOS_AVANZADOS = {
@@ -658,8 +763,8 @@ else:
     with c3:
         st.metric("Peso Ideal (Lbs)", f"{p_min} - {p_max}")
 
-    t_rutina, t_entrenamiento, t_progreso, t_alternativas, t_recomendaciones, t_perfil = st.tabs(
-        ["📅 Mi Rutina", "💪 Entrenar Hoy", "📈 Progreso", "🔄 Alternativas", "🤖 Recomendaciones", "👤 Perfil"]
+    t_rutina, t_entrenamiento, t_dieta, t_progreso, t_alternativas, t_recomendaciones, t_perfil = st.tabs(
+        ["📅 Mi Rutina", "💪 Entrenar Hoy", "🍽️ Mi Dieta", "📈 Progreso", "🔄 Alternativas", "🤖 Recomendaciones", "👤 Perfil"]
     )
 
     with t_rutina:
@@ -730,6 +835,138 @@ else:
             st.session_state.data["rutina_semanal"] = rutina
             guardar_todo(st.session_state.data)
             st.toast("¡Cambios guardados!", icon="✅")
+
+    with t_dieta:
+        st.markdown("### 🍽️ Tu Plan de Nutrición Personalizado")
+        
+        # Cargar datos frescos
+        st.session_state.data = cargar_todo()
+        dieta = st.session_state.data.get("dieta_semanal", {})
+        u = st.session_state.data.get("user", {})
+        
+        # Información nutricional resumen
+        st.markdown("#### 📊 Tu Objetivo Nutricional")
+        cal, p, g, c = calcular_macros(u)
+        
+        col1, col2, col3, col4 = st.columns(4)
+        with col1:
+            st.metric("🔥 Calorías", f"{cal} kcal")
+        with col2:
+            st.metric("🥩 Proteína", f"{p}g")
+        with col3:
+            st.metric("🍞 Carbos", f"{c}g")
+        with col4:
+            st.metric("🥑 Grasas", f"{g}g")
+        
+        st.markdown("---")
+        
+        if dieta and any(dieta.values()):
+            st.markdown(f"**Objetivo Nutricional:** {dieta.get('objetivo_nutricional', 'N/A')}")
+            st.markdown(f"**Calorías Diarias Aprox:** {dieta.get('calorias_diarias_aprox', cal)} kcal")
+            
+            plan = dieta.get('plan_semanal', {})
+            
+            for dia in ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"]:
+                if dia in plan:
+                    comidas = plan[dia]
+                    
+                    with st.expander(f"📅 {dia}", expanded=(dia == "Lunes")):
+                        # Desayuno
+                        if "desayuno" in comidas:
+                            des = comidas["desayuno"]
+                            st.markdown(f"""<div class="exercise-card" style="border-left-color: #FFB84D;">
+                                <h4 style="margin:0; color: #FFB84D;">🌅 Desayuno</h4>
+                                <strong>{des.get('comida', 'N/A')}</strong><br>
+                                <small>📏 {des.get('cantidad', 'N/A')}</small><br>
+                                <small>💡 {des.get('tip', '')}</small><br>
+                                <small>🔥 {des.get('calorias_aprox', '')} kcal | 🥩 {des.get('proteina_g', '')}g proteína</small>
+                            </div>""", unsafe_allow_html=True)
+                            st.markdown("<br>", unsafe_allow_html=True)
+                        
+                        # Merienda Mañana
+                        if "merienda_manana" in comidas:
+                            mer_m = comidas["merienda_manana"]
+                            st.markdown(f"""<div class="exercise-card" style="border-left-color: #81C784;">
+                                <h4 style="margin:0; color: #81C784;">🥪 Merienda Media Mañana</h4>
+                                <strong>{mer_m.get('comida', 'N/A')}</strong><br>
+                                <small>📏 {mer_m.get('cantidad', 'N/A')}</small><br>
+                                <small>💡 {mer_m.get('tip', '')}</small><br>
+                                <small>🔥 {mer_m.get('calorias_aprox', '')} kcal</small>
+                            </div>""", unsafe_allow_html=True)
+                            st.markdown("<br>", unsafe_allow_html=True)
+                        
+                        # Almuerzo
+                        if "almuerzo" in comidas:
+                            alm = comidas["almuerzo"]
+                            st.markdown(f"""<div class="exercise-card" style="border-left-color: #64B5F6;">
+                                <h4 style="margin:0; color: #64B5F6;">🍽️ Almuerzo</h4>
+                                <strong>{alm.get('comida', 'N/A')}</strong><br>
+                                <small>📏 {alm.get('cantidad', 'N/A')}</small><br>
+                                <small>💡 {alm.get('tip', '')}</small><br>
+                                <small>🔥 {alm.get('calorias_aprox', '')} kcal | 🥩 {alm.get('proteina_g', '')}g proteína</small>
+                            </div>""", unsafe_allow_html=True)
+                            st.markdown("<br>", unsafe_allow_html=True)
+                        
+                        # Merienda Tarde
+                        if "merienda_tarde" in comidas:
+                            mer_t = comidas["merienda_tarde"]
+                            st.markdown(f"""<div class="exercise-card" style="border-left-color: #F06292;">
+                                <h4 style="margin:0; color: #F06292;">🍌 Merienda Media Tarde (Post-Entreno)</h4>
+                                <strong>{mer_t.get('comida', 'N/A')}</strong><br>
+                                <small>📏 {mer_t.get('cantidad', 'N/A')}</small><br>
+                                <small>💡 {mer_t.get('tip', '')}</small><br>
+                                <small>🔥 {mer_t.get('calorias_aprox', '')} kcal | 🥩 {mer_t.get('proteina_g', '')}g proteína</small>
+                            </div>""", unsafe_allow_html=True)
+                            st.markdown("<br>", unsafe_allow_html=True)
+                        
+                        # Cena
+                        if "cena" in comidas:
+                            cena = comidas["cena"]
+                            st.markdown(f"""<div class="exercise-card" style="border-left-color: #9C27B0;">
+                                <h4 style="margin:0; color: #9C27B0;">🌙 Cena</h4>
+                                <strong>{cena.get('comida', 'N/A')}</strong><br>
+                                <small>📏 {cena.get('cantidad', 'N/A')}</small><br>
+                                <small>💡 {cena.get('tip', '')}</small><br>
+                                <small>🔥 {cena.get('calorias_aprox', '')} kcal | 🥩 {cena.get('proteina_g', '')}g proteína</small>
+                            </div>""", unsafe_allow_html=True)
+        else:
+            st.info("No tienes un plan de dieta aún. ¡Genera uno abajo!")
+        
+        st.markdown("---")
+        
+        # Botones para generar y actualizar
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("🤖 Generar Mi Plan de Nutrición con IA", use_container_width=True, key="gen_dieta"):
+                perfil_nutri = {
+                    "nombre": u.get('nombre'),
+                    "sexo": u.get('sexo'),
+                    "edad": u.get('edad'),
+                    "peso_lb": u.get('peso_lb'),
+                    "estatura_m": u.get('estatura_m'),
+                    "objetivos": u.get('objetivos', [])[:2],  # Top 2 objetivos
+                    "dias_entreno": u.get('dias_entreno'),
+                    "calorias_objetivo": cal
+                }
+                
+                with st.spinner("🤖 IA generando plan nutricional personalizado..."):
+                    nueva_dieta = generar_dieta_semanal(json.dumps(perfil_nutri))
+                
+                if nueva_dieta:
+                    st.session_state.data["dieta_semanal"] = nueva_dieta
+                    guardar_todo(st.session_state.data)
+                    st.success("✅ ¡Plan de nutrición generado exitosamente!")
+                    st.balloons()
+                    st.rerun()
+                else:
+                    st.error("❌ Error generando el plan. Intenta nuevamente.")
+        
+        with col2:
+            if dieta and any(dieta.values()):
+                if st.button("🔄 Regenerar Plan", use_container_width=True, key="regen_dieta"):
+                    # Limpiar caché para permitir regeneración
+                    st.cache_data.clear()
+                    st.rerun()
 
     with t_entrenamiento:
         st.markdown("### 💪 Entrenar Hoy")
