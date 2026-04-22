@@ -602,7 +602,7 @@ Solo retorna JSON válido. Sin markdown, sin explicaciones.
         return None
 
 def generar_rutina_ia(u):
-    """Genera rutina usando Gemini o fallback local"""
+    """Genera rutina completamente personalizada por sexo, edad, objetivos y más"""
     objetivos = u.get('objetivos', [])
     peso_lb = u.get('peso_lb', 160)
     edad = u.get('edad', 25)
@@ -616,7 +616,7 @@ def generar_rutina_ia(u):
         "edad": edad,
         "peso_lb": peso_lb,
         "estatura_m": u.get('estatura_m', 1.70),
-        "objetivos": objetivos[:3],  # Top 3 objetivos
+        "objetivos": objetivos[:3],
         "dias_entreno": dias_e
     }
     
@@ -627,76 +627,153 @@ def generar_rutina_ia(u):
     if rutina_ia:
         return rutina_ia
     
-    # Fallback: Generar localmente si IA falla
-    es_intenso = any("masa" in obj.lower() or "fuerza" in obj.lower() or "glúteos" in obj.lower() for obj in objetivos)
+    # FALLBACK LOCAL: Generar rutina ultra personalizada
+    es_mujer = sexo == "Femenino"
+    es_joven = edad < 25
+    es_adulto = 25 <= edad < 50
+    es_mayor = edad >= 50
+    
+    # Detectar objetivos
+    es_intenso = any("masa" in obj.lower() or "fuerza" in obj.lower() for obj in objetivos)
+    enfasis_gluteos = any("glúteo" in obj.lower() or "pierna" in obj.lower() for obj in objetivos)
     enfasis_cardio = any("grasa" in obj.lower() or "resistencia" in obj.lower() or "correr" in obj.lower() for obj in objetivos)
+    enfasis_tonificacion = any("tonificar" in obj.lower() or "definir" in obj.lower() for obj in objetivos)
     
-    series = 4 if es_intenso and edad < 45 else 3
-    reps = "8-12" if es_intenso else "12-15"
-    if edad > 55: reps = "15-20"
-
+    # Determinar intensidad y volumen por edad
+    if es_joven:
+        series = 4 if es_intenso else 3
+        reps = "6-10" if es_intenso else "10-15"
+        descanso_base = "90-120s" if es_intenso else "60-90s"
+    elif es_adulto:
+        series = 3 if es_intenso else 3
+        reps = "8-12" if es_intenso else "12-15"
+        descanso_base = "60-90s" if es_intenso else "45-60s"
+    else:  # es_mayor
+        series = 2 if es_intenso else 2
+        reps = "10-15" if es_intenso else "15-20"
+        descanso_base = "60-90s"
+    
     rutina = {}
-    dias_e = u.get('dias_entreno', 5)
     
-    # Distribuir por días (fallback)
-    if dias_e == 3:
-        distribucion = {
-            "Lunes": "Pecho/Espalda/Hombros",
-            "Miércoles": "Piernas/Core",
-            "Viernes": "Full Body/Funcional"
-        }
-    elif dias_e == 4:
-        distribucion = {
-            "Lunes": "Pecho/Hombros",
-            "Martes": "Piernas",
-            "Jueves": "Espalda/Brazos",
-            "Viernes": "Híbrido/Funcional"
-        }
-    else: # 5 Días
-        distribucion = {
-            "Lunes": "Pecho/Hombros",
-            "Martes": "Piernas",
-            "Miércoles": "Descanso Activo",
-            "Jueves": "Espalda/Brazos",
-            "Viernes": "Funcional/Core"
-        }
+    # DISTRIBUCIÓN PERSONALIZADA POR SEXO Y OBJETIVO
+    if es_mujer:
+        # Énfasis en glúteos, piernas, core para mujeres
+        if dias_e == 3:
+            distribucion = {
+                "Lunes": "Piernas/Glúteos",
+                "Miércoles": "Espalda/Core",
+                "Viernes": "Glúteos/Cardio"
+            }
+        elif dias_e == 4:
+            distribucion = {
+                "Lunes": "Piernas/Glúteos",
+                "Martes": "Espalda/Brazos",
+                "Jueves": "Glúteos/Core",
+                "Viernes": "Cardio/Funcional"
+            }
+        else:  # 5 días
+            distribucion = {
+                "Lunes": "Piernas/Glúteos",
+                "Martes": "Espalda/Hombros",
+                "Miércoles": "Descanso Activo",
+                "Jueves": "Glúteos/Core",
+                "Viernes": "Cardio/Brazos"
+            }
+    else:
+        # Énfasis en pecho, espalda, brazos para hombres
+        if dias_e == 3:
+            distribucion = {
+                "Lunes": "Pecho/Espalda/Hombros",
+                "Miércoles": "Piernas/Core",
+                "Viernes": "Full Body/Funcional"
+            }
+        elif dias_e == 4:
+            distribucion = {
+                "Lunes": "Pecho/Hombros",
+                "Martes": "Piernas",
+                "Jueves": "Espalda/Brazos",
+                "Viernes": "Híbrido/Funcional"
+            }
+        else:  # 5 días
+            distribucion = {
+                "Lunes": "Pecho/Hombros",
+                "Martes": "Piernas",
+                "Miércoles": "Descanso Activo",
+                "Jueves": "Espalda/Brazos",
+                "Viernes": "Funcional/Core"
+            }
 
     for dia, enfoque in distribucion.items():
         if "Descanso" in enfoque:
-            rutina[dia] = "Día de recuperación: Estiramientos dinámicos o 30 min de caminata ligera."
+            if es_mayor:
+                rutina[dia] = "Día de recuperación: Estiramientos suaves o yoga (15-20 min) + movilidad articular."
+            else:
+                rutina[dia] = "Día de recuperación: Estiramientos dinámicos o 30 min de caminata ligera."
             continue
             
         ejercicios_dia = []
         grupos = enfoque.split("/")
         for g in grupos:
             pool = []
+            
+            # Seleccionar grupo muscular
             if g == "Pecho": pool = EJERCICIOS_AVANZADOS["Pecho"]
             elif g == "Hombros": pool = EJERCICIOS_AVANZADOS["Hombros"]
-            elif g == "Piernas": pool = EJERCICIOS_AVANZADOS["Piernas"]
+            elif g == "Piernas": 
+                # Para mujeres: más énfasis en piernas
+                pool = EJERCICIOS_AVANZADOS["Piernas"]
             elif g == "Espalda": pool = EJERCICIOS_AVANZADOS["Espalda"]
             elif g == "Brazos": pool = EJERCICIOS_AVANZADOS["Brazos"]
-            elif g in ["Funcional", "Híbrido", "Full Body"]: pool = EJERCICIOS_AVANZADOS["Cardio/Funcional"]
+            elif g == "Glúteos":
+                # Ejercicios especiales para glúteos (mujeres)
+                pool = [
+                    {"nombre": "Hip Thrusts", "tip": "Máxima activación de glúteos con control."},
+                    {"nombre": "Sentadillas Búlgara", "tip": "Unilateral: énfasis en glúteos y cuádriceps."},
+                    {"nombre": "Peso Muerto Rumano", "tip": "Siente el estiramiento en glúteos e isquios."},
+                    {"nombre": "Patada de Glúteos", "tip": "Cable o máquina: aislamiento de glúteos."},
+                    {"nombre": "Prensa de Piernas (posición ancha)", "tip": "Enfoque en glúteos."}
+                ]
+            elif g in ["Funcional", "Híbrido", "Full Body"]:
+                if enfasis_cardio:
+                    pool = EJERCICIOS_AVANZADOS["Cardio/Funcional"]
+                else:
+                    pool = EJERCICIOS_AVANZADOS["Cardio/Funcional"]
             elif g == "Core": pool = EJERCICIOS_AVANZADOS["Core/Postura"]
+            elif g == "Cardio": pool = EJERCICIOS_AVANZADOS["Cardio/Funcional"]
             
             if pool:
                 num_ej = 2 if len(grupos) > 1 else 4
                 seleccion = random.sample(pool, min(len(pool), num_ej))
                 for s in seleccion:
                     detalles_sets = []
-                    libras_base = round(peso_lb * random.uniform(0.20, 0.40), 0)
                     
-                    # Generar reps y pesos variados realísticamente
+                    # Ajustar peso base por sexo y edad
+                    if es_mujer:
+                        peso_multiplicador = 0.25 if es_joven else 0.20
+                    else:
+                        peso_multiplicador = 0.35 if es_joven else 0.30
+                    
+                    if es_mayor:
+                        peso_multiplicador *= 0.8  # Reducir peso para mayor edad
+                    
+                    libras_base = round(peso_lb * peso_multiplicador, 0)
+                    
+                    # Generar reps y pesos variados
                     for set_idx in range(series):
-                        # Reps bajan conforme suben las series (pirámide inversa)
-                        if reps == "8-12":  # Hipertrofia
-                            reps_set = str(max(6, 12 - set_idx * 2))  # 12, 10, 8, 6
-                        elif reps == "12-15":  # Tonificación
-                            reps_set = str(max(10, 15 - set_idx * 1))  # 15, 14, 13, 12
-                        else:  # Resistencia 15-20
-                            reps_set = str(max(15, 20 - set_idx * 1))  # 20, 19, 18, 17
+                        # Reps según intensidad
+                        if reps == "6-10":
+                            reps_set = str(max(6, 10 - set_idx * 1))
+                        elif reps == "8-12":
+                            reps_set = str(max(8, 12 - set_idx * 2))
+                        elif reps == "10-15":
+                            reps_set = str(max(10, 15 - set_idx * 1))
+                        elif reps == "12-15":
+                            reps_set = str(max(10, 15 - set_idx * 1))
+                        else:  # 15-20
+                            reps_set = str(max(15, 20 - set_idx * 1))
                         
-                        # Peso aumenta conforme bajan reps (pirámide inversa)
-                        factor_fatiga = 1.0 - (set_idx * 0.08)  # ~8% menos por cada set
+                        # Peso progresivo
+                        factor_fatiga = 1.0 - (set_idx * 0.08)
                         libras_set = round(max(libras_base * factor_fatiga, 5), 0)
                         detalles_sets.append({"reps": reps_set, "libras": libras_set})
 
