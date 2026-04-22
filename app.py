@@ -137,26 +137,49 @@ def calcular_macros(u):
     
     return round(target), round(prot), round(grasas), round(carbs)
 
-# --- BASE DE DATOS LOCAL DE COMIDAS VARIADAS ---
+# --- BASE DE DATOS LOCAL DE COMIDAS VARIADAS Y PERSONALIZADAS ---
 COMIDAS_DB = {
-    "proteinas": ["Pechuga de pollo", "Salmón", "Atún", "Pavo", "Huevo", "Carne molida 85%", "Tilapia", "Yogur griego", "Requesón"],
-    "carbos": ["Arroz integral", "Papa blanca", "Papa dulce", "Pan integral", "Avena", "Plátano", "Quinoa", "Pasta integral", "Arroz blanco"],
-    "grasas": ["Aguacate", "Aceite de oliva", "Mantequilla de maní", "Almendras", "Nueces", "Semillas de linaza"],
-    "verduras": ["Brócoli", "Espinaca", "Lechuga", "Tomate", "Zanahoria", "Calabacín", "Chayote", "Vainitas", "Pepino"]
+    "proteinas": {
+        "general": ["Pechuga de pollo", "Salmón", "Atún", "Pavo", "Huevo", "Carne molida 85%", "Tilapia", "Yogur griego", "Requesón"],
+        "femenino": ["Salmón", "Atún", "Espinacas", "Lentejas", "Huevo", "Yogur griego", "Pechuga de pollo", "Requesón"],  # Alto hierro
+        "masculino": ["Pechuga de pollo", "Carne molida 85%", "Huevo", "Pavo", "Tilapia", "Salmón", "Atún"]
+    },
+    "carbos": {
+        "general": ["Arroz integral", "Papa blanca", "Papa dulce", "Pan integral", "Avena", "Plátano", "Quinoa", "Pasta integral", "Arroz blanco"],
+        "pre_entreno": ["Plátano", "Papa blanca", "Arroz blanco", "Pan integral", "Pasta integral"],  # Carbos rápidos/moderados
+        "post_entreno": ["Plátano", "Papa blanca", "Arroz blanco", "Avena"],  # Carbos de absorción rápida
+        "edad_mayor": ["Avena", "Quinoa", "Papa dulce", "Pan integral", "Arroz integral"]  # Más fibra
+    },
+    "grasas": {
+        "general": ["Aguacate", "Aceite de oliva", "Mantequilla de maní", "Almendras", "Nueces", "Semillas de linaza"],
+        "omega3": ["Salmón", "Atún", "Semillas de linaza", "Aceite de oliva"]  # Para edad avanzada
+    },
+    "verduras": {
+        "general": ["Brócoli", "Espinaca", "Lechuga", "Tomate", "Zanahoria", "Calabacín", "Chayote", "Vainitas", "Pepino"],
+        "femenino": ["Espinaca", "Brócoli", "Lechuga", "Tomate", "Zanahoria"],  # Hierro y fibra
+        "edad_mayor": ["Brócoli", "Espinaca", "Zanahoria", "Calabacín"]  # Fácil digestión
+    }
 }
 
 def generar_dieta_fallback_local(perfil_json):
-    """Genera plan de dieta completamente local sin depender de API"""
+    """Genera plan de dieta completamente personalizado considerando sexo, edad y objetivo"""
     try:
         perfil = json.loads(perfil_json)
         cal_objetivo = perfil.get("calorias_objetivo", 2100)
         sexo = perfil.get("sexo", "Masculino")
+        edad = perfil.get("edad", 25)
         objetivo = perfil.get("objetivos", ["Tonificar"])[0].lower()
+        dias_entreno = perfil.get("dias_entreno", 5)
+        
+        # Determinar tipo de usuario para selección de alimentos
+        es_mujer = sexo == "Femenino"
+        es_mayor = edad >= 50
+        mucho_entreno = dias_entreno >= 5
         
         # Ajustar macros según objetivo
         if "perder grasa" in objetivo or "bajar peso" in objetivo:
             objetivo_text = "Déficit calórico 20%"
-            proteina_g = int(cal_objetivo / 4.5)  # 2.2g/kg
+            proteina_g = int(cal_objetivo / 4.5)  # 2.2g/kg equiv
             carbs_g = int((cal_objetivo * 0.35) / 4)
             grasas_g = int((cal_objetivo * 0.3) / 9)
             cal_objetivo = int(cal_objetivo)
@@ -173,60 +196,158 @@ def generar_dieta_fallback_local(perfil_json):
             grasas_g = int((cal_objetivo * 0.30) / 9)
             cal_objetivo = int(cal_objetivo)
         
+        # Seleccionar pool de alimentos según perfil
+        proteinas_pool = COMIDAS_DB["proteinas"].get(
+            "femenino" if es_mujer else "masculino", 
+            COMIDAS_DB["proteinas"]["general"]
+        )
+        verduras_pool = COMIDAS_DB["verduras"].get(
+            "femenino" if es_mujer else "general", 
+            COMIDAS_DB["verduras"]["general"]
+        )
+        carbos_pool_general = COMIDAS_DB["carbos"].get(
+            "edad_mayor" if es_mayor else "general",
+            COMIDAS_DB["carbos"]["general"]
+        )
+        carbos_pre = COMIDAS_DB["carbos"]["pre_entreno"]
+        carbos_post = COMIDAS_DB["carbos"]["post_entreno"]
+        grasas_pool = COMIDAS_DB["grasas"].get(
+            "omega3" if es_mayor else "general",
+            COMIDAS_DB["grasas"]["general"]
+        )
+        
         # Generar plan para 7 días
         plan_semanal = {}
         dias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"]
         proteinas_usadas = []
         
-        for dia in dias:
-            # Seleccionar proteína sin repetición del mismo día
-            proteina_hoy = random.choice([p for p in COMIDAS_DB["proteinas"] if p not in proteinas_usadas[-2:]])
+        for idx_dia, dia in enumerate(dias):
+            # Seleccionar proteína sin repetición
+            prot_disponibles = [p for p in proteinas_pool if p not in proteinas_usadas[-2:]]
+            proteina_hoy = random.choice(prot_disponibles if prot_disponibles else proteinas_pool)
             proteinas_usadas.append(proteina_hoy)
             
-            carbos_hoy = random.sample(COMIDAS_DB["carbos"], 3)
-            verduras_hoy = random.sample(COMIDAS_DB["verduras"], 3)
-            grasa_hoy = random.choice(COMIDAS_DB["grasas"])
+            # Seleccionar carbos específicos para timing de entreno
+            carbos_hoy = random.sample(carbos_pool_general, min(3, len(carbos_pool_general)))
+            carbo_pre = random.choice(carbos_pre)  # Para merienda mañana
+            carbo_post = random.choice(carbos_post)  # Para merienda tarde
+            verduras_hoy = random.sample(verduras_pool, min(3, len(verduras_pool)))
+            grasa_hoy = random.choice(grasas_pool)
+            
+            # ===== DESAYUNO =====
+            if es_mujer and random.random() > 0.5:
+                # Variante alto hierro para mujeres
+                desayuno_comida = f"Espinacas salteadas con huevos y pan integral"
+                desayuno_cantidad = "100g espinacas + 2 huevos + 2 rebanadas pan integral + 5g aceite"
+                desayuno_ingredientes = "Espinacas, huevo, pan integral, aceite de oliva"
+                desayuno_cal = 300
+                desayuno_prot = 16
+                desayuno_tip = "Alto en hierro + proteína para mantener energía (especialmente importante para mujeres)"
+            else:
+                desayuno_comida = "2 huevos + tostadas de pan integral con tomate"
+                desayuno_cantidad = "2 huevos (60g) + 2 rebanadas pan integral + 100g tomate + 5g aceite"
+                desayuno_ingredientes = "Huevos, pan integral, tomate, aceite de oliva"
+                desayuno_cal = 280
+                desayuno_prot = 18
+                desayuno_tip = "Proteína de alta calidad + carbos complejos para energía sostenida"
+            
+            # ===== MERIENDA MAÑANA (PRE-ENTRENO) =====
+            if mucho_entreno:
+                # Más energía pre-entreno si entrena 5+ días
+                merienda_m_comida = f"{carbo_pre.lower()} con {grasa_hoy.lower()}"
+                merienda_m_cantidad = f"1 {carbo_pre.lower()} mediano/a (120g) + 20g {grasa_hoy.lower()}"
+                merienda_m_cal = 220
+                merienda_m_prot = 5
+                merienda_m_tip = "Energía PRE-ENTRENO: carbos + grasas para rendimiento máximo"
+            else:
+                merienda_m_comida = f"{carbo_pre.lower()} con {grasa_hoy.lower()}"
+                merienda_m_cantidad = f"1 {carbo_pre.lower()} mediano/a (120g) + 15g {grasa_hoy.lower()}"
+                merienda_m_cal = 180
+                merienda_m_prot = 3
+                merienda_m_tip = "Energía pre-entreno: carbos + grasas saludables"
+            
+            # ===== ALMUERZO =====
+            almuerzo_comida = f"{proteina_hoy} a la parrilla con {carbos_hoy[0].lower()} y {verduras_hoy[0].lower()}"
+            almuerzo_cantidad = f"180g {proteina_hoy.lower()} cocida + 150g {carbos_hoy[0].lower()} cocido + 200g ensalada ({verduras_hoy[0].lower()}, {verduras_hoy[1].lower()}) + 10ml aceite"
+            almuerzo_ingredientes = f"{proteina_hoy}, {carbos_hoy[0]}, {verduras_hoy[0]}, {verduras_hoy[1]}, aceite de oliva"
+            almuerzo_cal = 620
+            almuerzo_prot = 48
+            almuerzo_tip = "Comida principal: proteína magra + carbos complejos + vitaminas y minerales"
+            
+            # ===== MERIENDA TARDE (POST-ENTRENO) =====
+            if mucho_entreno:
+                # Recuperación rápida si entrena mucho
+                merienda_t_comida = f"Batido de proteína con {carbo_post.lower()}"
+                merienda_t_cantidad = f"30g proteína en polvo + 200ml leche + 100g {carbo_post.lower()}"
+                merienda_t_cal = 280
+                merienda_t_prot = 30
+                merienda_t_tip = "POST-ENTRENO: proteína + carbos rápidos para recuperación y síntesis muscular"
+            else:
+                if es_mujer:
+                    # Más rico en calcio para mujeres
+                    merienda_t_comida = f"Yogur griego con {carbo_post.lower()}"
+                else:
+                    merienda_t_comida = f"Yogur griego con {carbo_post.lower()}"
+                merienda_t_cantidad = f"150g yogur griego + 80g {carbo_post.lower()} + 10g miel"
+                merienda_t_cal = 210
+                merienda_t_prot = 20
+                merienda_t_tip = "POST-ENTRENO: proteína rápida + carbos para recuperación muscular"
+            
+            # ===== CENA =====
+            if es_mayor:
+                # Cena más ligera y fácil de digerir para mayor edad
+                cena_comida = f"{proteina_hoy} al vapor con {carbos_hoy[2].lower()} y {verduras_hoy[2].lower()}"
+                cena_cantidad = f"120g {proteina_hoy.lower()} + 100g {carbos_hoy[2].lower()} + 150g {verduras_hoy[2].lower()} al vapor"
+                cena_cal = 320
+                cena_prot = 28
+                cena_tip = "Cena ligera: fácil de digerir, proteína moderada, sin exceso de grasas"
+            else:
+                cena_comida = f"{proteina_hoy} a la parrilla con {carbos_hoy[2].lower()} y {verduras_hoy[2].lower()}"
+                cena_cantidad = f"150g {proteina_hoy.lower()} + 120g {carbos_hoy[2].lower()} + 150g {verduras_hoy[2].lower()} al vapor + 5ml aceite"
+                cena_cal = 380
+                cena_prot = 32
+                cena_tip = "Cena equilibrada: proteína + carbos de lenta absorción + verduras bajas en calorías"
             
             plan_semanal[dia] = {
                 "desayuno": {
-                    "comida": f"2 huevos + tostadas de pan integral con tomate",
-                    "cantidad": "2 huevos (60g) + 2 rebanadas pan integral + 100g tomate + 5g aceite",
-                    "ingredientes": "Huevos, pan integral, tomate, aceite de oliva",
-                    "calorias_aprox": 280,
-                    "proteina_g": 18,
-                    "tip": "Proteína de alta calidad + carbos complejos para energía sostenida"
+                    "comida": desayuno_comida,
+                    "cantidad": desayuno_cantidad,
+                    "ingredientes": desayuno_ingredientes,
+                    "calorias_aprox": desayuno_cal,
+                    "proteina_g": desayuno_prot,
+                    "tip": desayuno_tip
                 },
                 "merienda_manana": {
-                    "comida": f"Plátano con {grasa_hoy.lower()}",
-                    "cantidad": f"1 plátano mediano (120g) + 15g {grasa_hoy.lower()}",
-                    "ingredientes": f"Plátano, {grasa_hoy.lower()}",
-                    "calorias_aprox": 180,
-                    "proteina_g": 3,
-                    "tip": "Energía rápida pre-entreno + grasas saludables"
+                    "comida": merienda_m_comida,
+                    "cantidad": merienda_m_cantidad,
+                    "ingredientes": f"{carbo_pre}, {grasa_hoy}",
+                    "calorias_aprox": merienda_m_cal,
+                    "proteina_g": merienda_m_prot,
+                    "tip": merienda_m_tip
                 },
                 "almuerzo": {
-                    "comida": f"{proteina_hoy} con {carbos_hoy[0]} y ensalada",
-                    "cantidad": f"180g {proteina_hoy.lower()} cocida + 150g {carbos_hoy[0].lower()} cocido + 200g ensalada ({verduras_hoy[0].lower()}, {verduras_hoy[1].lower()}) + 10ml aceite",
-                    "ingredientes": f"{proteina_hoy}, {carbos_hoy[0]}, {verduras_hoy[0]}, {verduras_hoy[1]}, aceite de oliva",
-                    "calorias_aprox": 620,
-                    "proteina_g": 48,
-                    "tip": "Comida principal: proteína magra + carbos complejos + vitaminas"
+                    "comida": almuerzo_comida,
+                    "cantidad": almuerzo_cantidad,
+                    "ingredientes": almuerzo_ingredientes,
+                    "calorias_aprox": almuerzo_cal,
+                    "proteina_g": almuerzo_prot,
+                    "tip": almuerzo_tip
                 },
                 "merienda_tarde": {
-                    "comida": f"Yogur griego con {carbos_hoy[1].lower()}",
-                    "cantidad": f"150g yogur griego + 80g {carbos_hoy[1].lower()} + 10g miel",
-                    "ingredientes": f"Yogur griego, {carbos_hoy[1]}, miel",
-                    "calorias_aprox": 210,
-                    "proteina_g": 20,
-                    "tip": "Post-entreno: proteína rápida + carbos para recuperación"
+                    "comida": merienda_t_comida,
+                    "cantidad": merienda_t_cantidad,
+                    "ingredientes": f"Proteína, {carbo_post}, leche/yogur" if mucho_entreno else f"Yogur, {carbo_post}",
+                    "calorias_aprox": merienda_t_cal,
+                    "proteina_g": merienda_t_prot,
+                    "tip": merienda_t_tip
                 },
                 "cena": {
-                    "comida": f"Pechuga/Pescado con {carbos_hoy[2]} y {verduras_hoy[2]}",
-                    "cantidad": f"150g {proteina_hoy.lower()} + 120g {carbos_hoy[2].lower()} + 150g {verduras_hoy[2].lower()} al vapor",
+                    "comida": cena_comida,
+                    "cantidad": cena_cantidad,
                     "ingredientes": f"{proteina_hoy}, {carbos_hoy[2]}, {verduras_hoy[2]}",
-                    "calorias_aprox": 380,
-                    "proteina_g": 32,
-                    "tip": "Cena ligera: proteína + carbos lentos + verduras bajas en calorías"
+                    "calorias_aprox": cena_cal,
+                    "proteina_g": cena_prot,
+                    "tip": cena_tip
                 }
             }
         
