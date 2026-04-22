@@ -27,7 +27,7 @@ safety_settings = [
     {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
 ]
 
-model = genai.GenerativeModel('gemini-2.0-flash', safety_settings=safety_settings)
+model = genai.GenerativeModel('gemini-1.5-flash', safety_settings=safety_settings)
 
 # --- GESTIÓN DE ARCHIVOS Y USUARIOS ---
 def cargar_usuarios():
