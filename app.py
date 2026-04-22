@@ -63,7 +63,44 @@ def registrar_usuario(username, password, datos_perfil):
         "fecha_registro": str(pd.Timestamp.now())
     }
     guardar_usuarios(usuarios)
+    
+    # IMPORTANTE: Guardar estructura inicial en gym_data.json
+    todo_datos = {}
+    if os.path.exists(DB_FILE):
+        try:
+            with open(DB_FILE, "r", encoding='utf-8') as f:
+                todo_datos = json.load(f)
+        except:
+            todo_datos = {}
+    
+    # Crear estructura inicial para el usuario
+    todo_datos[usuario_lower] = {
+        "perfil_completado": True,
+        "user": datos_perfil,
+        "rutina_semanal": {},
+        "historial_pesos": [],
+        "historial_entrenamientos": [],
+        "pr_por_ejercicio": {},
+        "fecha_ultima_rotacion": None,
+        "dieta_semanal": {}
+    }
+    
+    # Guardar en gym_data.json
+    with open(DB_FILE, "w", encoding='utf-8') as f:
+        json.dump(todo_datos, f, ensure_ascii=False, indent=4)
+    
     return True, "Usuario registrado exitosamente"
+
+def actualizar_perfil_usuario(username, datos_perfil):
+    """Actualiza los datos del perfil de un usuario en user_data.json"""
+    usuarios = cargar_usuarios()
+    user_lower = username.lower()
+    
+    if user_lower in usuarios:
+        usuarios[user_lower]["datos_perfil"] = datos_perfil
+        guardar_usuarios(usuarios)
+        return True
+    return False
 
 def obtener_datos_usuario(username):
     """Obtiene los datos del perfil de un usuario"""
@@ -180,8 +217,22 @@ def cargar_todo():
 if 'usuario_logueado' not in st.session_state:
     st.session_state.usuario_logueado = None
 
-if 'data' not in st.session_state:
-    st.session_state.data = cargar_todo()
+if 'data' not in st.session_state or (st.session_state.usuario_logueado and st.session_state.data.get('user', {}) == {}):
+    # Cargar datos si hay usuario logueado O si nunca se ha cargado nada
+    if st.session_state.usuario_logueado:
+        st.session_state.data = cargar_todo()
+    else:
+        # Estructura vacía para la pantalla de login
+        st.session_state.data = {
+            "perfil_completado": False, 
+            "user": {}, 
+            "rutina_semanal": {}, 
+            "historial_pesos": [],
+            "historial_entrenamientos": [],
+            "pr_por_ejercicio": {},
+            "fecha_ultima_rotacion": None,
+            "dieta_semanal": {}
+        }
 
 # --- LÓGICA DE SALUD ---
 def obtener_analisis(peso_lb, estatura_m):
@@ -1109,27 +1160,35 @@ if not st.session_state.usuario_logueado:
                 if login_user and login_pass:
                     if validar_credenciales(login_user, login_pass):
                         st.session_state.usuario_logueado = login_user.lower()
-                        # Cargar datos del usuario
-                        datos = obtener_datos_usuario(login_user)
-                        st.session_state.data = {
-                            "perfil_completado": True,
-                            "user": datos,
-                            "rutina_semanal": {},
-                            "historial_pesos": [],
-                            "historial_entrenamientos": [],
-                            "pr_por_ejercicio": {},
-                            "fecha_ultima_rotacion": None,
-                            "dieta_semanal": {}
-                        }
-                        # Intentar cargar datos adicionales del archivo gym_data.json del usuario
-                        try:
-                            if os.path.exists(DB_FILE):
+                        
+                        # Cargar datos DIRECTAMENTE desde gym_data.json
+                        datos_cargados = False
+                        if os.path.exists(DB_FILE):
+                            try:
                                 with open(DB_FILE, "r", encoding='utf-8') as f:
                                     all_data = json.load(f)
                                     if st.session_state.usuario_logueado in all_data:
-                                        st.session_state.data.update(all_data[st.session_state.usuario_logueado])
-                        except:
-                            pass
+                                        st.session_state.data = all_data[st.session_state.usuario_logueado]
+                                        datos_cargados = True
+                            except:
+                                pass
+                        
+                        # Si no hay datos en gym_data.json, crear estructura
+                        if not datos_cargados:
+                            datos = obtener_datos_usuario(login_user)
+                            st.session_state.data = {
+                                "perfil_completado": True,
+                                "user": datos,
+                                "rutina_semanal": {},
+                                "historial_pesos": [],
+                                "historial_entrenamientos": [],
+                                "pr_por_ejercicio": {},
+                                "fecha_ultima_rotacion": None,
+                                "dieta_semanal": {}
+                            }
+                            # Guardar esta estructura en gym_data.json
+                            guardar_todo(st.session_state.data)
+                        
                         st.success("¡Sesión iniciada correctamente!")
                         st.rerun()
                     else:
@@ -1279,6 +1338,25 @@ else:
                 if c2.button("❌ No", use_container_width=True):
                     st.session_state.confirmar_reinicio = False
                     st.rerun()
+        
+        # Panel de depuración para verificar datos
+        with st.expander("🔍 Verificar Datos Guardados"):
+            st.write("**Datos en Session State (User):**")
+            st.json(u)
+            st.write("**Usuario Logueado:**", st.session_state.usuario_logueado)
+            
+            # Verificar qué hay en gym_data.json
+            try:
+                if os.path.exists(DB_FILE):
+                    with open(DB_FILE, "r", encoding='utf-8') as f:
+                        todos_datos = json.load(f)
+                        if st.session_state.usuario_logueado in todos_datos:
+                            st.write("✅ Datos encontrados en gym_data.json")
+                            st.write("**Campos guardados:**", list(todos_datos[st.session_state.usuario_logueado].keys()))
+                        else:
+                            st.write("❌ No hay datos en gym_data.json para este usuario")
+            except:
+                st.write("❌ Error leyendo gym_data.json")
 
     # --- DASHBOARD PRINCIPAL ---
     st.markdown(f'<h1 class="main-header">Panel de Control: {u.get("nombre")}</h1>', unsafe_allow_html=True)
@@ -1732,7 +1810,12 @@ else:
                 # Actualización automática de la rutina al editar el perfil
                 st.session_state.data["rutina_semanal"] = generar_rutina_ia(nueva_data_user)
                 
+                # Guardar en gym_data.json
                 guardar_todo(st.session_state.data)
+                
+                # Guardar también en user_data.json para que persista el perfil
+                actualizar_perfil_usuario(st.session_state.usuario_logueado, nueva_data_user)
+                
                 st.success("¡Perfil y rutina actualizados con éxito!")
                 st.rerun()
 
