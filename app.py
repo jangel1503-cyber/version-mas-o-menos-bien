@@ -10,16 +10,15 @@ st.set_page_config(page_title="Gym Pro AI", page_icon="🏋️‍♂️", layout
 DB_FILE = "gym_data.json"
 USERS_FILE = "user_data.json"
 
-# Cargar API key (Prioriza secrets de Streamlit Cloud)
+# Cargar API key
 try:
     GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
 except (KeyError, FileNotFoundError):
-    # Clave proporcionada por el usuario
     GEMINI_API_KEY = "AIzaSyB2KaHLEIebj5JQ99O_oG_k28vtSvcpRzA"
 
 genai.configure(api_key=GEMINI_API_KEY)
 
-# Configuración de seguridad para permitir consejos de salud y ejercicio sin bloqueos
+# Filtros de seguridad para contenido de salud
 safety_settings = [
     {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
     {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
@@ -27,9 +26,23 @@ safety_settings = [
     {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
 ]
 
+# Usamos 1.5-flash para mayor estabilidad en la cuota gratuita
 model = genai.GenerativeModel('gemini-1.5-flash', safety_settings=safety_settings)
 
-# --- GESTIÓN DE ARCHIVOS Y USUARIOS ---
+# --- FUNCIÓN MAESTRA DE SEGURIDAD IA ---
+def llamar_ia_con_seguridad(prompt):
+    """Maneja las llamadas a la IA y captura errores de cuota (429)."""
+    try:
+        response = model.generate_content(prompt)
+        if response and response.text:
+            return response.text
+        return "La IA no pudo generar una respuesta en este momento."
+    except Exception as e:
+        if "429" in str(e) or "quota" in str(e).lower():
+            return "⚠️ **Límite de peticiones alcanzado:** Google está procesando muchas solicitudes. Por favor, espera 60 segundos y vuelve a intentar."
+        return f"❌ Error de conexión: {e}"
+
+# --- GESTIÓN DE USUARIOS Y ARCHIVOS ---
 def cargar_usuarios():
     if os.path.exists(USERS_FILE):
         try:
@@ -56,10 +69,9 @@ def estructura_vacia(nombre="Usuario"):
             "objetivos": [], "edad": 25, "dias_entreno": 3
         },
         "historial_peso": [],
-        "prs": {},
-        "dieta_semanal": "Aún no has generado una dieta.",
-        "rutina_semanal": "Aún no has generado una rutina.",
-        "analisis_salud": "Completa tu perfil para recibir un análisis de la IA."
+        "dieta_semanal": "Presiona el botón para generar tu plan.",
+        "rutina_semanal": "Presiona el botón para generar tu rutina.",
+        "analisis_salud": "Completa tu perfil para recibir el análisis."
     }
 
 def cargar_todo():
@@ -85,203 +97,91 @@ def guardar_todo(data_usuario):
     with open(DB_FILE, "w", encoding='utf-8') as f:
         json.dump(todas_las_datas, f, indent=4, ensure_ascii=False)
 
-# --- NÚCLEO DE INTELIGENCIA ARTIFICIAL ---
+# --- NÚCLEO DE IA CON SEGURIDAD ---
 
 def obtener_analisis_ia(user_data):
-    """La IA interpreta los datos físicos del usuario."""
     est_m = ((user_data['pies'] * 12) + user_data['pulgadas']) * 0.0254
     peso_kg = user_data['peso_lb'] * 0.453592
     imc = peso_kg / (est_m**2) if est_m > 0 else 0
     
     prompt = f"""
-    Actúa como un experto en salud. Analiza estos datos:
+    Analiza estos datos de salud de forma profesional:
     - Nombre: {user_data['nombre']}, Edad: {user_data['edad']}, Sexo: {user_data['sexo']}
-    - Peso: {user_data['peso_lb']} lbs, Estatura: {user_data['pies']} pies {user_data['pulgadas']} pulgadas.
-    - IMC calculado: {imc:.2f}
+    - Peso: {user_data['peso_lb']} lbs, IMC: {imc:.2f}
     - Objetivos: {", ".join(user_data['objetivos'])}
-
-    PROPORCIONA:
-    1. Diagnóstico de categoría de peso.
-    2. Rango de peso ideal en Libras.
-    3. Un análisis de cómo sus objetivos se alinean con su estado actual.
-    Se breve, profesional y motivador.
+    Determina categoría de peso, peso ideal en libras y consejos motivadores.
     """
-    try:
-        response = model.generate_content(prompt)
-        return response.text
-    except Exception as e:
-        return f"Error al generar análisis: {e}"
+    return llamar_ia_con_seguridad(prompt)
 
 def generar_dieta_ia(user_data):
-    """Genera nutrición personalizada 100% mediante IA."""
     prompt = f"""
-    Eres un Nutricionista Deportivo de élite. Crea un plan detallado para:
-    - Usuario: {user_data['nombre']}, {user_data['edad']} años, {user_data['sexo']}
-    - Peso: {user_data['peso_lb']} lbs, Estatura: {user_data['pies']}'{user_data['pulgadas']}"
-    - Actividad: {user_data['dias_entreno']} días de gimnasio por semana.
+    Eres un Nutricionista experto. Crea un plan para:
+    - {user_data['nombre']}, {user_data['edad']} años, {user_data['sexo']}
+    - Peso: {user_data['peso_lb']} lbs, Entrena: {user_data['dias_entreno']} días/sem.
     - Objetivos: {", ".join(user_data['objetivos'])}
-
-    EL PLAN DEBE INCLUIR:
-    1. Calorías diarias sugeridas y distribución de Macros.
-    2. Un ejemplo de menú diario (Desayuno, Almuerzo, Merienda, Cena).
-    3. Tips específicos para optimizar resultados según su edad y metas.
-    Usa formato Markdown.
+    Incluye macros detallados, menú de un día y tips de hidratación.
     """
-    try:
-        response = model.generate_content(prompt)
-        return response.text
-    except Exception as e:
-        return f"Hubo un problema al conectar con el nutricionista virtual: {e}"
+    return llamar_ia_con_seguridad(prompt)
 
 def generar_rutina_ia(user_data):
-    """Genera entrenamiento personalizado 100% mediante IA."""
     prompt = f"""
-    Eres un Entrenador Personal experto. Diseña una rutina para:
-    - Perfil: {user_data['sexo']}, {user_data['edad']} años, {user_data['peso_lb']} lbs.
+    Eres un Entrenador Personal. Diseña una rutina para:
+    - Edad: {user_data['edad']} años, Sexo: {user_data['sexo']}
     - Frecuencia: {user_data['dias_entreno']} días/semana.
-    - Objetivos: {", ".join(user_data['objetivos'])}
-
-    REGLAS:
-    1. Si busca 'Fuerza', series pesadas (1-5 reps). Si busca 'Hipertrofia', (8-12 reps).
-    2. Si tiene más de 45 años, priorizar salud articular y técnica.
-    3. Estructura clara por días con ejercicios, series, repeticiones y descansos.
+    - Metas: {", ".join(user_data['objetivos'])}
+    Ajusta series y repeticiones según el objetivo y la edad. Formato Markdown.
     """
-    try:
-        response = model.generate_content(prompt)
-        return response.text
-    except Exception as e:
-        return f"Error al generar la rutina: {e}"
+    return llamar_ia_con_seguridad(prompt)
 
-# --- FLUJO DE LA INTERFAZ ---
+# --- INTERFAZ ---
 
 if "usuario_logueado" not in st.session_state:
     st.title("🏋️ Gym Pro AI")
-    st.subheader("Tu transformación física potenciada por IA")
-    
-    auth_tab1, auth_tab2 = st.tabs(["Ingresar", "Registrarse"])
-    
-    with auth_tab1:
-        u = st.text_input("Usuario", key="login_user")
-        p = st.text_input("Contraseña", type="password", key="login_pass")
-        if st.button("Iniciar Sesión", use_container_width=True):
+    t1, t2 = st.tabs(["Login", "Registro"])
+    with t1:
+        u = st.text_input("Usuario")
+        p = st.text_input("Contraseña", type="password")
+        if st.button("Entrar"):
             users = cargar_usuarios()
             if u in users and users[u]["password"] == p:
                 st.session_state.usuario_logueado = u
                 st.session_state.data = cargar_todo()
-                st.success(f"Bienvenido de nuevo, {u}")
                 st.rerun()
-            else: st.error("Usuario o contraseña incorrectos.")
-
-    with auth_tab2:
-        new_u = st.text_input("Elige un nombre de usuario")
-        new_p = st.text_input("Elige una contraseña", type="password")
-        if st.button("Crear Cuenta", use_container_width=True):
+            else: st.error("Datos incorrectos")
+    with t2:
+        nu = st.text_input("Nuevo Usuario")
+        np = st.text_input("Nueva Contraseña", type="password")
+        if st.button("Crear Cuenta"):
             users = cargar_usuarios()
-            if new_u in users: st.warning("Ese nombre ya está en uso.")
-            elif new_u and new_p:
-                users[new_u] = {"password": new_p, "perfil": estructura_vacia(new_u)["user"]}
+            if nu and np:
+                users[nu] = {"password": np, "perfil": estructura_vacia(nu)["user"]}
                 guardar_usuarios(users)
-                st.success("¡Registro exitoso! Ahora puedes iniciar sesión.")
-            else: st.error("Por favor rellena todos los campos.")
+                st.success("¡Listo! Inicia sesión.")
 
 else:
-    # --- PANEL PRINCIPAL (LOGUEADO) ---
     with st.sidebar:
-        st.title(f"Hola, {st.session_state.usuario_logueado} 👋")
-        opcion = st.radio("Navegación", ["Perfil y Salud", "Plan de Nutrición IA", "Rutina de Entrenamiento IA", "Mi Progreso"])
-        st.markdown("---")
-        if st.button("Cerrar Sesión"):
+        st.title(f"Hola, {st.session_state.usuario_logueado}")
+        opc = st.radio("Ir a:", ["Perfil y Salud", "Dieta IA", "Rutina IA", "Progreso"])
+        if st.button("Salir"):
             del st.session_state.usuario_logueado
             st.rerun()
 
-    # 1. PERFIL Y SALUD
-    if opcion == "Perfil y Salud":
-        st.header("📊 Perfil y Análisis de Salud IA")
+    if opc == "Perfil y Salud":
+        st.header("📊 Análisis de Salud Inteligente")
         user = st.session_state.data["user"]
+        col1, col2 = st.columns([1, 1.2])
         
-        col_form, col_ia = st.columns([1, 1.2])
-        
-        with col_form:
-            with st.form("perfil_update"):
-                st.subheader("Tus Datos Físicos")
-                n_nombre = st.text_input("Nombre", value=user["nombre"])
+        with col1:
+            with st.form("perfil_form"):
+                n_nom = st.text_input("Nombre", value=user["nombre"])
                 n_edad = st.number_input("Edad", 14, 100, value=user.get("edad", 25))
                 n_sexo = st.selectbox("Sexo", ["Hombre", "Mujer"], index=0 if user["sexo"]=="Hombre" else 1)
-                n_peso = st.number_input("Peso Actual (lbs)", 50, 500, value=user["peso_lb"])
-                c1, c2 = st.columns(2)
-                n_pies = c1.number_input("Estatura (Pies)", 3, 8, value=user["pies"])
-                n_pulgadas = c2.number_input("Estatura (Pulg.)", 0, 11, value=user["pulgadas"])
-                n_dias = st.slider("Días de entrenamiento por semana", 1, 7, value=user.get("dias_entreno", 3))
+                n_peso = st.number_input("Peso (lbs)", 50, 500, value=user["peso_lb"])
+                n_pies = st.number_input("Pies", 3, 8, value=user["pies"])
+                n_pulg = st.number_input("Pulgadas", 0, 11, value=user["pulgadas"])
+                n_dias = st.slider("Entrenos/semana", 1, 7, value=user.get("dias_entreno", 3))
+                objs = st.multiselect("Objetivos", ["Ganar masa", "Perder grasa", "Fuerza", "Resistencia", "Salud"], default=user["objetivos"])
                 
-                objs_disponibles = [
-                    "Ganar masa muscular (hipertrofia)", "Perder grasa corporal", "Aumentar fuerza", 
-                    "Mejorar resistencia cardiovascular", "Tonificar el cuerpo", "Reducir el estrés", 
-                    "Dormir mejor", "Aprender técnica correcta", "Crear una rutina constante", "Mejorar postura"
-                ]
-                n_objs = st.multiselect("Tus Objetivos Actuales", objs_disponibles, default=user["objetivos"])
-                
-                if st.form_submit_button("💾 Guardar y Analizar con IA", use_container_width=True):
-                    est_m = ((n_pies * 12) + n_pulgadas) * 0.0254
-                    nueva_data = {
-                        "nombre": n_nombre, "sexo": n_sexo, "peso_lb": n_peso, "pies": n_pies, 
-                        "pulgadas": n_pulgadas, "estatura_m": est_m, "objetivos": n_objs,
-                        "edad": n_edad, "dias_entreno": n_dias
-                    }
-                    st.session_state.data["user"] = nueva_data
-                    
-                    with st.spinner("La IA está analizando tu perfil..."):
-                        st.session_state.data["analisis_salud"] = obtener_analisis_ia(nueva_data)
-                    
-                    guardar_todo(st.session_state.data)
-                    actualizar_perfil_usuario(st.session_state.usuario_logueado, nueva_data)
-                    st.success("¡Datos actualizados!")
-                    st.rerun()
-
-        with col_ia:
-            st.subheader("Resumen de Salud Inteligente")
-            st.info(st.session_state.data.get("analisis_salud", "Sin análisis disponible."))
-
-    # 2. PLAN ALIMENTICIO
-    elif opcion == "Plan de Nutrición IA":
-        st.header("🍎 Nutrición Basada en Ciencia e IA")
-        if st.button("🚀 Generar Nuevo Plan Alimenticio con IA", use_container_width=True):
-            with st.spinner("Calculando macros y diseñando menú..."):
-                plan = generar_dieta_ia(st.session_state.data["user"])
-                st.session_state.data["dieta_semanal"] = plan
-                guardar_todo(st.session_state.data)
-        
-        st.markdown("---")
-        st.markdown(st.session_state.data["dieta_semanal"])
-
-    # 3. RUTINA IA
-    elif opcion == "Rutina de Entrenamiento IA":
-        st.header("🏋️ Entrenamiento Personalizado por IA")
-        if st.button("⚡ Generar Nueva Rutina Semanal con IA", use_container_width=True):
-            with st.spinner("Diseñando tu entrenamiento inteligente..."):
-                rutina = generar_rutina_ia(st.session_state.data["user"])
-                st.session_state.data["rutina_semanal"] = rutina
-                guardar_todo(st.session_state.data)
-        
-        st.markdown("---")
-        st.markdown(st.session_state.data["rutina_semanal"])
-
-    # 4. PROGRESO
-    elif opcion == "Mi Progreso":
-        st.header("📈 Seguimiento de Resultados")
-        col_input, col_chart = st.columns([1, 2])
-        
-        with col_input:
-            nuevo_p = st.number_input("Registrar peso de hoy (lbs)", 50, 500, value=st.session_state.data["user"]["peso_lb"])
-            if st.button("Guardar Peso", use_container_width=True):
-                fecha_hoy = str(pd.Timestamp.now().date())
-                st.session_state.data["historial_peso"].append({"fecha": fecha_hoy, "peso": nuevo_p})
-                guardar_todo(st.session_state.data)
-                st.success("¡Peso registrado!")
-                st.rerun()
-        
-        with col_chart:
-            if st.session_state.data["historial_peso"]:
-                df_peso = pd.DataFrame(st.session_state.data["historial_peso"])
-                st.line_chart(df_peso.set_index("fecha"))
-            else:
-                st.write("Aún no tienes registros de peso históricos.")
+                if st.form_submit_button("Guardar y Analizar"):
+                    est_m = ((n_pies * 12) + n_pulg) * 0.0254
+                    new_data = {"nombre": n_nom, "sexo": n_sexo, "peso_lb": n_peso, "pies": n_pies, "pulgadas": n_pulg, "estatura_m": est_m, "objetivos
