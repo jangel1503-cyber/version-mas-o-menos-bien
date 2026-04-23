@@ -1,4 +1,4 @@
-# 📊 Arquitectura del Sistema de Login y Registro
+# 📊 Arquitectura del Sistema de Login y Registro V1
 
 ## Arquitectura N-Capas (Abril 2026)
 
