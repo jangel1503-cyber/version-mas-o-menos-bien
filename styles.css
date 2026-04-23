@@ -1,0 +1,561 @@
+/* Nuevo diseño divertido y moderno para Gym Pro AI */
+/* Tema: Colores vibrantes, gradientes, animaciones divertidas */
+
+:root {
+    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    --success-gradient: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    --warning-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    --bg-light: #f8fafc;
+    --bg-card: #ffffff;
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
+    --shadow-fun: 0 10px 30px rgba(102, 126, 234, 0.3);
+    --border-radius: 16px;
+}
+
+/* Fondo principal con patrón divertido */
+[data-testid="stAppViewContainer"] {
+    background: var(--bg-light) !important;
+    background-image:
+        radial-gradient(circle at 25% 25%, rgba(102, 126, 234, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(245, 87, 108, 0.1) 0%, transparent 50%) !important;
+    color: var(--text-primary) !important;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
+
+/* Headers con gradientes y animaciones */
+.main-header {
+    font-size: 3.5rem !important;
+    font-weight: 800 !important;
+    background: var(--primary-gradient) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    text-align: center !important;
+    margin-bottom: 2rem !important;
+    letter-spacing: -2px !important;
+    animation: bounceIn 1s ease-out !important;
+    text-shadow: 0 4px 20px rgba(102, 126, 234, 0.3) !important;
+}
+
+@keyframes bounceIn {
+    0% { transform: scale(0.3); opacity: 0; }
+    50% { transform: scale(1.05); }
+    70% { transform: scale(0.9); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* Subtítulos con estilo moderno */
+h2, h3 {
+    background: var(--secondary-gradient) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.5px !important;
+    text-transform: none !important;
+    border: none !important;
+    padding-bottom: 1rem !important;
+    position: relative !important;
+}
+
+h2::after, h3::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 4px;
+    background: var(--accent-gradient) !important;
+    border-radius: 2px !important;
+}
+
+h4 {
+    color: var(--text-secondary) !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1px !important;
+    font-size: 0.9rem !important;
+}
+
+/* Tarjetas de ejercicios - Diseño moderno con hover divertido */
+.exercise-card {
+    background: var(--bg-card) !important;
+    border: none !important;
+    border-radius: var(--border-radius) !important;
+    padding: 24px !important;
+    margin: 16px 0 !important;
+    box-shadow: var(--shadow-fun) !important;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+.exercise-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: var(--primary-gradient) !important;
+    opacity: 0;
+    transition: left 0.5s !important;
+}
+
+.exercise-card:hover {
+    transform: translateY(-8px) rotate(1deg) !important;
+    box-shadow: 0 20px 40px rgba(102, 126, 234, 0.4) !important;
+}
+
+.exercise-card:hover::before {
+    left: 100%;
+    opacity: 0.1;
+}
+
+/* Botones modernos con gradientes */
+button {
+    border: none !important;
+    border-radius: 12px !important;
+    font-weight: 600 !important;
+    transition: all 0.3s ease !important;
+    text-transform: none !important;
+    letter-spacing: 0.5px !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+[data-testid="baseButton-primary"] {
+    background: var(--primary-gradient) !important;
+    color: white !important;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4) !important;
+}
+
+[data-testid="baseButton-primary"]:hover {
+    transform: translateY(-2px) scale(1.05) !important;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6) !important;
+}
+
+[data-testid="baseButton-primary"]:active {
+    transform: translateY(0) scale(0.98) !important;
+}
+
+/* Tabs con estilo moderno */
+[data-baseweb="tab-list"] {
+    border: none !important;
+    background: transparent !important;
+}
+
+[data-baseweb="tab"] {
+    color: var(--text-secondary) !important;
+    font-weight: 600 !important;
+    border: none !important;
+    padding: 12px 24px !important;
+    border-radius: 12px !important;
+    transition: all 0.3s ease !important;
+}
+
+[aria-selected="true"] {
+    background: var(--accent-gradient) !important;
+    color: white !important;
+    box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4) !important;
+    transform: translateY(-2px) !important;
+}
+
+/* Métricas con diseño moderno */
+[data-testid="metric-container"] {
+    background: var(--bg-card) !important;
+    border-radius: var(--border-radius) !important;
+    padding: 24px !important;
+    border: none !important;
+    box-shadow: var(--shadow-fun) !important;
+    transition: transform 0.3s ease !important;
+}
+
+[data-testid="metric-container"]:hover {
+    transform: translateY(-4px) !important;
+}
+
+/* Inputs modernos */
+input, textarea, select {
+    background: var(--bg-card) !important;
+    border: 2px solid #e2e8f0 !important;
+    color: var(--text-primary) !important;
+    border-radius: 12px !important;
+    font-weight: 500 !important;
+    padding: 12px 16px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+    transition: all 0.3s ease !important;
+    font-size: 16px !important; /* Previene zoom en móviles */
+}
+
+input:focus, textarea:focus, select:focus {
+    border-color: #667eea !important;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1), 0 4px 12px rgba(102, 126, 234, 0.2) !important;
+    transform: translateY(-1px) !important;
+}
+
+/* Expanders modernos */
+[data-testid="stExpander"] {
+    background: var(--bg-card) !important;
+    border: none !important;
+    border-radius: var(--border-radius) !important;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08) !important;
+    transition: all 0.3s ease !important;
+}
+
+[data-testid="stExpander"]:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12) !important;
+    transform: translateY(-2px) !important;
+}
+
+/* Info boxes con gradientes */
+[data-testid="stInfo"] {
+    background: var(--accent-gradient) !important;
+    border: none !important;
+    border-radius: var(--border-radius) !important;
+    color: white !important;
+    box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3) !important;
+}
+
+[data-testid="stSuccess"] {
+    background: var(--success-gradient) !important;
+    border: none !important;
+    border-radius: var(--border-radius) !important;
+    color: white !important;
+    box-shadow: 0 4px 15px rgba(67, 233, 123, 0.3) !important;
+}
+
+[data-testid="stWarning"] {
+    background: var(--warning-gradient) !important;
+    border: none !important;
+    border-radius: var(--border-radius) !important;
+    color: white !important;
+    box-shadow: 0 4px 15px rgba(250, 112, 154, 0.3) !important;
+}
+
+[data-testid="stError"] {
+    background: var(--secondary-gradient) !important;
+    border: none !important;
+    border-radius: var(--border-radius) !important;
+    color: white !important;
+    box-shadow: 0 4px 15px rgba(245, 87, 108, 0.3) !important;
+}
+
+/* Sidebar moderna */
+[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%) !important;
+    border: none !important;
+    box-shadow: 2px 0 20px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Textos generales */
+p, span, div {
+    color: var(--text-primary) !important;
+    line-height: 1.6 !important;
+}
+
+/* Enlaces modernos */
+a {
+    color: #667eea !important;
+    text-decoration: none !important;
+    font-weight: 600 !important;
+    transition: all 0.3s ease !important;
+    position: relative !important;
+}
+
+a::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--accent-gradient) !important;
+    transition: width 0.3s ease !important;
+}
+
+a:hover {
+    color: #5a67d8 !important;
+}
+
+a:hover::after {
+    width: 100%;
+}
+
+/* Divisor moderno */
+hr {
+    border: none !important;
+    height: 2px !important;
+    background: var(--primary-gradient) !important;
+    margin: 2rem 0 !important;
+    border-radius: 1px !important;
+}
+
+/* DataFrames modernos */
+[data-testid="stDataFrame"] {
+    background: var(--bg-card) !important;
+    border-radius: var(--border-radius) !important;
+    box-shadow: var(--shadow-fun) !important;
+}
+
+/* Cards personalizadas modernas */
+.stat-card {
+    background: var(--bg-card) !important;
+    border-radius: var(--border-radius) !important;
+    padding: 24px !important;
+    color: var(--text-primary) !important;
+    text-align: center !important;
+    box-shadow: var(--shadow-fun) !important;
+    font-weight: 600 !important;
+    border: none !important;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--primary-gradient) !important;
+}
+
+.stat-card:hover {
+    transform: translateY(-6px) scale(1.02) !important;
+    box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4) !important;
+}
+
+/* Progress bar moderna */
+.progress-bar {
+    background: #e2e8f0 !important;
+    border: none !important;
+    border-radius: 20px !important;
+    height: 12px !important;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+    overflow: hidden !important;
+}
+
+.progress-bar-fill {
+    background: var(--success-gradient) !important;
+    height: 100% !important;
+    border-radius: 20px !important;
+    box-shadow: 0 0 10px rgba(67, 233, 123, 0.4) !important;
+    transition: width 0.8s ease !important;
+}
+
+/* Animaciones divertidas */
+@keyframes slideIn {
+    from { opacity: 0; transform: translateX(-30px) rotate(-5deg); }
+    to { opacity: 1; transform: translateX(0) rotate(0deg); }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(1.05); }
+}
+
+@keyframes wiggle {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-3deg); }
+    75% { transform: rotate(3deg); }
+}
+
+.pulse {
+    animation: pulse 2s infinite !important;
+}
+
+.slide-in {
+    animation: slideIn 0.6s ease-out !important;
+}
+
+.wiggle:hover {
+    animation: wiggle 0.5s ease-in-out !important;
+}
+
+/* Scrollbar moderna */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary-gradient) !important;
+    border-radius: 5px;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2) !important;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--secondary-gradient) !important;
+}
+
+/* Labels en sidebar */
+.sidebar-label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-secondary);
+    margin: 2rem 0 0.5rem 0;
+    font-weight: 700;
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Tarjetas de comidas modernas */
+.meal-card {
+    background: var(--bg-card) !important;
+    border: none !important;
+    border-radius: 12px !important;
+    padding: 16px !important;
+    margin: 10px 0 !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+    position: relative !important;
+}
+
+.meal-card:hover {
+    transform: translateX(4px) scale(1.02) !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+}
+
+.meal-card::after {
+    content: '🍽️';
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 1.2rem;
+    opacity: 0.7;
+}
+
+/* Badges de progreso modernos */
+.progress-badge {
+    display: inline-block;
+    background: var(--success-gradient) !important;
+    color: white !important;
+    padding: 6px 12px !important;
+    border-radius: 20px !important;
+    font-weight: 600 !important;
+    font-size: 0.85rem !important;
+    box-shadow: 0 2px 8px rgba(67, 233, 123, 0.3) !important;
+    transition: all 0.3s ease !important;
+}
+
+.progress-badge:hover {
+    transform: scale(1.1) !important;
+    box-shadow: 0 4px 12px rgba(67, 233, 123, 0.4) !important;
+}
+
+/* Animación shimmer para carga */
+@keyframes shimmer {
+    0% { opacity: 0.6; transform: translateX(-100%); }
+    100% { opacity: 1; transform: translateX(100%); }
+}
+
+.shimmer {
+    animation: shimmer 2s infinite !important;
+    position: relative !important;
+}
+
+.shimmer::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent) !important;
+    animation: shimmer 2s infinite !important;
+}
+
+/* Espaciado y tipografía mejorados */
+[data-testid="stMarkdownContainer"] {
+    line-height: 1.7 !important;
+    color: var(--text-primary) !important;
+}
+
+/* Color de texto en elementos especiales */
+[data-testid="stMetricValue"] {
+    color: var(--text-primary) !important;
+    font-weight: 700 !important;
+    font-size: 1.5rem !important;
+}
+
+[data-testid="stMetricLabel"] {
+    color: var(--text-secondary) !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+}
+
+/* Mejora visual para elementos de streamlit */
+[data-testid="stVerticalBlock"] {
+    color: var(--text-primary) !important;
+}
+
+/* Buttons secundarios modernos */
+[data-testid="baseButton-secondary"] {
+    background: #f1f5f9 !important;
+    color: var(--text-primary) !important;
+    border: 2px solid #e2e8f0 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+[data-testid="baseButton-secondary"]:hover {
+    background: var(--accent-gradient) !important;
+    color: white !important;
+    border-color: transparent !important;
+    box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4) !important;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .main-header {
+        font-size: 2.5rem !important;
+    }
+
+    .exercise-card, .stat-card {
+        padding: 16px !important;
+        margin: 8px 0 !important;
+    }
+
+    [data-testid="metric-container"] {
+        padding: 16px !important;
+    }
+}
+
+/* Efectos especiales para diversión */
+.floating {
+    animation: float 3s ease-in-out infinite !important;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+.rainbow-text {
+    background: linear-gradient(45deg, #667eea, #764ba2, #f093fb, #f5576c, #4facfe, #00f2fe, #43e97b, #38f9d7, #fa709a, #fee140) !important;
+    background-size: 400% 400% !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    animation: rainbow 3s ease infinite !important;
+}
+
+@keyframes rainbow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}</content>
+<parameter name="filePath">d:\version-mas-o-menos-bien\styles.css
