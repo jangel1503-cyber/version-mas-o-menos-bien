@@ -64,6 +64,9 @@ if 'data' not in st.session_state:
         "dieta_semanal": {}
     }
 
+if '_ultima_carga' not in st.session_state:
+    st.session_state._ultima_carga = None
+
 # --- GESTIÓN DE USUARIOS ---
 def cargar_usuarios():
     """Carga la base de datos de usuarios desde user_data.json"""
@@ -239,19 +242,10 @@ def asegurar_datos_frescos():
 if 'data' not in st.session_state or (st.session_state.usuario_logueado and st.session_state.data.get('user', {}) == {}):
     # Cargar datos si hay usuario logueado O si nunca se ha cargado nada
     if st.session_state.usuario_logueado:
-        st.session_state.data = cargar_todo()
+        asegurar_datos_frescos()
     else:
-        # Estructura vacía para la pantalla de login
-        st.session_state.data = {
-            "perfil_completado": False, 
-            "user": {}, 
-            "rutina_semanal": {}, 
-            "historial_pesos": [],
-            "historial_entrenamientos": [],
-            "pr_por_ejercicio": {},
-            "fecha_ultima_rotacion": None,
-            "dieta_semanal": {}
-        }
+        # Estructura vacía para la pantalla de login (ya inicializada arriba)
+        pass
 
 # --- LÓGICA DE SALUD ---
 def obtener_analisis(peso_lb, estatura_m):
@@ -1562,7 +1556,7 @@ else:
         st.markdown("### 🍽️ Tu Plan de Nutrición Personalizado")
         
         # Cargar datos frescos
-        st.session_state.data = cargar_todo()
+        asegurar_datos_frescos()
         dieta = st.session_state.data.get("dieta_semanal", {})
         u = st.session_state.data.get("user", {})
         
@@ -1886,7 +1880,7 @@ else:
                                     guardar_todo(st.session_state.data)
                                     
                                     # Recargar desde JSON para asegurar sincronización
-                                    st.session_state.data = cargar_todo()
+                                    asegurar_datos_frescos()
                                     
                                     st.success(f"✅ {ej_original} → {alt['nombre']}")
                                     st.toast(f"Cambio guardado en {dia}", icon="💪")
