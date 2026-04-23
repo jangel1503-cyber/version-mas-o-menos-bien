@@ -26,6 +26,15 @@ def aplicar_estilos():
         with open("styles.css", "r", encoding="utf-8") as f:
             estilos = f"<style>{f.read()}</style>"
         st.markdown(estilos, unsafe_allow_html=True)
+
+        # Aplicar tema al contenedor principal
+        tema_attr = 'data-theme="dark"' if st.session_state.tema_oscuro else 'data-theme="light"'
+        st.markdown(f"""
+        <script>
+        document.querySelector('[data-testid="stAppViewContainer"]').setAttribute('data-theme', '{"dark" if st.session_state.tema_oscuro else "light"}');
+        </script>
+        """, unsafe_allow_html=True)
+
     except FileNotFoundError:
         st.warning("Archivo styles.css no encontrado. Usando estilos básicos.")
         estilos_basicos = """
@@ -38,6 +47,13 @@ def aplicar_estilos():
 
 # Aplicar estilos al cargar la página
 aplicar_estilos()
+
+# Toggle de modo día/noche (siempre visible)
+col_toggle = st.columns([0.95, 0.05])[1]
+with col_toggle:
+    if st.button("🌙" if st.session_state.tema_oscuro else "☀️", key="theme_toggle", help="Cambiar modo día/noche"):
+        st.session_state.tema_oscuro = not st.session_state.tema_oscuro
+        st.rerun()
 
 # Cargar API key desde secrets (Streamlit Cloud) o variable local
 try:
@@ -66,6 +82,10 @@ if 'data' not in st.session_state:
 
 if '_ultima_carga' not in st.session_state:
     st.session_state._ultima_carga = None
+
+# Inicializar tema (modo día por defecto)
+if 'tema_oscuro' not in st.session_state:
+    st.session_state.tema_oscuro = False
 
 # --- GESTIÓN DE USUARIOS ---
 def cargar_usuarios():
@@ -1164,10 +1184,9 @@ if not st.session_state.usuario_logueado:
     col_header = st.columns([1])[0]
     with col_header:
         st.markdown("""
-        <div style='text-align: center; padding: 20px; background: linear-gradient(135deg, rgba(255, 107, 53, 0.1) 0%, rgba(78, 205, 196, 0.1) 100%); 
-                    border-radius: 12px; border: 2px solid #FF6B35; margin-bottom: 30px;'>
-            <h3 style='color: #4ECDC4; margin: 0; font-size: 1.5rem;'>Tu Entrenador Personal Inteligente</h3>
-            <p style='color: #FFE66D; margin: 10px 0 0 0; font-size: 1rem;'>Entrenamientos personalizados con IA | Nutrición optimizada | Progreso garantizado</p>
+        <div class="hero-section">
+            <h3 class="hero-title">Tu Entrenador Personal Inteligente</h3>
+            <p class="hero-subtitle">Entrenamientos personalizados con IA | Nutrición optimizada | Progreso garantizado</p>
         </div>
         """, unsafe_allow_html=True)
     
@@ -1175,9 +1194,8 @@ if not st.session_state.usuario_logueado:
     
     with col1:
         st.markdown("""
-        <div style='background: linear-gradient(135deg, rgba(255, 107, 53, 0.15) 0%, rgba(255, 184, 77, 0.15) 100%); 
-                    padding: 30px; border-radius: 12px; border: 2px solid #FF6B35; text-align: center;'>
-            <h2 style='color: #FF6B35; margin-top: 0;'>🔐 Iniciar Sesión</h2>
+        <div class="login-card">
+            <h2 class="login-title">🔐 Iniciar Sesión</h2>
         </div>
         """, unsafe_allow_html=True)
         
@@ -1230,9 +1248,8 @@ if not st.session_state.usuario_logueado:
     
     with col2:
         st.markdown("""
-        <div style='background: linear-gradient(135deg, rgba(78, 205, 196, 0.15) 0%, rgba(52, 152, 219, 0.15) 100%); 
-                    padding: 30px; border-radius: 12px; border: 2px solid #4ECDC4; text-align: center;'>
-            <h2 style='color: #4ECDC4; margin-top: 0;'>📝 Registrarse</h2>
+        <div class="register-card">
+            <h2 class="register-title">📝 Registrarse</h2>
         </div>
         """, unsafe_allow_html=True)
         
@@ -1343,16 +1360,16 @@ else:
         objetivo_principal = objetivos_usuario[0] if objetivos_usuario else 'Sin objetivos'
         
         st.markdown(f"""
-            <div style="text-align: center; padding: 20px 0;">
-                <h2 style="margin:0;">💪 Gym Pro AI</h2>
-                <p style="color: grey;">Tu Entrenador Personal Inteligente</p>
+            <div class="sidebar-header">
+                <h2 class="sidebar-title">💪 Gym Pro AI</h2>
+                <p class="sidebar-subtitle">Tu Entrenador Personal Inteligente</p>
             </div>
-            <hr style="margin: 10px 0; border: 0.1px solid rgba(255,255,255,0.1);">
-            <p class="sidebar-label" style="color: #FFE66D; font-size: 0.9rem; font-weight: 700; text-transform: uppercase;">👤 Perfil de Usuario</p>
-            <h3 style="color: #FF6B35; margin: 10px 0;">{nombre_usuario}</h3>
-            <p style="color: #bbb; margin: 5px 0;">⚧️ {sexo_usuario}</p>
-            <p style="color: #bbb; margin: 5px 0;">🎂 {edad_usuario} años</p>
-            <p style="color: #4ECDC4; margin: 5px 0; font-weight: 600;">🎯 {objetivo_principal}</p>
+            <hr class="sidebar-divider">
+            <p class="sidebar-label">👤 Perfil de Usuario</p>
+            <h3 class="sidebar-name">{nombre_usuario}</h3>
+            <p class="sidebar-info">⚧️ {sexo_usuario}</p>
+            <p class="sidebar-info">🎂 {edad_usuario} años</p>
+            <p class="sidebar-objective">🎯 {objetivo_principal}</p>
         """, unsafe_allow_html=True)
         st.info(f"📍 **Meta**: {len(objetivos_usuario)} objetivos seleccionados")
         
@@ -1408,9 +1425,15 @@ else:
             except:
                 st.write("❌ Error leyendo gym_data.json")
 
-    # --- DASHBOARD PRINCIPAL ---
-    nombre_usuario = u.get("nombre", "Usuario")
-    st.markdown(f'<h1 class="main-header">¡Bienvenido, {nombre_usuario}! 💪</h1>', unsafe_allow_html=True)
+    # Toggle de modo día/noche
+    col_toggle, col_header = st.columns([0.1, 0.9])
+    with col_toggle:
+        if st.button("🌙" if st.session_state.tema_oscuro else "☀️", key="theme_toggle", help="Cambiar modo día/noche"):
+            st.session_state.tema_oscuro = not st.session_state.tema_oscuro
+            st.rerun()
+
+    with col_header:
+        st.markdown(f'<h1 class="main-header">¡Bienvenido, {nombre_usuario}! 💪</h1>', unsafe_allow_html=True)
     
     # Barra de métricas mejorada
     st.markdown("---")
@@ -1420,40 +1443,36 @@ else:
     
     with col_imc:
         st.markdown(f"""
-        <div class="stat-card">
-            <h4 style="margin: 0; font-size: 0.9rem;">📏 IMC</h4>
-            <h2 style="margin: 10px 0; color: white; font-size: 2.5rem;">{imc}</h2>
-            <p style="margin: 0; font-size: 0.85rem; opacity: 0.9;">Índice de Masa Corporal</p>
+        <div class="metric-card">
+            <h4 class="metric-title">📏 IMC</h4>
+            <h2 class="metric-value">{imc}</h2>
+            <p class="metric-subtitle">Índice de Masa Corporal</p>
         </div>
         """, unsafe_allow_html=True)
     
     with col_estado:
-        color_estado = "#27AE60" if estado == "Peso normal" else "#F39C12" if estado == "Sobrepeso" else "#E74C3C"
         st.markdown(f"""
-        <div style='background: linear-gradient(135deg, rgba({','.join(map(str, [39, 174, 96][:3]))}, 0.2) 0%, rgba(46, 204, 113, 0.2) 100%); 
-                    border-radius: 12px; padding: 20px; border: 2px solid {color_estado}; text-align: center;'>
-            <h4 style='margin: 0; font-size: 0.9rem; color: {color_estado};'>💪 Estado</h4>
-            <h2 style='margin: 10px 0; color: {color_estado}; font-size: 1.8rem;'>{estado}</h2>
+        <div class="status-card">
+            <h4 class="status-title">💪 Estado</h4>
+            <h2 class="status-value">{estado}</h2>
         </div>
         """, unsafe_allow_html=True)
     
     with col_ideal:
         st.markdown(f"""
-        <div style='background: linear-gradient(135deg, rgba(52, 152, 219, 0.2) 0%, rgba(41, 128, 185, 0.2) 100%); 
-                    border-radius: 12px; padding: 20px; border: 2px solid #3498DB; text-align: center;'>
-            <h4 style='margin: 0; font-size: 0.9rem; color: #3498DB;'>⚖️ Peso Ideal</h4>
-            <h2 style='margin: 10px 0; color: #3498DB; font-size: 1.8rem;'>{p_min}-{p_max}</h2>
-            <p style='margin: 0; font-size: 0.85rem; color: #bbb;'>en Lbs</p>
+        <div class="ideal-weight-card">
+            <h4 class="ideal-weight-title">⚖️ Peso Ideal</h4>
+            <h2 class="ideal-weight-value">{p_min}-{p_max}</h2>
+            <p class="ideal-weight-subtitle">en Lbs</p>
         </div>
         """, unsafe_allow_html=True)
     
     with col_dias:
         st.markdown(f"""
-        <div style='background: linear-gradient(135deg, rgba(155, 89, 182, 0.2) 0%, rgba(142, 68, 173, 0.2) 100%); 
-                    border-radius: 12px; padding: 20px; border: 2px solid #9B59B6; text-align: center;'>
-            <h4 style='margin: 0; font-size: 0.9rem; color: #9B59B6;'>📅 Días</h4>
-            <h2 style='margin: 10px 0; color: #9B59B6; font-size: 1.8rem;'>{u.get("dias_entreno", 5)}</h2>
-            <p style='margin: 0; font-size: 0.85rem; color: #bbb;'>entrenos/semana</p>
+        <div class="days-card">
+            <h4 class="days-title">📅 Días</h4>
+            <h2 class="days-value">{u.get("dias_entreno", 5)}</h2>
+            <p class="days-subtitle">entrenos/semana</p>
         </div>
         """, unsafe_allow_html=True)
     
@@ -1514,12 +1533,12 @@ else:
 
                         st.markdown(f"""
                             <div class="exercise-card">
-                                <div style="display: flex; justify-content: space-between; align-items: center;">
-                                    <strong>{ej['ejercicio']}</strong>
-                                    <span title="{ej.get('tip', '')}" style="cursor:help;">💡 Tip</span>
+                                <div class="exercise-display">
+                                    <strong class="exercise-name">{ej['ejercicio']}</strong>
+                                    <span class="exercise-tip" title="{ej.get('tip', '')}">💡 Tip</span>
                                 </div>
-                                <small style="color: #bbb;">{ej.get('tip', 'Mantén la técnica correcta.')}</small><br>
-                                <small>Configuración: {ej['series']} sets totales</small>
+                                <small class="exercise-config">{ej.get('tip', 'Mantén la técnica correcta.')}</small><br>
+                                <small class="exercise-config">Configuración: {ej['series']} sets totales</small>
                             </div>
                         """, unsafe_allow_html=True)
                         
@@ -1590,60 +1609,60 @@ else:
                         # Desayuno
                         if "desayuno" in comidas:
                             des = comidas["desayuno"]
-                            st.markdown(f"""<div class="exercise-card" style="border-left-color: #FFB84D;">
-                                <h4 style="margin:0; color: #FFB84D;">🌅 Desayuno</h4>
-                                <strong>{des.get('comida', 'N/A')}</strong><br>
-                                <small>📏 {des.get('cantidad', 'N/A')}</small><br>
-                                <small>💡 {des.get('tip', '')}</small><br>
-                                <small>🔥 {des.get('calorias_aprox', '')} kcal | 🥩 {des.get('proteina_g', '')}g proteína</small>
+                            st.markdown(f"""<div class="exercise-card breakfast-card">
+                                <h4 class="breakfast-title">🌅 Desayuno</h4>
+                                <strong class="meal-name">{des.get('comida', 'N/A')}</strong><br>
+                                <small class="meal-details">📏 {des.get('cantidad', 'N/A')}</small><br>
+                                <small class="meal-details">💡 {des.get('tip', '')}</small><br>
+                                <small class="meal-calories">🔥 {des.get('calorias_aprox', '')} kcal | 🥩 {des.get('proteina_g', '')}g proteína</small>
                             </div>""", unsafe_allow_html=True)
                             st.markdown("<br>", unsafe_allow_html=True)
                         
                         # Merienda Mañana
                         if "merienda_manana" in comidas:
                             mer_m = comidas["merienda_manana"]
-                            st.markdown(f"""<div class="exercise-card" style="border-left-color: #81C784;">
-                                <h4 style="margin:0; color: #81C784;">🥪 Merienda Media Mañana</h4>
-                                <strong>{mer_m.get('comida', 'N/A')}</strong><br>
-                                <small>📏 {mer_m.get('cantidad', 'N/A')}</small><br>
-                                <small>💡 {mer_m.get('tip', '')}</small><br>
-                                <small>🔥 {mer_m.get('calorias_aprox', '')} kcal</small>
+                            st.markdown(f"""<div class="exercise-card morning-snack-card">
+                                <h4 class="morning-snack-title">🥪 Merienda Media Mañana</h4>
+                                <strong class="meal-name">{mer_m.get('comida', 'N/A')}</strong><br>
+                                <small class="meal-details">📏 {mer_m.get('cantidad', 'N/A')}</small><br>
+                                <small class="meal-details">💡 {mer_m.get('tip', '')}</small><br>
+                                <small class="meal-calories">🔥 {mer_m.get('calorias_aprox', '')} kcal</small>
                             </div>""", unsafe_allow_html=True)
                             st.markdown("<br>", unsafe_allow_html=True)
                         
                         # Almuerzo
                         if "almuerzo" in comidas:
                             alm = comidas["almuerzo"]
-                            st.markdown(f"""<div class="exercise-card" style="border-left-color: #64B5F6;">
-                                <h4 style="margin:0; color: #64B5F6;">🍽️ Almuerzo</h4>
-                                <strong>{alm.get('comida', 'N/A')}</strong><br>
-                                <small>📏 {alm.get('cantidad', 'N/A')}</small><br>
-                                <small>💡 {alm.get('tip', '')}</small><br>
-                                <small>🔥 {alm.get('calorias_aprox', '')} kcal | 🥩 {alm.get('proteina_g', '')}g proteína</small>
+                            st.markdown(f"""<div class="exercise-card lunch-card">
+                                <h4 class="lunch-title">🍽️ Almuerzo</h4>
+                                <strong class="meal-name">{alm.get('comida', 'N/A')}</strong><br>
+                                <small class="meal-details">📏 {alm.get('cantidad', 'N/A')}</small><br>
+                                <small class="meal-details">💡 {alm.get('tip', '')}</small><br>
+                                <small class="meal-calories">🔥 {alm.get('calorias_aprox', '')} kcal | 🥩 {alm.get('proteina_g', '')}g proteína</small>
                             </div>""", unsafe_allow_html=True)
                             st.markdown("<br>", unsafe_allow_html=True)
                         
                         # Merienda Tarde
                         if "merienda_tarde" in comidas:
                             mer_t = comidas["merienda_tarde"]
-                            st.markdown(f"""<div class="exercise-card" style="border-left-color: #F06292;">
-                                <h4 style="margin:0; color: #F06292;">🍌 Merienda Media Tarde (Post-Entreno)</h4>
-                                <strong>{mer_t.get('comida', 'N/A')}</strong><br>
-                                <small>📏 {mer_t.get('cantidad', 'N/A')}</small><br>
-                                <small>💡 {mer_t.get('tip', '')}</small><br>
-                                <small>🔥 {mer_t.get('calorias_aprox', '')} kcal | 🥩 {mer_t.get('proteina_g', '')}g proteína</small>
+                            st.markdown(f"""<div class="exercise-card afternoon-snack-card">
+                                <h4 class="afternoon-snack-title">🍌 Merienda Media Tarde (Post-Entreno)</h4>
+                                <strong class="meal-name">{mer_t.get('comida', 'N/A')}</strong><br>
+                                <small class="meal-details">📏 {mer_t.get('cantidad', 'N/A')}</small><br>
+                                <small class="meal-details">💡 {mer_t.get('tip', '')}</small><br>
+                                <small class="meal-calories">🔥 {mer_t.get('calorias_aprox', '')} kcal | 🥩 {mer_t.get('proteina_g', '')}g proteína</small>
                             </div>""", unsafe_allow_html=True)
                             st.markdown("<br>", unsafe_allow_html=True)
                         
                         # Cena
                         if "cena" in comidas:
                             cena = comidas["cena"]
-                            st.markdown(f"""<div class="exercise-card" style="border-left-color: #9C27B0;">
-                                <h4 style="margin:0; color: #9C27B0;">🌙 Cena</h4>
-                                <strong>{cena.get('comida', 'N/A')}</strong><br>
-                                <small>📏 {cena.get('cantidad', 'N/A')}</small><br>
-                                <small>💡 {cena.get('tip', '')}</small><br>
-                                <small>🔥 {cena.get('calorias_aprox', '')} kcal | 🥩 {cena.get('proteina_g', '')}g proteína</small>
+                            st.markdown(f"""<div class="exercise-card dinner-card">
+                                <h4 class="dinner-title">🌙 Cena</h4>
+                                <strong class="meal-name">{cena.get('comida', 'N/A')}</strong><br>
+                                <small class="meal-details">📏 {cena.get('cantidad', 'N/A')}</small><br>
+                                <small class="meal-details">💡 {cena.get('tip', '')}</small><br>
+                                <small class="meal-calories">🔥 {cena.get('calorias_aprox', '')} kcal | 🥩 {cena.get('proteina_g', '')}g proteína</small>
                             </div>""", unsafe_allow_html=True)
         else:
             st.info("No tienes un plan de dieta aún. ¡Genera uno abajo!")
@@ -1935,9 +1954,9 @@ else:
             
             cal, p, g, c = calcular_macros(u)
             st.markdown(f"""
-                <div class="exercise-card" style="border-left-color: var(--secondary);">
-                    <h4 style="margin:0;">🔥 Calorías Objetivo</h4>
-                    <h2 style="margin:0; color: var(--secondary);">{cal} kcal</h2>
+                <div class="exercise-card calories-objective-card">
+                    <h4 class="calories-objective-title">🔥 Calorías Objetivo</h4>
+                    <h2 class="calories-objective-value">{cal} kcal</h2>
                 </div>
             """, unsafe_allow_html=True)
             st.markdown(f"**Macros Directriz:**")
