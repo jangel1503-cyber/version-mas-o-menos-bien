@@ -46,13 +46,13 @@ def aplicar_estilos():
         letter-spacing: -1px !important;
     }
     
-    /* Subtítulos */
+    /* Subtítulos - SIN BORDES */
     h2, h3 {
         color: #f1f5f9 !important;
         font-weight: 600 !important;
         letter-spacing: 0 !important;
         text-transform: none !important;
-        border-bottom: none !important;
+        border: none !important;
         padding-bottom: 0.75rem !important;
     }
     
@@ -61,59 +61,60 @@ def aplicar_estilos():
         font-weight: 500 !important;
     }
     
-    /* Tarjetas de ejercicios - CON GLOW */
+    /* Tarjetas de ejercicios - GLOW FLOTANTE */
     .exercise-card {
         background: #1e293b !important;
         border: none !important;
-        border-radius: 8px !important;
+        border-radius: 10px !important;
         padding: 18px !important;
         margin: 12px 0 !important;
-        box-shadow: 0 0 20px rgba(59, 130, 246, 0.15) !important;
-        transition: all 0.2s ease !important;
+        box-shadow: 0 0 25px rgba(59, 130, 246, 0.2), 0 0 50px rgba(59, 130, 246, 0.1) !important;
+        transition: all 0.3s ease !important;
     }
     
     .exercise-card:hover {
         background: #334155 !important;
-        box-shadow: 0 0 30px rgba(59, 130, 246, 0.3) !important;
-        transform: translateX(2px) !important;
+        box-shadow: 0 0 40px rgba(59, 130, 246, 0.4), 0 0 80px rgba(59, 130, 246, 0.2), 0 8px 25px rgba(59, 130, 246, 0.15) !important;
+        transform: translateY(-4px) translateX(2px) !important;
     }
     
     /* Botones mejorados */
     button {
-        border-radius: 6px !important;
+        border: none !important;
+        border-radius: 8px !important;
         font-weight: 500 !important;
-        transition: all 0.2s ease !important;
+        transition: all 0.3s ease !important;
         text-transform: none !important;
         letter-spacing: 0 !important;
-        border: none !important;
     }
     
-    /* Botones primarios - CON GLOW */
+    /* Botones primarios - GLOW FLOTANTE */
     [data-testid="baseButton-primary"] {
         background: #3b82f6 !important;
         color: white !important;
-        box-shadow: 0 0 15px rgba(59, 130, 246, 0.4) !important;
+        box-shadow: 0 0 20px rgba(59, 130, 246, 0.5), 0 0 40px rgba(59, 130, 246, 0.25) !important;
     }
     
     [data-testid="baseButton-primary"]:hover {
         background: #2563eb !important;
-        box-shadow: 0 0 25px rgba(59, 130, 246, 0.6) !important;
-        transform: translateY(-1px) !important;
+        box-shadow: 0 0 35px rgba(59, 130, 246, 0.7), 0 0 70px rgba(59, 130, 246, 0.4), 0 6px 30px rgba(59, 130, 246, 0.3) !important;
+        transform: translateY(-3px) !important;
     }
     
     /* Tabs */
     [data-baseweb="tab-list"] {
-        border-bottom: none !important;
+        border: none !important;
     }
     
     [data-baseweb="tab"] {
         color: #94a3b8 !important;
         font-weight: 500 !important;
+        border: none !important;
     }
     
     [aria-selected="true"] {
         color: #3b82f6 !important;
-        box-shadow: 0 2px 10px rgba(59, 130, 246, 0.3) !important;
+        box-shadow: 0 2px 15px rgba(59, 130, 246, 0.4) !important;
     }
     
     /* Métricas - CON GLOW */
@@ -122,67 +123,65 @@ def aplicar_estilos():
         border-radius: 8px !important;
         padding: 18px !important;
         border: none !important;
-        box-shadow: 0 0 20px rgba(59, 130, 246, 0.15) !important;
+        box-shadow: 0 0 25px rgba(59, 130, 246, 0.2), 0 0 50px rgba(59, 130, 246, 0.1) !important;
     }
     
-    /* Inputs - SIN BORDES, CON GLOW */
+    /* Inputs - SIN BORDES, GLOW FLOTANTE */
     input, textarea, select {
         background-color: #1a202c !important;
         border: none !important;
         color: #f1f5f9 !important;
-        border-radius: 6px !important;
+        border-radius: 8px !important;
         font-weight: 400 !important;
-        padding: 8px 12px !important;
-        box-shadow: 0 0 10px rgba(59, 130, 246, 0.2) !important;
+        padding: 10px 14px !important;
+        box-shadow: 0 0 15px rgba(59, 130, 246, 0.15), inset 0 0 10px rgba(59, 130, 246, 0.05) !important;
+        transition: all 0.2s ease !important;
     }
     
     input:focus, textarea:focus, select:focus {
-        box-shadow: 0 0 20px rgba(59, 130, 246, 0.4) !important;
+        box-shadow: 0 0 30px rgba(59, 130, 246, 0.35), 0 0 60px rgba(59, 130, 246, 0.2), inset 0 0 15px rgba(59, 130, 246, 0.1) !important;
+        transform: scale(1.01) !important;
     }
     
-    /* Expanders */
+    /* Expanders - SIN BORDES, GLOW */
     [data-testid="stExpander"] {
         background: #1e293b !important;
         border: none !important;
-        border-radius: 6px !important;
-        box-shadow: 0 0 15px rgba(59, 130, 246, 0.1) !important;
+        border-radius: 8px !important;
+        box-shadow: 0 0 20px rgba(59, 130, 246, 0.15), 0 0 40px rgba(59, 130, 246, 0.08) !important;
     }
     
-    /* Info boxes */
+    /* Info boxes - SIN BORDES, GLOW */
     [data-testid="stInfo"] {
-        background: rgba(59, 130, 246, 0.1) !important;
-        border-left: none !important;
+        background: rgba(59, 130, 246, 0.08) !important;
         border: none !important;
-        border-radius: 6px !important;
+        border-radius: 8px !important;
         color: #cbd5e1 !important;
-        box-shadow: 0 0 15px rgba(59, 130, 246, 0.2) !important;
+        box-shadow: 0 0 25px rgba(59, 130, 246, 0.25), 0 0 50px rgba(59, 130, 246, 0.12) !important;
     }
     
     [data-testid="stSuccess"] {
-        background: rgba(16, 185, 129, 0.1) !important;
-        border-left: none !important;
+        background: rgba(16, 185, 129, 0.08) !important;
         border: none !important;
-        border-radius: 6px !important;
+        border-radius: 8px !important;
         color: #cbd5e1 !important;
-        box-shadow: 0 0 15px rgba(16, 185, 129, 0.2) !important;
+        box-shadow: 0 0 25px rgba(16, 185, 129, 0.25), 0 0 50px rgba(16, 185, 129, 0.12) !important;
     }
     
     [data-testid="stWarning"] {
-        background: rgba(139, 92, 246, 0.1) !important;
-        border-left: none !important;
+        background: rgba(139, 92, 246, 0.08) !important;
         border: none !important;
-        border-radius: 6px !important;
+        border-radius: 8px !important;
         color: #cbd5e1 !important;
-        box-shadow: 0 0 15px rgba(139, 92, 246, 0.2) !important;
+        box-shadow: 0 0 25px rgba(139, 92, 246, 0.25), 0 0 50px rgba(139, 92, 246, 0.12) !important;
     }
     
     [data-testid="stError"] {
-        background: rgba(239, 68, 68, 0.1) !important;
-        border-left: none !important;
+        background: rgba(239, 68, 68, 0.08) !important;
         border: none !important;
-        border-radius: 6px !important;
+        border-radius: 8px !important;
         color: #cbd5e1 !important;
-        box-shadow: 0 0 15px rgba(239, 68, 68, 0.2) !important;
+        box-shadow: 0 0 25px rgba(239, 68, 68, 0.25), 0 0 50px rgba(239, 68, 68, 0.12) !important;
     }
     
     /* Checkboxes */
@@ -190,10 +189,10 @@ def aplicar_estilos():
         padding: 8px !important;
     }
     
-    /* Sidebar */
+    /* Sidebar - SIN BORDES */
     [data-testid="stSidebar"] {
         background: #1a202c !important;
-        border-right: none !important;
+        border: none !important;
     }
     
     /* Textos generales */
@@ -213,12 +212,13 @@ def aplicar_estilos():
         text-decoration: underline !important;
     }
     
-    /* Divisor */
+    /* Divisor - GLOW SUTIL */
     hr {
         border: none !important;
         height: 1px !important;
-        background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.2), transparent) !important;
+        background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.3), transparent) !important;
         margin: 1.5rem 0 !important;
+        box-shadow: 0 0 10px rgba(59, 130, 246, 0.2) !important;
     }
     
     /* DataFrames */
@@ -226,29 +226,38 @@ def aplicar_estilos():
         background-color: #1e293b !important;
     }
     
-    /* Cards personalizadas - CON GLOW */
+    /* Cards personalizadas - GLOW FLOTANTE */
     .stat-card {
         background: #1e293b !important;
-        border-radius: 8px !important;
-        padding: 18px !important;
+        border-radius: 10px !important;
+        padding: 20px !important;
         color: #f1f5f9 !important;
         text-align: center !important;
-        box-shadow: 0 0 20px rgba(59, 130, 246, 0.2) !important;
+        box-shadow: 0 0 30px rgba(59, 130, 246, 0.25), 0 0 60px rgba(59, 130, 246, 0.15) !important;
         font-weight: 500 !important;
         border: none !important;
+        transition: all 0.3s ease !important;
     }
     
+    .stat-card:hover {
+        box-shadow: 0 0 45px rgba(59, 130, 246, 0.35), 0 0 90px rgba(59, 130, 246, 0.2), 0 8px 30px rgba(59, 130, 246, 0.2) !important;
+        transform: translateY(-5px) !important;
+    }
+    
+    /* Progress bar - GLOW */
     .progress-bar {
-        background: rgba(59, 130, 246, 0.2) !important;
-        border-radius: 8px !important;
-        height: 8px !important;
+        background: rgba(59, 130, 246, 0.15) !important;
+        border: none !important;
+        border-radius: 10px !important;
+        height: 10px !important;
+        box-shadow: inset 0 0 10px rgba(59, 130, 246, 0.1) !important;
     }
     
     .progress-bar-fill {
         background: linear-gradient(90deg, #3b82f6, #60a5fa) !important;
         height: 100% !important;
-        border-radius: 8px !important;
-        box-shadow: 0 0 10px rgba(59, 130, 246, 0.5) !important;
+        border-radius: 10px !important;
+        box-shadow: 0 0 15px rgba(59, 130, 246, 0.6), inset 0 0 10px rgba(255, 255, 255, 0.2) !important;
     }
     
     /* Animaciones */
@@ -384,12 +393,12 @@ def aplicar_estilos():
         background: #334155 !important;
         color: #f1f5f9 !important;
         border: none !important;
-        box-shadow: 0 0 10px rgba(59, 130, 246, 0.2) !important;
+        box-shadow: 0 0 15px rgba(59, 130, 246, 0.2) !important;
     }
     
     [data-testid="baseButton-secondary"]:hover {
         background: #475569 !important;
-        box-shadow: 0 0 15px rgba(59, 130, 246, 0.3) !important;
+        box-shadow: 0 0 25px rgba(59, 130, 246, 0.35) !important;
     }
     
     </style>
