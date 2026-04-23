@@ -45,6 +45,10 @@ def aplicar_estilos():
         """
         st.markdown(estilos_basicos, unsafe_allow_html=True)
 
+# Inicializar tema (modo día por defecto) - ANTES de aplicar_estilos()
+if 'tema_oscuro' not in st.session_state:
+    st.session_state.tema_oscuro = False
+
 # Aplicar estilos al cargar la página
 aplicar_estilos()
 
@@ -82,10 +86,6 @@ if 'data' not in st.session_state:
 
 if '_ultima_carga' not in st.session_state:
     st.session_state._ultima_carga = None
-
-# Inicializar tema (modo día por defecto)
-if 'tema_oscuro' not in st.session_state:
-    st.session_state.tema_oscuro = False
 
 # --- GESTIÓN DE USUARIOS ---
 def cargar_usuarios():
@@ -1425,15 +1425,9 @@ else:
             except:
                 st.write("❌ Error leyendo gym_data.json")
 
-    # Toggle de modo día/noche
-    col_toggle, col_header = st.columns([0.1, 0.9])
-    with col_toggle:
-        if st.button("🌙" if st.session_state.tema_oscuro else "☀️", key="theme_toggle", help="Cambiar modo día/noche"):
-            st.session_state.tema_oscuro = not st.session_state.tema_oscuro
-            st.rerun()
-
-    with col_header:
-        st.markdown(f'<h1 class="main-header">¡Bienvenido, {nombre_usuario}! 💪</h1>', unsafe_allow_html=True)
+    # --- DASHBOARD PRINCIPAL ---
+    nombre_usuario = u.get("nombre", "Usuario")
+    st.markdown(f'<h1 class="main-header">¡Bienvenido, {nombre_usuario}! 💪</h1>', unsafe_allow_html=True)
     
     # Barra de métricas mejorada
     st.markdown("---")
