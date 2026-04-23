@@ -48,6 +48,22 @@ except (KeyError, FileNotFoundError):
 genai.configure(api_key=GEMINI_API_KEY)
 model = genai.GenerativeModel('gemini-2.0-flash')
 
+# Inicializar estado de sesión
+if 'usuario_logueado' not in st.session_state:
+    st.session_state.usuario_logueado = None
+
+if 'data' not in st.session_state:
+    st.session_state.data = {
+        "perfil_completado": False, 
+        "user": {}, 
+        "rutina_semanal": {}, 
+        "historial_pesos": [],
+        "historial_entrenamientos": [],
+        "pr_por_ejercicio": {},
+        "fecha_ultima_rotacion": None,
+        "dieta_semanal": {}
+    }
+
 # --- GESTIÓN DE USUARIOS ---
 def cargar_usuarios():
     """Carga la base de datos de usuarios desde user_data.json"""
