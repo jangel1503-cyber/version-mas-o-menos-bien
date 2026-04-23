@@ -12,7 +12,7 @@ USERS_FILE = "user_data.json"
 
 # --- ESTILOS CSS PERSONALIZADOS ---
 def aplicar_estilos():
-    """Aplica estilos CSS con tema oscuro elegante y moderno"""
+    """Aplica estilos CSS con tema oscuro elegante, glow effects y sin bordes"""
     estilos = """
     <style>
     /* Variables de color - Paleta oscura elegante tipo Vercel/Stripe */
@@ -52,7 +52,7 @@ def aplicar_estilos():
         font-weight: 600 !important;
         letter-spacing: 0 !important;
         text-transform: none !important;
-        border-bottom: 1px solid #334155 !important;
+        border-bottom: none !important;
         padding-bottom: 0.75rem !important;
     }
     
@@ -61,20 +61,20 @@ def aplicar_estilos():
         font-weight: 500 !important;
     }
     
-    /* Tarjetas de ejercicios */
+    /* Tarjetas de ejercicios - CON GLOW */
     .exercise-card {
         background: #1e293b !important;
-        border-left: 3px solid #3b82f6 !important;
+        border: none !important;
         border-radius: 8px !important;
         padding: 18px !important;
         margin: 12px 0 !important;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+        box-shadow: 0 0 20px rgba(59, 130, 246, 0.15) !important;
         transition: all 0.2s ease !important;
     }
     
     .exercise-card:hover {
         background: #334155 !important;
-        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2) !important;
+        box-shadow: 0 0 30px rgba(59, 130, 246, 0.3) !important;
         transform: translateX(2px) !important;
     }
     
@@ -85,24 +85,25 @@ def aplicar_estilos():
         transition: all 0.2s ease !important;
         text-transform: none !important;
         letter-spacing: 0 !important;
+        border: none !important;
     }
     
-    /* Botones primarios */
+    /* Botones primarios - CON GLOW */
     [data-testid="baseButton-primary"] {
         background: #3b82f6 !important;
         color: white !important;
-        box-shadow: 0 1px 3px rgba(59, 130, 246, 0.3) !important;
+        box-shadow: 0 0 15px rgba(59, 130, 246, 0.4) !important;
     }
     
     [data-testid="baseButton-primary"]:hover {
         background: #2563eb !important;
-        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4) !important;
+        box-shadow: 0 0 25px rgba(59, 130, 246, 0.6) !important;
         transform: translateY(-1px) !important;
     }
     
     /* Tabs */
     [data-baseweb="tab-list"] {
-        border-bottom: 1px solid #334155 !important;
+        border-bottom: none !important;
     }
     
     [data-baseweb="tab"] {
@@ -112,67 +113,76 @@ def aplicar_estilos():
     
     [aria-selected="true"] {
         color: #3b82f6 !important;
-        border-bottom: 2px solid #3b82f6 !important;
+        box-shadow: 0 2px 10px rgba(59, 130, 246, 0.3) !important;
     }
     
-    /* Métricas */
+    /* Métricas - CON GLOW */
     [data-testid="metric-container"] {
         background: #1e293b !important;
         border-radius: 8px !important;
         padding: 18px !important;
-        border: 1px solid #334155 !important;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+        border: none !important;
+        box-shadow: 0 0 20px rgba(59, 130, 246, 0.15) !important;
     }
     
-    /* Inputs */
+    /* Inputs - SIN BORDES, CON GLOW */
     input, textarea, select {
         background-color: #1a202c !important;
-        border: 1px solid #334155 !important;
+        border: none !important;
         color: #f1f5f9 !important;
         border-radius: 6px !important;
         font-weight: 400 !important;
         padding: 8px 12px !important;
+        box-shadow: 0 0 10px rgba(59, 130, 246, 0.2) !important;
     }
     
     input:focus, textarea:focus, select:focus {
-        border-color: #3b82f6 !important;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2) !important;
+        box-shadow: 0 0 20px rgba(59, 130, 246, 0.4) !important;
     }
     
     /* Expanders */
     [data-testid="stExpander"] {
         background: #1e293b !important;
-        border: 1px solid #334155 !important;
+        border: none !important;
         border-radius: 6px !important;
+        box-shadow: 0 0 15px rgba(59, 130, 246, 0.1) !important;
     }
     
     /* Info boxes */
     [data-testid="stInfo"] {
         background: rgba(59, 130, 246, 0.1) !important;
-        border-left: 3px solid #3b82f6 !important;
+        border-left: none !important;
+        border: none !important;
         border-radius: 6px !important;
         color: #cbd5e1 !important;
+        box-shadow: 0 0 15px rgba(59, 130, 246, 0.2) !important;
     }
     
     [data-testid="stSuccess"] {
         background: rgba(16, 185, 129, 0.1) !important;
-        border-left: 3px solid #10b981 !important;
+        border-left: none !important;
+        border: none !important;
         border-radius: 6px !important;
         color: #cbd5e1 !important;
+        box-shadow: 0 0 15px rgba(16, 185, 129, 0.2) !important;
     }
     
     [data-testid="stWarning"] {
-        background: rgba(245, 158, 11, 0.1) !important;
-        border-left: 3px solid #f59e0b !important;
+        background: rgba(139, 92, 246, 0.1) !important;
+        border-left: none !important;
+        border: none !important;
         border-radius: 6px !important;
         color: #cbd5e1 !important;
+        box-shadow: 0 0 15px rgba(139, 92, 246, 0.2) !important;
     }
     
     [data-testid="stError"] {
         background: rgba(239, 68, 68, 0.1) !important;
-        border-left: 3px solid #ef4444 !important;
+        border-left: none !important;
+        border: none !important;
         border-radius: 6px !important;
         color: #cbd5e1 !important;
+        box-shadow: 0 0 15px rgba(239, 68, 68, 0.2) !important;
     }
     
     /* Checkboxes */
@@ -183,7 +193,7 @@ def aplicar_estilos():
     /* Sidebar */
     [data-testid="stSidebar"] {
         background: #1a202c !important;
-        border-right: 1px solid #334155 !important;
+        border-right: none !important;
     }
     
     /* Textos generales */
@@ -205,7 +215,9 @@ def aplicar_estilos():
     
     /* Divisor */
     hr {
-        border-color: #334155 !important;
+        border: none !important;
+        height: 1px !important;
+        background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.2), transparent) !important;
         margin: 1.5rem 0 !important;
     }
     
@@ -214,28 +226,29 @@ def aplicar_estilos():
         background-color: #1e293b !important;
     }
     
-    /* Cards personalizadas */
+    /* Cards personalizadas - CON GLOW */
     .stat-card {
         background: #1e293b !important;
         border-radius: 8px !important;
         padding: 18px !important;
         color: #f1f5f9 !important;
         text-align: center !important;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+        box-shadow: 0 0 20px rgba(59, 130, 246, 0.2) !important;
         font-weight: 500 !important;
-        border: 1px solid #334155 !important;
+        border: none !important;
     }
     
     .progress-bar {
-        background: #334155 !important;
+        background: rgba(59, 130, 246, 0.2) !important;
         border-radius: 8px !important;
         height: 8px !important;
     }
     
     .progress-bar-fill {
-        background: #3b82f6 !important;
+        background: linear-gradient(90deg, #3b82f6, #60a5fa) !important;
         height: 100% !important;
         border-radius: 8px !important;
+        box-shadow: 0 0 10px rgba(59, 130, 246, 0.5) !important;
     }
     
     /* Animaciones */
@@ -276,7 +289,7 @@ def aplicar_estilos():
         animation: slideIn 0.3s ease-out;
     }
     
-    /* Scrollbar personalizada - Tema oscuro */
+    /* Scrollbar personalizada - Tema oscuro con glow */
     ::-webkit-scrollbar {
         width: 8px;
     }
@@ -288,10 +301,12 @@ def aplicar_estilos():
     ::-webkit-scrollbar-thumb {
         background: #334155;
         border-radius: 4px;
+        box-shadow: 0 0 8px rgba(59, 130, 246, 0.2) inset;
     }
     
     ::-webkit-scrollbar-thumb:hover {
-        background: #475569;
+        background: #3b82f6;
+        box-shadow: 0 0 12px rgba(59, 130, 246, 0.4) inset;
     }
     
     /* Labels en sidebar */
@@ -304,23 +319,24 @@ def aplicar_estilos():
         font-weight: 600;
     }
     
-    /* Tarjetas de comidas */
+    /* Tarjetas de comidas - CON GLOW */
     .meal-card {
         background: #1e293b !important;
-        border-left: 3px solid #3b82f6 !important;
+        border: none !important;
         border-radius: 6px !important;
         padding: 14px !important;
         margin: 8px 0 !important;
         transition: all 0.2s ease !important;
+        box-shadow: 0 0 15px rgba(59, 130, 246, 0.1) !important;
     }
     
     .meal-card:hover {
         background: #334155 !important;
         transform: translateX(2px) !important;
-        box-shadow: 0 2px 6px rgba(59, 130, 246, 0.15) !important;
+        box-shadow: 0 0 25px rgba(59, 130, 246, 0.25) !important;
     }
     
-    /* Badges de progreso */
+    /* Badges de progreso - CON GLOW */
     .progress-badge {
         display: inline-block;
         background: #3b82f6 !important;
@@ -329,6 +345,7 @@ def aplicar_estilos():
         border-radius: 16px !important;
         font-weight: 500 !important;
         font-size: 0.8rem !important;
+        box-shadow: 0 0 12px rgba(59, 130, 246, 0.4) !important;
     }
     
     /* Animación shimmer para carga */
@@ -366,11 +383,13 @@ def aplicar_estilos():
     [data-testid="baseButton-secondary"] {
         background: #334155 !important;
         color: #f1f5f9 !important;
-        border: 1px solid #475569 !important;
+        border: none !important;
+        box-shadow: 0 0 10px rgba(59, 130, 246, 0.2) !important;
     }
     
     [data-testid="baseButton-secondary"]:hover {
         background: #475569 !important;
+        box-shadow: 0 0 15px rgba(59, 130, 246, 0.3) !important;
     }
     
     </style>
