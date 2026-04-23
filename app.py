@@ -12,32 +12,35 @@ USERS_FILE = "user_data.json"
 
 # --- ESTILOS CSS PERSONALIZADOS ---
 def aplicar_estilos():
-    """Aplica estilos CSS minimalistas y modernos"""
+    """Aplica estilos CSS con tema oscuro elegante y moderno"""
     estilos = """
     <style>
-    /* Variables de color - Paleta minimalista y moderna */
+    /* Variables de color - Paleta oscura elegante tipo Vercel/Stripe */
     :root {
-        --primary: #475569;
-        --primary-light: #64748b;
-        --dark: #0f172a;
-        --light: #f8fafc;
-        --light-gray: #e2e8f0;
-        --medium-gray: #cbd5e1;
+        --dark-bg: #0f172a;
+        --dark-bg-secondary: #1a202c;
+        --dark-card: #1e293b;
+        --dark-border: #334155;
+        --dark-text: #f1f5f9;
+        --dark-text-secondary: #cbd5e1;
+        --accent-primary: #3b82f6;
+        --accent-secondary: #8b5cf6;
         --success: #10b981;
+        --warning: #f59e0b;
         --danger: #ef4444;
     }
     
-    /* Fondo limpio y minimalista */
+    /* Fondo oscuro elegante */
     [data-testid="stAppViewContainer"] {
-        background-color: #ffffff;
-        color: #1e293b;
+        background-color: #0f172a !important;
+        color: #f1f5f9 !important;
     }
     
     /* Headers principales */
     .main-header {
         font-size: 3rem !important;
         font-weight: 700 !important;
-        color: #0f172a !important;
+        color: #f1f5f9 !important;
         text-align: center !important;
         margin-bottom: 1.5rem !important;
         letter-spacing: -1px !important;
@@ -45,32 +48,33 @@ def aplicar_estilos():
     
     /* Subtítulos */
     h2, h3 {
-        color: #1e293b !important;
+        color: #f1f5f9 !important;
         font-weight: 600 !important;
         letter-spacing: 0 !important;
         text-transform: none !important;
-        border-bottom: 1px solid #e2e8f0 !important;
+        border-bottom: 1px solid #334155 !important;
         padding-bottom: 0.75rem !important;
     }
     
     h4 {
-        color: #475569 !important;
+        color: #cbd5e1 !important;
         font-weight: 500 !important;
     }
     
     /* Tarjetas de ejercicios */
     .exercise-card {
-        background: #f8fafc !important;
-        border-left: 3px solid #475569 !important;
+        background: #1e293b !important;
+        border-left: 3px solid #3b82f6 !important;
         border-radius: 8px !important;
         padding: 18px !important;
         margin: 12px 0 !important;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
         transition: all 0.2s ease !important;
     }
     
     .exercise-card:hover {
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
+        background: #334155 !important;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2) !important;
         transform: translateX(2px) !important;
     }
     
@@ -85,20 +89,20 @@ def aplicar_estilos():
     
     /* Botones primarios */
     [data-testid="baseButton-primary"] {
-        background: #475569 !important;
+        background: #3b82f6 !important;
         color: white !important;
-        box-shadow: 0 1px 3px rgba(71, 85, 105, 0.2) !important;
+        box-shadow: 0 1px 3px rgba(59, 130, 246, 0.3) !important;
     }
     
     [data-testid="baseButton-primary"]:hover {
-        background: #334155 !important;
-        box-shadow: 0 2px 6px rgba(71, 85, 105, 0.3) !important;
+        background: #2563eb !important;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4) !important;
         transform: translateY(-1px) !important;
     }
     
     /* Tabs */
     [data-baseweb="tab-list"] {
-        border-bottom: 1px solid #e2e8f0 !important;
+        border-bottom: 1px solid #334155 !important;
     }
     
     [data-baseweb="tab"] {
@@ -107,64 +111,68 @@ def aplicar_estilos():
     }
     
     [aria-selected="true"] {
-        color: #0f172a !important;
-        border-bottom: 2px solid #475569 !important;
+        color: #3b82f6 !important;
+        border-bottom: 2px solid #3b82f6 !important;
     }
     
     /* Métricas */
     [data-testid="metric-container"] {
-        background: #f8fafc !important;
+        background: #1e293b !important;
         border-radius: 8px !important;
         padding: 18px !important;
-        border: 1px solid #e2e8f0 !important;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+        border: 1px solid #334155 !important;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
     }
     
     /* Inputs */
     input, textarea, select {
-        background-color: #f8fafc !important;
-        border: 1px solid #cbd5e1 !important;
-        color: #0f172a !important;
+        background-color: #1a202c !important;
+        border: 1px solid #334155 !important;
+        color: #f1f5f9 !important;
         border-radius: 6px !important;
         font-weight: 400 !important;
         padding: 8px 12px !important;
     }
     
     input:focus, textarea:focus, select:focus {
-        border-color: #475569 !important;
-        box-shadow: 0 0 0 3px rgba(71, 85, 105, 0.1) !important;
+        border-color: #3b82f6 !important;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2) !important;
     }
     
     /* Expanders */
     [data-testid="stExpander"] {
-        background: #f8fafc !important;
-        border: 1px solid #e2e8f0 !important;
+        background: #1e293b !important;
+        border: 1px solid #334155 !important;
         border-radius: 6px !important;
     }
     
     /* Info boxes */
     [data-testid="stInfo"] {
-        background: #eff6ff !important;
-        border-left: 3px solid #475569 !important;
+        background: rgba(59, 130, 246, 0.1) !important;
+        border-left: 3px solid #3b82f6 !important;
         border-radius: 6px !important;
+        color: #cbd5e1 !important;
     }
     
     [data-testid="stSuccess"] {
-        background: #ecfdf5 !important;
+        background: rgba(16, 185, 129, 0.1) !important;
         border-left: 3px solid #10b981 !important;
         border-radius: 6px !important;
+        color: #cbd5e1 !important;
     }
     
     [data-testid="stWarning"] {
-        background: #fffbeb !important;
+        background: rgba(245, 158, 11, 0.1) !important;
         border-left: 3px solid #f59e0b !important;
         border-radius: 6px !important;
+        color: #cbd5e1 !important;
     }
     
     [data-testid="stError"] {
-        background: #fef2f2 !important;
+        background: rgba(239, 68, 68, 0.1) !important;
         border-left: 3px solid #ef4444 !important;
         border-radius: 6px !important;
+        color: #cbd5e1 !important;
     }
     
     /* Checkboxes */
@@ -174,58 +182,58 @@ def aplicar_estilos():
     
     /* Sidebar */
     [data-testid="stSidebar"] {
-        background: #f8fafc !important;
-        border-right: 1px solid #e2e8f0 !important;
+        background: #1a202c !important;
+        border-right: 1px solid #334155 !important;
     }
     
     /* Textos generales */
     p, span, div {
-        color: #1e293b !important;
+        color: #f1f5f9 !important;
     }
     
     /* Enlace */
     a {
-        color: #475569 !important;
+        color: #3b82f6 !important;
         text-decoration: none !important;
         font-weight: 500 !important;
     }
     
     a:hover {
-        color: #334155 !important;
+        color: #60a5fa !important;
         text-decoration: underline !important;
     }
     
     /* Divisor */
     hr {
-        border-color: #e2e8f0 !important;
+        border-color: #334155 !important;
         margin: 1.5rem 0 !important;
     }
     
     /* DataFrames */
     [data-testid="stDataFrame"] {
-        background-color: #f8fafc !important;
+        background-color: #1e293b !important;
     }
     
     /* Cards personalizadas */
     .stat-card {
-        background: #f8fafc !important;
+        background: #1e293b !important;
         border-radius: 8px !important;
         padding: 18px !important;
-        color: #0f172a !important;
+        color: #f1f5f9 !important;
         text-align: center !important;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
         font-weight: 500 !important;
-        border: 1px solid #e2e8f0 !important;
+        border: 1px solid #334155 !important;
     }
     
     .progress-bar {
-        background: #e2e8f0 !important;
+        background: #334155 !important;
         border-radius: 8px !important;
         height: 8px !important;
     }
     
     .progress-bar-fill {
-        background: #475569 !important;
+        background: #3b82f6 !important;
         height: 100% !important;
         border-radius: 8px !important;
     }
@@ -268,22 +276,22 @@ def aplicar_estilos():
         animation: slideIn 0.3s ease-out;
     }
     
-    /* Scrollbar personalizada */
+    /* Scrollbar personalizada - Tema oscuro */
     ::-webkit-scrollbar {
         width: 8px;
     }
     
     ::-webkit-scrollbar-track {
-        background: #f1f5f9;
+        background: #0f172a;
     }
     
     ::-webkit-scrollbar-thumb {
-        background: #cbd5e1;
+        background: #334155;
         border-radius: 4px;
     }
     
     ::-webkit-scrollbar-thumb:hover {
-        background: #94a3b8;
+        background: #475569;
     }
     
     /* Labels en sidebar */
@@ -291,15 +299,15 @@ def aplicar_estilos():
         font-size: 0.75rem;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        color: #64748b;
+        color: #94a3b8;
         margin: 1.5rem 0 0.5rem 0;
         font-weight: 600;
     }
     
     /* Tarjetas de comidas */
     .meal-card {
-        background: #f8fafc !important;
-        border-left: 3px solid #475569 !important;
+        background: #1e293b !important;
+        border-left: 3px solid #3b82f6 !important;
         border-radius: 6px !important;
         padding: 14px !important;
         margin: 8px 0 !important;
@@ -307,14 +315,15 @@ def aplicar_estilos():
     }
     
     .meal-card:hover {
+        background: #334155 !important;
         transform: translateX(2px) !important;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+        box-shadow: 0 2px 6px rgba(59, 130, 246, 0.15) !important;
     }
     
     /* Badges de progreso */
     .progress-badge {
         display: inline-block;
-        background: #475569 !important;
+        background: #3b82f6 !important;
         color: white !important;
         padding: 4px 10px !important;
         border-radius: 16px !important;
@@ -336,15 +345,32 @@ def aplicar_estilos():
     /* Espaciado y tipografía mejorados */
     [data-testid="stMarkdownContainer"] {
         line-height: 1.6 !important;
+        color: #f1f5f9 !important;
     }
     
     /* Color de texto en elementos especiales */
     [data-testid="stMetricValue"] {
-        color: #0f172a !important;
+        color: #f1f5f9 !important;
     }
     
     [data-testid="stMetricLabel"] {
-        color: #64748b !important;
+        color: #cbd5e1 !important;
+    }
+    
+    /* Mejora visual para elementos de streamlit */
+    [data-testid="stVerticalBlock"] {
+        color: #f1f5f9 !important;
+    }
+    
+    /* Buttons secundarios */
+    [data-testid="baseButton-secondary"] {
+        background: #334155 !important;
+        color: #f1f5f9 !important;
+        border: 1px solid #475569 !important;
+    }
+    
+    [data-testid="baseButton-secondary"]:hover {
+        background: #475569 !important;
     }
     
     </style>
