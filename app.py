@@ -10,398 +10,11 @@ st.set_page_config(page_title="Gym Pro AI", page_icon="💪", layout="wide", ini
 
 # --- ESTILOS CSS PERSONALIZADOS ---
 def aplicar_estilos():
-    """Aplica estilos CSS con tema oscuro elegante, glow effects y sin bordes"""
-    estilos = """
-    <style>
-    /* Variables de color - Paleta oscura elegante tipo Vercel/Stripe */
-    :root {
-        --dark-bg: #0f172a;
-        --dark-bg-secondary: #1a202c;
-        --dark-card: #1e293b;
-        --dark-border: #334155;
-        --dark-text: #f1f5f9;
-        --dark-text-secondary: #cbd5e1;
-        --accent-primary: #3b82f6;
-        --accent-secondary: #8b5cf6;
-        --success: #10b981;
-        --warning: #f59e0b;
-        --danger: #ef4444;
-    }
-    
-    /* Fondo oscuro elegante */
-    [data-testid="stAppViewContainer"] {
-        background-color: #0f172a !important;
-        color: #f1f5f9 !important;
-    }
-    
-    /* Headers principales */
-    .main-header {
-        font-size: 3rem !important;
-        font-weight: 700 !important;
-        color: #f1f5f9 !important;
-        text-align: center !important;
-        margin-bottom: 1.5rem !important;
-        letter-spacing: -1px !important;
-    }
-    
-    /* Subtítulos - SIN BORDES */
-    h2, h3 {
-        color: #f1f5f9 !important;
-        font-weight: 600 !important;
-        letter-spacing: 0 !important;
-        text-transform: none !important;
-        border: none !important;
-        padding-bottom: 0.75rem !important;
-    }
-    
-    h4 {
-        color: #cbd5e1 !important;
-        font-weight: 500 !important;
-    }
-    
-    /* Tarjetas de ejercicios - GLOW FLOTANTE */
-    .exercise-card {
-        background: #1e293b !important;
-        border: none !important;
-        border-radius: 10px !important;
-        padding: 18px !important;
-        margin: 12px 0 !important;
-        box-shadow: 0 0 25px rgba(59, 130, 246, 0.2), 0 0 50px rgba(59, 130, 246, 0.1) !important;
-        transition: all 0.3s ease !important;
-    }
-    
-    .exercise-card:hover {
-        background: #334155 !important;
-        box-shadow: 0 0 40px rgba(59, 130, 246, 0.4), 0 0 80px rgba(59, 130, 246, 0.2), 0 8px 25px rgba(59, 130, 246, 0.15) !important;
-        transform: translateY(-4px) translateX(2px) !important;
-    }
-    
-    /* Botones mejorados */
-    button {
-        border: none !important;
-        border-radius: 8px !important;
-        font-weight: 500 !important;
-        transition: all 0.3s ease !important;
-        text-transform: none !important;
-        letter-spacing: 0 !important;
-    }
-    
-    /* Botones primarios - GLOW FLOTANTE */
-    [data-testid="baseButton-primary"] {
-        background: #3b82f6 !important;
-        color: white !important;
-        box-shadow: 0 0 20px rgba(59, 130, 246, 0.5), 0 0 40px rgba(59, 130, 246, 0.25) !important;
-    }
-    
-    [data-testid="baseButton-primary"]:hover {
-        background: #2563eb !important;
-        box-shadow: 0 0 35px rgba(59, 130, 246, 0.7), 0 0 70px rgba(59, 130, 246, 0.4), 0 6px 30px rgba(59, 130, 246, 0.3) !important;
-        transform: translateY(-3px) !important;
-    }
-    
-    /* Tabs */
-    [data-baseweb="tab-list"] {
-        border: none !important;
-    }
-    
-    [data-baseweb="tab"] {
-        color: #94a3b8 !important;
-        font-weight: 500 !important;
-        border: none !important;
-    }
-    
-    [aria-selected="true"] {
-        color: #3b82f6 !important;
-        box-shadow: 0 2px 15px rgba(59, 130, 246, 0.4) !important;
-    }
-    
-    /* Métricas - CON GLOW */
-    [data-testid="metric-container"] {
-        background: #1e293b !important;
-        border-radius: 8px !important;
-        padding: 18px !important;
-        border: none !important;
-        box-shadow: 0 0 25px rgba(59, 130, 246, 0.2), 0 0 50px rgba(59, 130, 246, 0.1) !important;
-    }
-    
-    /* Inputs - SIN BORDES, GLOW FLOTANTE */
-    input, textarea, select {
-        background-color: #1a202c !important;
-        border: none !important;
-        color: #f1f5f9 !important;
-        border-radius: 8px !important;
-        font-weight: 400 !important;
-        padding: 10px 14px !important;
-        box-shadow: 0 0 15px rgba(59, 130, 246, 0.15), inset 0 0 10px rgba(59, 130, 246, 0.05) !important;
-        transition: all 0.2s ease !important;
-    }
-    
-    input:focus, textarea:focus, select:focus {
-        box-shadow: 0 0 30px rgba(59, 130, 246, 0.35), 0 0 60px rgba(59, 130, 246, 0.2), inset 0 0 15px rgba(59, 130, 246, 0.1) !important;
-        transform: scale(1.01) !important;
-    }
-    
-    /* Expanders - SIN BORDES, GLOW */
-    [data-testid="stExpander"] {
-        background: #1e293b !important;
-        border: none !important;
-        border-radius: 8px !important;
-        box-shadow: 0 0 20px rgba(59, 130, 246, 0.15), 0 0 40px rgba(59, 130, 246, 0.08) !important;
-    }
-    
-    /* Info boxes - SIN BORDES, GLOW */
-    [data-testid="stInfo"] {
-        background: rgba(59, 130, 246, 0.08) !important;
-        border: none !important;
-        border-radius: 8px !important;
-        color: #cbd5e1 !important;
-        box-shadow: 0 0 25px rgba(59, 130, 246, 0.25), 0 0 50px rgba(59, 130, 246, 0.12) !important;
-    }
-    
-    [data-testid="stSuccess"] {
-        background: rgba(16, 185, 129, 0.08) !important;
-        border: none !important;
-        border-radius: 8px !important;
-        color: #cbd5e1 !important;
-        box-shadow: 0 0 25px rgba(16, 185, 129, 0.25), 0 0 50px rgba(16, 185, 129, 0.12) !important;
-    }
-    
-    [data-testid="stWarning"] {
-        background: rgba(139, 92, 246, 0.08) !important;
-        border: none !important;
-        border-radius: 8px !important;
-        color: #cbd5e1 !important;
-        box-shadow: 0 0 25px rgba(139, 92, 246, 0.25), 0 0 50px rgba(139, 92, 246, 0.12) !important;
-    }
-    
-    [data-testid="stError"] {
-        background: rgba(239, 68, 68, 0.08) !important;
-        border: none !important;
-        border-radius: 8px !important;
-        color: #cbd5e1 !important;
-        box-shadow: 0 0 25px rgba(239, 68, 68, 0.25), 0 0 50px rgba(239, 68, 68, 0.12) !important;
-    }
-    
-    /* Checkboxes */
-    [data-testid="stCheckbox"] {
-        padding: 8px !important;
-    }
-    
-    /* Sidebar - SIN BORDES */
-    [data-testid="stSidebar"] {
-        background: #1a202c !important;
-        border: none !important;
-    }
-    
-    /* Textos generales */
-    p, span, div {
-        color: #f1f5f9 !important;
-    }
-    
-    /* Enlace */
-    a {
-        color: #3b82f6 !important;
-        text-decoration: none !important;
-        font-weight: 500 !important;
-    }
-    
-    a:hover {
-        color: #60a5fa !important;
-        text-decoration: underline !important;
-    }
-    
-    /* Divisor - GLOW SUTIL */
-    hr {
-        border: none !important;
-        height: 1px !important;
-        background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.3), transparent) !important;
-        margin: 1.5rem 0 !important;
-        box-shadow: 0 0 10px rgba(59, 130, 246, 0.2) !important;
-    }
-    
-    /* DataFrames */
-    [data-testid="stDataFrame"] {
-        background-color: #1e293b !important;
-    }
-    
-    /* Cards personalizadas - GLOW FLOTANTE */
-    .stat-card {
-        background: #1e293b !important;
-        border-radius: 10px !important;
-        padding: 20px !important;
-        color: #f1f5f9 !important;
-        text-align: center !important;
-        box-shadow: 0 0 30px rgba(59, 130, 246, 0.25), 0 0 60px rgba(59, 130, 246, 0.15) !important;
-        font-weight: 500 !important;
-        border: none !important;
-        transition: all 0.3s ease !important;
-    }
-    
-    .stat-card:hover {
-        box-shadow: 0 0 45px rgba(59, 130, 246, 0.35), 0 0 90px rgba(59, 130, 246, 0.2), 0 8px 30px rgba(59, 130, 246, 0.2) !important;
-        transform: translateY(-5px) !important;
-    }
-    
-    /* Progress bar - GLOW */
-    .progress-bar {
-        background: rgba(59, 130, 246, 0.15) !important;
-        border: none !important;
-        border-radius: 10px !important;
-        height: 10px !important;
-        box-shadow: inset 0 0 10px rgba(59, 130, 246, 0.1) !important;
-    }
-    
-    .progress-bar-fill {
-        background: linear-gradient(90deg, #3b82f6, #60a5fa) !important;
-        height: 100% !important;
-        border-radius: 10px !important;
-        box-shadow: 0 0 15px rgba(59, 130, 246, 0.6), inset 0 0 10px rgba(255, 255, 255, 0.2) !important;
-    }
-    
-    /* Animaciones */
-    @keyframes slideIn {
-        from { opacity: 0; transform: translateX(-20px); }
-        to { opacity: 1; transform: translateX(0); }
-    }
-    
-    @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.7; }
-    }
-    
-    .pulse {
-        animation: pulse 2s infinite;
-    }
-    
-    .slide-in {
-        animation: slideIn 0.5s ease-out;
-    }
-    
-    /* Animaciones sutiles */
-    @keyframes slideIn {
-        from { opacity: 0; transform: translateX(-10px); }
-        to { opacity: 1; transform: translateX(0); }
-    }
-    
-    @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.8; }
-    }
-    
-    .pulse {
-        animation: pulse 1.5s infinite;
-    }
-    
-    .slide-in {
-        animation: slideIn 0.3s ease-out;
-    }
-    
-    /* Scrollbar personalizada - Tema oscuro con glow */
-    ::-webkit-scrollbar {
-        width: 8px;
-    }
-    
-    ::-webkit-scrollbar-track {
-        background: #0f172a;
-    }
-    
-    ::-webkit-scrollbar-thumb {
-        background: #334155;
-        border-radius: 4px;
-        box-shadow: 0 0 8px rgba(59, 130, 246, 0.2) inset;
-    }
-    
-    ::-webkit-scrollbar-thumb:hover {
-        background: #3b82f6;
-        box-shadow: 0 0 12px rgba(59, 130, 246, 0.4) inset;
-    }
-    
-    /* Labels en sidebar */
-    .sidebar-label {
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        color: #94a3b8;
-        margin: 1.5rem 0 0.5rem 0;
-        font-weight: 600;
-    }
-    
-    /* Tarjetas de comidas - CON GLOW */
-    .meal-card {
-        background: #1e293b !important;
-        border: none !important;
-        border-radius: 6px !important;
-        padding: 14px !important;
-        margin: 8px 0 !important;
-        transition: all 0.2s ease !important;
-        box-shadow: 0 0 15px rgba(59, 130, 246, 0.1) !important;
-    }
-    
-    .meal-card:hover {
-        background: #334155 !important;
-        transform: translateX(2px) !important;
-        box-shadow: 0 0 25px rgba(59, 130, 246, 0.25) !important;
-    }
-    
-    /* Badges de progreso - CON GLOW */
-    .progress-badge {
-        display: inline-block;
-        background: #3b82f6 !important;
-        color: white !important;
-        padding: 4px 10px !important;
-        border-radius: 16px !important;
-        font-weight: 500 !important;
-        font-size: 0.8rem !important;
-        box-shadow: 0 0 12px rgba(59, 130, 246, 0.4) !important;
-    }
-    
-    /* Animación shimmer para carga */
-    @keyframes shimmer {
-        0% { opacity: 0.6; }
-        50% { opacity: 1; }
-        100% { opacity: 0.6; }
-    }
-    
-    .shimmer {
-        animation: shimmer 1.5s infinite;
-    }
-    
-    /* Espaciado y tipografía mejorados */
-    [data-testid="stMarkdownContainer"] {
-        line-height: 1.6 !important;
-        color: #f1f5f9 !important;
-    }
-    
-    /* Color de texto en elementos especiales */
-    [data-testid="stMetricValue"] {
-        color: #f1f5f9 !important;
-    }
-    
-    [data-testid="stMetricLabel"] {
-        color: #cbd5e1 !important;
-    }
-    
-    /* Mejora visual para elementos de streamlit */
-    [data-testid="stVerticalBlock"] {
-        color: #f1f5f9 !important;
-    }
-    
-    /* Buttons secundarios */
-    [data-testid="baseButton-secondary"] {
-        background: #334155 !important;
-        color: #f1f5f9 !important;
-        border: none !important;
-        box-shadow: 0 0 15px rgba(59, 130, 246, 0.2) !important;
-    }
-    
-    [data-testid="baseButton-secondary"]:hover {
-        background: #475569 !important;
-        box-shadow: 0 0 25px rgba(59, 130, 246, 0.35) !important;
-    }
-    
-    </style>
-    """
-    st.markdown(estilos, unsafe_allow_html=True)
+    """Carga estilos desde styles.css para mantener el diseno fuera del codigo de UI."""
+    css_path = os.path.join(os.path.dirname(__file__), "styles.css")
+    if os.path.exists(css_path):
+        with open(css_path, "r", encoding="utf-8") as css_file:
+            st.markdown(f"<style>{css_file.read()}</style>", unsafe_allow_html=True)
 
 # Aplicar estilos al cargar la página
 aplicar_estilos()
@@ -541,10 +154,9 @@ if not st.session_state.usuario_logueado:
     col_header = st.columns([1])[0]
     with col_header:
         st.markdown("""
-        <div style='text-align: center; padding: 20px; background: linear-gradient(135deg, rgba(255, 107, 53, 0.1) 0%, rgba(78, 205, 196, 0.1) 100%); 
-                    border-radius: 12px; border: 2px solid #FF6B35; margin-bottom: 30px;'>
-            <h3 style='color: #4ECDC4; margin: 0; font-size: 1.5rem;'>Tu Entrenador Personal Inteligente</h3>
-            <p style='color: #FFE66D; margin: 10px 0 0 0; font-size: 1rem;'>Entrenamientos personalizados con IA | Nutrición optimizada | Progreso garantizado</p>
+        <div class="hero-card">
+            <h3 class="hero-title">Tu Entrenador Personal Inteligente</h3>
+            <p class="hero-subtitle">Entrenamientos personalizados con IA | Nutricion optimizada | Progreso garantizado</p>
         </div>
         """, unsafe_allow_html=True)
     
@@ -552,9 +164,8 @@ if not st.session_state.usuario_logueado:
     
     with col1:
         st.markdown("""
-        <div style='background: linear-gradient(135deg, rgba(255, 107, 53, 0.15) 0%, rgba(255, 184, 77, 0.15) 100%); 
-                    padding: 30px; border-radius: 12px; border: 2px solid #FF6B35; text-align: center;'>
-            <h2 style='color: #FF6B35; margin-top: 0;'>🔐 Iniciar Sesión</h2>
+        <div class="section-card section-card-login">
+            <h2 class="section-card-title">🔐 Iniciar Sesion</h2>
         </div>
         """, unsafe_allow_html=True)
         
@@ -607,9 +218,8 @@ if not st.session_state.usuario_logueado:
     
     with col2:
         st.markdown("""
-        <div style='background: linear-gradient(135deg, rgba(78, 205, 196, 0.15) 0%, rgba(52, 152, 219, 0.15) 100%); 
-                    padding: 30px; border-radius: 12px; border: 2px solid #4ECDC4; text-align: center;'>
-            <h2 style='color: #4ECDC4; margin-top: 0;'>📝 Registrarse</h2>
+        <div class="section-card section-card-register">
+            <h2 class="section-card-title">📝 Registrarse</h2>
         </div>
         """, unsafe_allow_html=True)
         
@@ -720,16 +330,16 @@ else:
         objetivo_principal = objetivos_usuario[0] if objetivos_usuario else 'Sin objetivos'
         
         st.markdown(f"""
-            <div style="text-align: center; padding: 20px 0;">
-                <h2 style="margin:0;">💪 Gym Pro AI</h2>
-                <p style="color: grey;">Tu Entrenador Personal Inteligente</p>
+            <div class="sidebar-profile">
+                <h2 class="sidebar-brand-title">💪 Gym Pro AI</h2>
+                <p class="sidebar-brand-subtitle">Tu Entrenador Personal Inteligente</p>
+                <hr class="sidebar-divider">
+                <p class="sidebar-profile-label">👤 Perfil de Usuario</p>
+                <h3 class="sidebar-profile-name">{nombre_usuario}</h3>
+                <p class="sidebar-profile-meta">⚧️ {sexo_usuario}</p>
+                <p class="sidebar-profile-meta">🎂 {edad_usuario} anos</p>
+                <p class="sidebar-profile-goal">🎯 {objetivo_principal}</p>
             </div>
-            <hr style="margin: 10px 0; border: 0.1px solid rgba(255,255,255,0.1);">
-            <p class="sidebar-label" style="color: #FFE66D; font-size: 0.9rem; font-weight: 700; text-transform: uppercase;">👤 Perfil de Usuario</p>
-            <h3 style="color: #FF6B35; margin: 10px 0;">{nombre_usuario}</h3>
-            <p style="color: #bbb; margin: 5px 0;">⚧️ {sexo_usuario}</p>
-            <p style="color: #bbb; margin: 5px 0;">🎂 {edad_usuario} años</p>
-            <p style="color: #4ECDC4; margin: 5px 0; font-weight: 600;">🎯 {objetivo_principal}</p>
         """, unsafe_allow_html=True)
         st.info(f"📍 **Meta**: {len(objetivos_usuario)} objetivos seleccionados")
         
@@ -797,40 +407,37 @@ else:
     
     with col_imc:
         st.markdown(f"""
-        <div class="stat-card">
-            <h4 style="margin: 0; font-size: 0.9rem;">📏 IMC</h4>
-            <h2 style="margin: 10px 0; color: white; font-size: 2.5rem;">{imc}</h2>
-            <p style="margin: 0; font-size: 0.85rem; opacity: 0.9;">Índice de Masa Corporal</p>
+        <div class="dashboard-metric-card metric-card-imc">
+            <h4 class="metric-title">📏 IMC</h4>
+            <h2 class="metric-value">{imc}</h2>
+            <p class="metric-caption">Indice de Masa Corporal</p>
         </div>
         """, unsafe_allow_html=True)
     
     with col_estado:
-        color_estado = "#27AE60" if estado == "Peso normal" else "#F39C12" if estado == "Sobrepeso" else "#E74C3C"
+        estado_class = "status-normal" if estado == "Peso normal" else "status-sobrepeso" if estado == "Sobrepeso" else "status-obesidad" if estado == "Obesidad" else "status-bajo"
         st.markdown(f"""
-        <div style='background: linear-gradient(135deg, rgba({','.join(map(str, [39, 174, 96][:3]))}, 0.2) 0%, rgba(46, 204, 113, 0.2) 100%); 
-                    border-radius: 12px; padding: 20px; border: 2px solid {color_estado}; text-align: center;'>
-            <h4 style='margin: 0; font-size: 0.9rem; color: {color_estado};'>💪 Estado</h4>
-            <h2 style='margin: 10px 0; color: {color_estado}; font-size: 1.8rem;'>{estado}</h2>
+        <div class="dashboard-metric-card metric-card-estado {estado_class}">
+            <h4 class="metric-title">💪 Estado</h4>
+            <h2 class="metric-value">{estado}</h2>
         </div>
         """, unsafe_allow_html=True)
     
     with col_ideal:
         st.markdown(f"""
-        <div style='background: linear-gradient(135deg, rgba(52, 152, 219, 0.2) 0%, rgba(41, 128, 185, 0.2) 100%); 
-                    border-radius: 12px; padding: 20px; border: 2px solid #3498DB; text-align: center;'>
-            <h4 style='margin: 0; font-size: 0.9rem; color: #3498DB;'>⚖️ Peso Ideal</h4>
-            <h2 style='margin: 10px 0; color: #3498DB; font-size: 1.8rem;'>{p_min}-{p_max}</h2>
-            <p style='margin: 0; font-size: 0.85rem; color: #bbb;'>en Lbs</p>
+        <div class="dashboard-metric-card metric-card-ideal">
+            <h4 class="metric-title">⚖️ Peso Ideal</h4>
+            <h2 class="metric-value">{p_min}-{p_max}</h2>
+            <p class="metric-caption">en Lbs</p>
         </div>
         """, unsafe_allow_html=True)
     
     with col_dias:
         st.markdown(f"""
-        <div style='background: linear-gradient(135deg, rgba(155, 89, 182, 0.2) 0%, rgba(142, 68, 173, 0.2) 100%); 
-                    border-radius: 12px; padding: 20px; border: 2px solid #9B59B6; text-align: center;'>
-            <h4 style='margin: 0; font-size: 0.9rem; color: #9B59B6;'>📅 Días</h4>
-            <h2 style='margin: 10px 0; color: #9B59B6; font-size: 1.8rem;'>{u.get("dias_entreno", 5)}</h2>
-            <p style='margin: 0; font-size: 0.85rem; color: #bbb;'>entrenos/semana</p>
+        <div class="dashboard-metric-card metric-card-dias">
+            <h4 class="metric-title">📅 Dias</h4>
+            <h2 class="metric-value">{u.get("dias_entreno", 5)}</h2>
+            <p class="metric-caption">entrenos/semana</p>
         </div>
         """, unsafe_allow_html=True)
     
@@ -891,11 +498,11 @@ else:
 
                         st.markdown(f"""
                             <div class="exercise-card">
-                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div class="exercise-card-header">
                                     <strong>{ej['ejercicio']}</strong>
-                                    <span title="{ej.get('tip', '')}" style="cursor:help;">💡 Tip</span>
+                                    <span title="{ej.get('tip', '')}" class="exercise-card-tip-icon">💡 Tip</span>
                                 </div>
-                                <small style="color: #bbb;">{ej.get('tip', 'Mantén la técnica correcta.')}</small><br>
+                                <small class="exercise-card-tip-text">{ej.get('tip', 'Mantén la técnica correcta.')}</small><br>
                                 <small>Configuración: {ej['series']} sets totales</small>
                             </div>
                         """, unsafe_allow_html=True)
@@ -967,8 +574,8 @@ else:
                         # Desayuno
                         if "desayuno" in comidas:
                             des = comidas["desayuno"]
-                            st.markdown(f"""<div class="exercise-card" style="border-left-color: #FFB84D;">
-                                <h4 style="margin:0; color: #FFB84D;">🌅 Desayuno</h4>
+                            st.markdown(f"""<div class="exercise-card meal-card meal-breakfast">
+                                <h4 class="meal-title">🌅 Desayuno</h4>
                                 <strong>{des.get('comida', 'N/A')}</strong><br>
                                 <small>📏 {des.get('cantidad', 'N/A')}</small><br>
                                 <small>💡 {des.get('tip', '')}</small><br>
@@ -979,8 +586,8 @@ else:
                         # Merienda Mañana
                         if "merienda_manana" in comidas:
                             mer_m = comidas["merienda_manana"]
-                            st.markdown(f"""<div class="exercise-card" style="border-left-color: #81C784;">
-                                <h4 style="margin:0; color: #81C784;">🥪 Merienda Media Mañana</h4>
+                            st.markdown(f"""<div class="exercise-card meal-card meal-midmorning">
+                                <h4 class="meal-title">🥪 Merienda Media Manana</h4>
                                 <strong>{mer_m.get('comida', 'N/A')}</strong><br>
                                 <small>📏 {mer_m.get('cantidad', 'N/A')}</small><br>
                                 <small>💡 {mer_m.get('tip', '')}</small><br>
@@ -991,8 +598,8 @@ else:
                         # Almuerzo
                         if "almuerzo" in comidas:
                             alm = comidas["almuerzo"]
-                            st.markdown(f"""<div class="exercise-card" style="border-left-color: #64B5F6;">
-                                <h4 style="margin:0; color: #64B5F6;">🍽️ Almuerzo</h4>
+                            st.markdown(f"""<div class="exercise-card meal-card meal-lunch">
+                                <h4 class="meal-title">🍽️ Almuerzo</h4>
                                 <strong>{alm.get('comida', 'N/A')}</strong><br>
                                 <small>📏 {alm.get('cantidad', 'N/A')}</small><br>
                                 <small>💡 {alm.get('tip', '')}</small><br>
@@ -1003,8 +610,8 @@ else:
                         # Merienda Tarde
                         if "merienda_tarde" in comidas:
                             mer_t = comidas["merienda_tarde"]
-                            st.markdown(f"""<div class="exercise-card" style="border-left-color: #F06292;">
-                                <h4 style="margin:0; color: #F06292;">🍌 Merienda Media Tarde (Post-Entreno)</h4>
+                            st.markdown(f"""<div class="exercise-card meal-card meal-afternoon">
+                                <h4 class="meal-title">🍌 Merienda Media Tarde (Post-Entreno)</h4>
                                 <strong>{mer_t.get('comida', 'N/A')}</strong><br>
                                 <small>📏 {mer_t.get('cantidad', 'N/A')}</small><br>
                                 <small>💡 {mer_t.get('tip', '')}</small><br>
@@ -1015,8 +622,8 @@ else:
                         # Cena
                         if "cena" in comidas:
                             cena = comidas["cena"]
-                            st.markdown(f"""<div class="exercise-card" style="border-left-color: #9C27B0;">
-                                <h4 style="margin:0; color: #9C27B0;">🌙 Cena</h4>
+                            st.markdown(f"""<div class="exercise-card meal-card meal-dinner">
+                                <h4 class="meal-title">🌙 Cena</h4>
                                 <strong>{cena.get('comida', 'N/A')}</strong><br>
                                 <small>📏 {cena.get('cantidad', 'N/A')}</small><br>
                                 <small>💡 {cena.get('tip', '')}</small><br>
@@ -1110,9 +717,6 @@ else:
                             st.session_state.ejercicios_completados_hoy[idx] = completado
                         
                         with col_content:
-                            # Estilo visual dependiendo si está completado
-                            style = "border: 2px solid #4CAF50; background-color: rgba(76, 175, 80, 0.1);" if completado else "border: 2px solid #ddd;"
-                            
                             with st.expander(f"{'✅' if completado else '🏋️'} {ej['ejercicio']}", expanded=(idx == 0)):
                                 col_info1, col_info2 = st.columns(2)
                                 
@@ -1312,9 +916,9 @@ else:
             
             cal, p, g, c = calcular_macros(u)
             st.markdown(f"""
-                <div class="exercise-card" style="border-left-color: var(--secondary);">
-                    <h4 style="margin:0;">🔥 Calorías Objetivo</h4>
-                    <h2 style="margin:0; color: var(--secondary);">{cal} kcal</h2>
+                <div class="exercise-card macro-card">
+                    <h4 class="meal-title">🔥 Calorias Objetivo</h4>
+                    <h2 class="metric-value">{cal} kcal</h2>
                 </div>
             """, unsafe_allow_html=True)
             st.markdown(f"**Macros Directriz:**")
