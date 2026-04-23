@@ -12,216 +12,222 @@ USERS_FILE = "user_data.json"
 
 # --- ESTILOS CSS PERSONALIZADOS ---
 def aplicar_estilos():
-    """Aplica estilos CSS profesionales a la aplicación"""
+    """Aplica estilos CSS minimalistas y modernos"""
     estilos = """
     <style>
-    /* Variables de color */
+    /* Variables de color - Paleta minimalista y moderna */
     :root {
-        --primary: #FF6B35;
-        --primary-dark: #E55A2B;
-        --secondary: #4ECDC4;
-        --accent: #FFE66D;
-        --dark: #2C3E50;
-        --light: #ECF0F1;
-        --success: #27AE60;
-        --danger: #E74C3C;
+        --primary: #475569;
+        --primary-light: #64748b;
+        --dark: #0f172a;
+        --light: #f8fafc;
+        --light-gray: #e2e8f0;
+        --medium-gray: #cbd5e1;
+        --success: #10b981;
+        --danger: #ef4444;
     }
     
-    /* Fondo gradiente */
+    /* Fondo limpio y minimalista */
     [data-testid="stAppViewContainer"] {
-        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-        color: #ecf0f1;
+        background-color: #ffffff;
+        color: #1e293b;
     }
     
     /* Headers principales */
     .main-header {
-        font-size: 3.5rem !important;
-        font-weight: 900 !important;
-        background: linear-gradient(135deg, #FF6B35 0%, #FFE66D 100%) !important;
-        -webkit-background-clip: text !important;
-        -webkit-text-fill-color: transparent !important;
-        background-clip: text !important;
+        font-size: 3rem !important;
+        font-weight: 700 !important;
+        color: #0f172a !important;
         text-align: center !important;
-        margin-bottom: 1rem !important;
-        text-shadow: 0px 4px 8px rgba(0,0,0,0.2) !important;
+        margin-bottom: 1.5rem !important;
+        letter-spacing: -1px !important;
     }
     
     /* Subtítulos */
     h2, h3 {
-        color: #FFE66D !important;
-        font-weight: 800 !important;
-        text-transform: uppercase !important;
-        letter-spacing: 1px !important;
+        color: #1e293b !important;
+        font-weight: 600 !important;
+        letter-spacing: 0 !important;
+        text-transform: none !important;
+        border-bottom: 1px solid #e2e8f0 !important;
+        padding-bottom: 0.75rem !important;
     }
     
     h4 {
-        color: #4ECDC4 !important;
-        font-weight: 700 !important;
+        color: #475569 !important;
+        font-weight: 500 !important;
     }
     
     /* Tarjetas de ejercicios */
     .exercise-card {
-        background: linear-gradient(135deg, rgba(255, 107, 53, 0.1) 0%, rgba(78, 205, 196, 0.1) 100%) !important;
-        border-left: 5px solid #FF6B35 !important;
-        border-radius: 12px !important;
-        padding: 20px !important;
-        margin: 15px 0 !important;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
-        backdrop-filter: blur(10px) !important;
-        transition: all 0.3s ease !important;
+        background: #f8fafc !important;
+        border-left: 3px solid #475569 !important;
+        border-radius: 8px !important;
+        padding: 18px !important;
+        margin: 12px 0 !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+        transition: all 0.2s ease !important;
     }
     
     .exercise-card:hover {
-        transform: translateX(5px) !important;
-        box-shadow: 0 6px 20px rgba(255, 107, 53, 0.3) !important;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
+        transform: translateX(2px) !important;
     }
     
     /* Botones mejorados */
     button {
-        border-radius: 8px !important;
-        font-weight: 700 !important;
-        transition: all 0.3s ease !important;
-        text-transform: uppercase !important;
-        letter-spacing: 0.5px !important;
+        border-radius: 6px !important;
+        font-weight: 500 !important;
+        transition: all 0.2s ease !important;
+        text-transform: none !important;
+        letter-spacing: 0 !important;
     }
     
     /* Botones primarios */
     [data-testid="baseButton-primary"] {
-        background: linear-gradient(135deg, #FF6B35 0%, #FFB84D 100%) !important;
+        background: #475569 !important;
         color: white !important;
-        box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4) !important;
+        box-shadow: 0 1px 3px rgba(71, 85, 105, 0.2) !important;
     }
     
     [data-testid="baseButton-primary"]:hover {
-        box-shadow: 0 6px 20px rgba(255, 107, 53, 0.6) !important;
-        transform: translateY(-2px) !important;
+        background: #334155 !important;
+        box-shadow: 0 2px 6px rgba(71, 85, 105, 0.3) !important;
+        transform: translateY(-1px) !important;
     }
     
     /* Tabs */
     [data-baseweb="tab-list"] {
-        border-bottom: 2px solid #FF6B35 !important;
+        border-bottom: 1px solid #e2e8f0 !important;
     }
     
     [data-baseweb="tab"] {
-        color: #bbb !important;
-        font-weight: 600 !important;
+        color: #94a3b8 !important;
+        font-weight: 500 !important;
     }
     
     [aria-selected="true"] {
-        color: #FFE66D !important;
-        border-bottom: 3px solid #FF6B35 !important;
+        color: #0f172a !important;
+        border-bottom: 2px solid #475569 !important;
     }
     
     /* Métricas */
     [data-testid="metric-container"] {
-        background: linear-gradient(135deg, rgba(255, 107, 53, 0.15) 0%, rgba(78, 205, 196, 0.15) 100%) !important;
-        border-radius: 12px !important;
-        padding: 20px !important;
-        border: 1px solid #FF6B35 !important;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2) !important;
+        background: #f8fafc !important;
+        border-radius: 8px !important;
+        padding: 18px !important;
+        border: 1px solid #e2e8f0 !important;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
     }
     
     /* Inputs */
     input, textarea, select {
-        background-color: rgba(44, 62, 80, 0.6) !important;
-        border: 2px solid #FF6B35 !important;
-        color: #ecf0f1 !important;
-        border-radius: 8px !important;
-        font-weight: 600 !important;
-        padding: 10px !important;
+        background-color: #f8fafc !important;
+        border: 1px solid #cbd5e1 !important;
+        color: #0f172a !important;
+        border-radius: 6px !important;
+        font-weight: 400 !important;
+        padding: 8px 12px !important;
     }
     
     input:focus, textarea:focus, select:focus {
-        border-color: #FFE66D !important;
-        box-shadow: 0 0 10px rgba(255, 230, 109, 0.3) !important;
+        border-color: #475569 !important;
+        box-shadow: 0 0 0 3px rgba(71, 85, 105, 0.1) !important;
     }
     
     /* Expanders */
     [data-testid="stExpander"] {
-        background: rgba(44, 62, 80, 0.5) !important;
-        border: 1px solid #FF6B35 !important;
-        border-radius: 8px !important;
+        background: #f8fafc !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 6px !important;
     }
     
     /* Info boxes */
     [data-testid="stInfo"] {
-        background: linear-gradient(135deg, rgba(78, 205, 196, 0.2) 0%, rgba(52, 152, 219, 0.2) 100%) !important;
-        border-left: 4px solid #4ECDC4 !important;
-        border-radius: 8px !important;
+        background: #eff6ff !important;
+        border-left: 3px solid #475569 !important;
+        border-radius: 6px !important;
     }
     
     [data-testid="stSuccess"] {
-        background: linear-gradient(135deg, rgba(39, 174, 96, 0.2) 0%, rgba(46, 204, 113, 0.2) 100%) !important;
-        border-left: 4px solid #27AE60 !important;
-        border-radius: 8px !important;
+        background: #ecfdf5 !important;
+        border-left: 3px solid #10b981 !important;
+        border-radius: 6px !important;
     }
     
     [data-testid="stWarning"] {
-        background: linear-gradient(135deg, rgba(241, 196, 15, 0.2) 0%, rgba(230, 126, 34, 0.2) 100%) !important;
-        border-left: 4px solid #F39C12 !important;
-        border-radius: 8px !important;
+        background: #fffbeb !important;
+        border-left: 3px solid #f59e0b !important;
+        border-radius: 6px !important;
     }
     
     [data-testid="stError"] {
-        background: linear-gradient(135deg, rgba(231, 76, 60, 0.2) 0%, rgba(192, 57, 43, 0.2) 100%) !important;
-        border-left: 4px solid #E74C3C !important;
-        border-radius: 8px !important;
+        background: #fef2f2 !important;
+        border-left: 3px solid #ef4444 !important;
+        border-radius: 6px !important;
     }
     
     /* Checkboxes */
     [data-testid="stCheckbox"] {
-        padding: 10px !important;
+        padding: 8px !important;
     }
     
     /* Sidebar */
     [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, rgba(26, 26, 46, 0.95) 0%, rgba(22, 33, 62, 0.95) 100%) !important;
-        border-right: 2px solid #FF6B35 !important;
+        background: #f8fafc !important;
+        border-right: 1px solid #e2e8f0 !important;
     }
     
     /* Textos generales */
     p, span, div {
-        color: #ecf0f1 !important;
+        color: #1e293b !important;
     }
     
     /* Enlace */
     a {
-        color: #FFE66D !important;
+        color: #475569 !important;
         text-decoration: none !important;
-        font-weight: 600 !important;
+        font-weight: 500 !important;
     }
     
     a:hover {
-        color: #FF6B35 !important;
+        color: #334155 !important;
         text-decoration: underline !important;
     }
     
     /* Divisor */
     hr {
-        border-color: #FF6B35 !important;
-        margin: 2rem 0 !important;
+        border-color: #e2e8f0 !important;
+        margin: 1.5rem 0 !important;
     }
     
     /* DataFrames */
     [data-testid="stDataFrame"] {
-        background-color: rgba(44, 62, 80, 0.5) !important;
+        background-color: #f8fafc !important;
     }
     
     /* Cards personalizadas */
     .stat-card {
-        background: linear-gradient(135deg, #FF6B35 0%, #FFB84D 100%) !important;
-        border-radius: 12px !important;
-        padding: 20px !important;
-        color: white !important;
+        background: #f8fafc !important;
+        border-radius: 8px !important;
+        padding: 18px !important;
+        color: #0f172a !important;
         text-align: center !important;
-        box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4) !important;
-        font-weight: 700 !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+        font-weight: 500 !important;
+        border: 1px solid #e2e8f0 !important;
     }
     
     .progress-bar {
-        background: linear-gradient(90deg, #FF6B35 0%, #FFE66D 100%) !important;
-        border-radius: 10px !important;
-        height: 25px !important;
+        background: #e2e8f0 !important;
+        border-radius: 8px !important;
+        height: 8px !important;
+    }
+    
+    .progress-bar-fill {
+        background: #475569 !important;
+        height: 100% !important;
+        border-radius: 8px !important;
     }
     
     /* Animaciones */
@@ -243,87 +249,102 @@ def aplicar_estilos():
         animation: slideIn 0.5s ease-out;
     }
     
+    /* Animaciones sutiles */
+    @keyframes slideIn {
+        from { opacity: 0; transform: translateX(-10px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+    
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.8; }
+    }
+    
+    .pulse {
+        animation: pulse 1.5s infinite;
+    }
+    
+    .slide-in {
+        animation: slideIn 0.3s ease-out;
+    }
+    
     /* Scrollbar personalizada */
     ::-webkit-scrollbar {
-        width: 10px;
+        width: 8px;
     }
     
     ::-webkit-scrollbar-track {
-        background: rgba(44, 62, 80, 0.5);
+        background: #f1f5f9;
     }
     
     ::-webkit-scrollbar-thumb {
-        background: #FF6B35;
-        border-radius: 10px;
+        background: #cbd5e1;
+        border-radius: 4px;
     }
     
     ::-webkit-scrollbar-thumb:hover {
-        background: #FFE66D;
+        background: #94a3b8;
     }
     
-    /* Mejoras para elementos específicos */
+    /* Labels en sidebar */
     .sidebar-label {
-        font-size: 0.85rem;
+        font-size: 0.75rem;
         text-transform: uppercase;
-        letter-spacing: 1px;
-        color: #FFE66D;
-        margin: 20px 0 10px 0;
+        letter-spacing: 0.5px;
+        color: #64748b;
+        margin: 1.5rem 0 0.5rem 0;
+        font-weight: 600;
     }
     
-    /* Improvement para tarjetas de dieta */
+    /* Tarjetas de comidas */
     .meal-card {
-        background: linear-gradient(135deg, rgba(255, 107, 53, 0.08) 0%, rgba(78, 205, 196, 0.08) 100%) !important;
-        border-left: 5px solid;
-        border-radius: 10px !important;
-        padding: 15px !important;
-        margin: 10px 0 !important;
-        transition: all 0.3s ease !important;
+        background: #f8fafc !important;
+        border-left: 3px solid #475569 !important;
+        border-radius: 6px !important;
+        padding: 14px !important;
+        margin: 8px 0 !important;
+        transition: all 0.2s ease !important;
     }
     
     .meal-card:hover {
-        transform: translateX(3px) !important;
-        box-shadow: 0 4px 12px rgba(255, 107, 53, 0.2) !important;
-    }
-    
-    /* Headers en tabs mejorados */
-    h3 {
-        border-bottom: 3px solid #FF6B35 !important;
-        padding-bottom: 10px !important;
-    }
-    
-    /* Botones pequeños */
-    .small-btn {
-        font-size: 0.9rem !important;
-        padding: 8px 12px !important;
-        border-radius: 6px !important;
+        transform: translateX(2px) !important;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
     }
     
     /* Badges de progreso */
     .progress-badge {
         display: inline-block;
-        background: linear-gradient(135deg, #FF6B35 0%, #FFE66D 100%) !important;
+        background: #475569 !important;
         color: white !important;
-        padding: 5px 12px !important;
-        border-radius: 20px !important;
-        font-weight: 700 !important;
-        font-size: 0.85rem !important;
+        padding: 4px 10px !important;
+        border-radius: 16px !important;
+        font-weight: 500 !important;
+        font-size: 0.8rem !important;
     }
     
-    /* Tooltips mejorados */
-    [data-tooltip] {
-        cursor: help;
-        border-bottom: 1px dotted #FF6B35;
-    }
-    
-    /* Animación de carga mejorada */
+    /* Animación shimmer para carga */
     @keyframes shimmer {
-        0% { opacity: 0.5; }
+        0% { opacity: 0.6; }
         50% { opacity: 1; }
-        100% { opacity: 0.5; }
+        100% { opacity: 0.6; }
     }
     
     .shimmer {
         animation: shimmer 1.5s infinite;
+    }
+    
+    /* Espaciado y tipografía mejorados */
+    [data-testid="stMarkdownContainer"] {
+        line-height: 1.6 !important;
+    }
+    
+    /* Color de texto en elementos especiales */
+    [data-testid="stMetricValue"] {
+        color: #0f172a !important;
+    }
+    
+    [data-testid="stMetricLabel"] {
+        color: #64748b !important;
     }
     
     </style>
