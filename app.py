@@ -4,55 +4,409 @@ import os
 import random
 import pandas as pd
 import google.generativeai as genai
-import hashlib
-from config import *  # Importar todas las configuraciones
 
 # --- CONFIGURACIÓN ---
-st.set_page_config(**PAGE_CONFIG)
-
-def hash_password(password):
-    """Hashea una contraseña usando SHA-256 con salt"""
-    salt = PASSWORD_SALT.encode()
-    return hashlib.sha256(salt + password.encode()).hexdigest()
-
-def verificar_password(password, hash_guardado):
-    """Verifica si una contraseña coincide con el hash guardado"""
-    return hash_password(password) == hash_guardado
+st.set_page_config(page_title="Gym Pro AI", page_icon="💪", layout="wide", initial_sidebar_state="expanded")
+DB_FILE = "gym_data.json"
+USERS_FILE = "user_data.json"
 
 # --- ESTILOS CSS PERSONALIZADOS ---
 def aplicar_estilos():
-    """Aplica estilos CSS desde archivo externo"""
-    try:
-        base_dir = os.path.dirname(os.path.abspath(__file__))
-        styles_path = os.path.join(base_dir, "styles.css")
-
-        with open(styles_path, "r", encoding="utf-8") as f:
-            estilos = f"<style>{f.read()}</style>"
-        st.markdown(estilos, unsafe_allow_html=True)
-
-        # Aplicar tema al contenedor principal
-        st.markdown(f"""
-        <script>
-        document.querySelector('[data-testid="stAppViewContainer"]').setAttribute('data-theme', '{"dark" if st.session_state.tema_oscuro else "light"}');
-        </script>
-        """, unsafe_allow_html=True)
-
-    except FileNotFoundError:
-        st.warning("Archivo styles.css no encontrado. Usando estilos básicos.")
-
-# Inicializar tema (modo día por defecto) - ANTES de aplicar_estilos()
-if 'tema_oscuro' not in st.session_state:
-    st.session_state.tema_oscuro = False
+    """Aplica estilos CSS con tema oscuro elegante, glow effects y sin bordes"""
+    estilos = """
+    <style>
+    /* Variables de color - Paleta oscura elegante tipo Vercel/Stripe */
+    :root {
+        --dark-bg: #0f172a;
+        --dark-bg-secondary: #1a202c;
+        --dark-card: #1e293b;
+        --dark-border: #334155;
+        --dark-text: #f1f5f9;
+        --dark-text-secondary: #cbd5e1;
+        --accent-primary: #3b82f6;
+        --accent-secondary: #8b5cf6;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+    }
+    
+    /* Fondo oscuro elegante */
+    [data-testid="stAppViewContainer"] {
+        background-color: #0f172a !important;
+        color: #f1f5f9 !important;
+    }
+    
+    /* Headers principales */
+    .main-header {
+        font-size: 3rem !important;
+        font-weight: 700 !important;
+        color: #f1f5f9 !important;
+        text-align: center !important;
+        margin-bottom: 1.5rem !important;
+        letter-spacing: -1px !important;
+    }
+    
+    /* Subtítulos - SIN BORDES */
+    h2, h3 {
+        color: #f1f5f9 !important;
+        font-weight: 600 !important;
+        letter-spacing: 0 !important;
+        text-transform: none !important;
+        border: none !important;
+        padding-bottom: 0.75rem !important;
+    }
+    
+    h4 {
+        color: #cbd5e1 !important;
+        font-weight: 500 !important;
+    }
+    
+    /* Tarjetas de ejercicios - GLOW FLOTANTE */
+    .exercise-card {
+        background: #1e293b !important;
+        border: none !important;
+        border-radius: 10px !important;
+        padding: 18px !important;
+        margin: 12px 0 !important;
+        box-shadow: 0 0 25px rgba(59, 130, 246, 0.2), 0 0 50px rgba(59, 130, 246, 0.1) !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    .exercise-card:hover {
+        background: #334155 !important;
+        box-shadow: 0 0 40px rgba(59, 130, 246, 0.4), 0 0 80px rgba(59, 130, 246, 0.2), 0 8px 25px rgba(59, 130, 246, 0.15) !important;
+        transform: translateY(-4px) translateX(2px) !important;
+    }
+    
+    /* Botones mejorados */
+    button {
+        border: none !important;
+        border-radius: 8px !important;
+        font-weight: 500 !important;
+        transition: all 0.3s ease !important;
+        text-transform: none !important;
+        letter-spacing: 0 !important;
+    }
+    
+    /* Botones primarios - GLOW FLOTANTE */
+    [data-testid="baseButton-primary"] {
+        background: #3b82f6 !important;
+        color: white !important;
+        box-shadow: 0 0 20px rgba(59, 130, 246, 0.5), 0 0 40px rgba(59, 130, 246, 0.25) !important;
+    }
+    
+    [data-testid="baseButton-primary"]:hover {
+        background: #2563eb !important;
+        box-shadow: 0 0 35px rgba(59, 130, 246, 0.7), 0 0 70px rgba(59, 130, 246, 0.4), 0 6px 30px rgba(59, 130, 246, 0.3) !important;
+        transform: translateY(-3px) !important;
+    }
+    
+    /* Tabs */
+    [data-baseweb="tab-list"] {
+        border: none !important;
+    }
+    
+    [data-baseweb="tab"] {
+        color: #94a3b8 !important;
+        font-weight: 500 !important;
+        border: none !important;
+    }
+    
+    [aria-selected="true"] {
+        color: #3b82f6 !important;
+        box-shadow: 0 2px 15px rgba(59, 130, 246, 0.4) !important;
+    }
+    
+    /* Métricas - CON GLOW */
+    [data-testid="metric-container"] {
+        background: #1e293b !important;
+        border-radius: 8px !important;
+        padding: 18px !important;
+        border: none !important;
+        box-shadow: 0 0 25px rgba(59, 130, 246, 0.2), 0 0 50px rgba(59, 130, 246, 0.1) !important;
+    }
+    
+    /* Inputs - SIN BORDES, GLOW FLOTANTE */
+    input, textarea, select {
+        background-color: #1a202c !important;
+        border: none !important;
+        color: #f1f5f9 !important;
+        border-radius: 8px !important;
+        font-weight: 400 !important;
+        padding: 10px 14px !important;
+        box-shadow: 0 0 15px rgba(59, 130, 246, 0.15), inset 0 0 10px rgba(59, 130, 246, 0.05) !important;
+        transition: all 0.2s ease !important;
+    }
+    
+    input:focus, textarea:focus, select:focus {
+        box-shadow: 0 0 30px rgba(59, 130, 246, 0.35), 0 0 60px rgba(59, 130, 246, 0.2), inset 0 0 15px rgba(59, 130, 246, 0.1) !important;
+        transform: scale(1.01) !important;
+    }
+    
+    /* Expanders - SIN BORDES, GLOW */
+    [data-testid="stExpander"] {
+        background: #1e293b !important;
+        border: none !important;
+        border-radius: 8px !important;
+        box-shadow: 0 0 20px rgba(59, 130, 246, 0.15), 0 0 40px rgba(59, 130, 246, 0.08) !important;
+    }
+    
+    /* Info boxes - SIN BORDES, GLOW */
+    [data-testid="stInfo"] {
+        background: rgba(59, 130, 246, 0.08) !important;
+        border: none !important;
+        border-radius: 8px !important;
+        color: #cbd5e1 !important;
+        box-shadow: 0 0 25px rgba(59, 130, 246, 0.25), 0 0 50px rgba(59, 130, 246, 0.12) !important;
+    }
+    
+    [data-testid="stSuccess"] {
+        background: rgba(16, 185, 129, 0.08) !important;
+        border: none !important;
+        border-radius: 8px !important;
+        color: #cbd5e1 !important;
+        box-shadow: 0 0 25px rgba(16, 185, 129, 0.25), 0 0 50px rgba(16, 185, 129, 0.12) !important;
+    }
+    
+    [data-testid="stWarning"] {
+        background: rgba(139, 92, 246, 0.08) !important;
+        border: none !important;
+        border-radius: 8px !important;
+        color: #cbd5e1 !important;
+        box-shadow: 0 0 25px rgba(139, 92, 246, 0.25), 0 0 50px rgba(139, 92, 246, 0.12) !important;
+    }
+    
+    [data-testid="stError"] {
+        background: rgba(239, 68, 68, 0.08) !important;
+        border: none !important;
+        border-radius: 8px !important;
+        color: #cbd5e1 !important;
+        box-shadow: 0 0 25px rgba(239, 68, 68, 0.25), 0 0 50px rgba(239, 68, 68, 0.12) !important;
+    }
+    
+    /* Checkboxes */
+    [data-testid="stCheckbox"] {
+        padding: 8px !important;
+    }
+    
+    /* Sidebar - SIN BORDES */
+    [data-testid="stSidebar"] {
+        background: #1a202c !important;
+        border: none !important;
+    }
+    
+    /* Textos generales */
+    p, span, div {
+        color: #f1f5f9 !important;
+    }
+    
+    /* Enlace */
+    a {
+        color: #3b82f6 !important;
+        text-decoration: none !important;
+        font-weight: 500 !important;
+    }
+    
+    a:hover {
+        color: #60a5fa !important;
+        text-decoration: underline !important;
+    }
+    
+    /* Divisor - GLOW SUTIL */
+    hr {
+        border: none !important;
+        height: 1px !important;
+        background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.3), transparent) !important;
+        margin: 1.5rem 0 !important;
+        box-shadow: 0 0 10px rgba(59, 130, 246, 0.2) !important;
+    }
+    
+    /* DataFrames */
+    [data-testid="stDataFrame"] {
+        background-color: #1e293b !important;
+    }
+    
+    /* Cards personalizadas - GLOW FLOTANTE */
+    .stat-card {
+        background: #1e293b !important;
+        border-radius: 10px !important;
+        padding: 20px !important;
+        color: #f1f5f9 !important;
+        text-align: center !important;
+        box-shadow: 0 0 30px rgba(59, 130, 246, 0.25), 0 0 60px rgba(59, 130, 246, 0.15) !important;
+        font-weight: 500 !important;
+        border: none !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    .stat-card:hover {
+        box-shadow: 0 0 45px rgba(59, 130, 246, 0.35), 0 0 90px rgba(59, 130, 246, 0.2), 0 8px 30px rgba(59, 130, 246, 0.2) !important;
+        transform: translateY(-5px) !important;
+    }
+    
+    /* Progress bar - GLOW */
+    .progress-bar {
+        background: rgba(59, 130, 246, 0.15) !important;
+        border: none !important;
+        border-radius: 10px !important;
+        height: 10px !important;
+        box-shadow: inset 0 0 10px rgba(59, 130, 246, 0.1) !important;
+    }
+    
+    .progress-bar-fill {
+        background: linear-gradient(90deg, #3b82f6, #60a5fa) !important;
+        height: 100% !important;
+        border-radius: 10px !important;
+        box-shadow: 0 0 15px rgba(59, 130, 246, 0.6), inset 0 0 10px rgba(255, 255, 255, 0.2) !important;
+    }
+    
+    /* Animaciones */
+    @keyframes slideIn {
+        from { opacity: 0; transform: translateX(-20px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+    
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
+    
+    .pulse {
+        animation: pulse 2s infinite;
+    }
+    
+    .slide-in {
+        animation: slideIn 0.5s ease-out;
+    }
+    
+    /* Animaciones sutiles */
+    @keyframes slideIn {
+        from { opacity: 0; transform: translateX(-10px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+    
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.8; }
+    }
+    
+    .pulse {
+        animation: pulse 1.5s infinite;
+    }
+    
+    .slide-in {
+        animation: slideIn 0.3s ease-out;
+    }
+    
+    /* Scrollbar personalizada - Tema oscuro con glow */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: #0f172a;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: #334155;
+        border-radius: 4px;
+        box-shadow: 0 0 8px rgba(59, 130, 246, 0.2) inset;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: #3b82f6;
+        box-shadow: 0 0 12px rgba(59, 130, 246, 0.4) inset;
+    }
+    
+    /* Labels en sidebar */
+    .sidebar-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #94a3b8;
+        margin: 1.5rem 0 0.5rem 0;
+        font-weight: 600;
+    }
+    
+    /* Tarjetas de comidas - CON GLOW */
+    .meal-card {
+        background: #1e293b !important;
+        border: none !important;
+        border-radius: 6px !important;
+        padding: 14px !important;
+        margin: 8px 0 !important;
+        transition: all 0.2s ease !important;
+        box-shadow: 0 0 15px rgba(59, 130, 246, 0.1) !important;
+    }
+    
+    .meal-card:hover {
+        background: #334155 !important;
+        transform: translateX(2px) !important;
+        box-shadow: 0 0 25px rgba(59, 130, 246, 0.25) !important;
+    }
+    
+    /* Badges de progreso - CON GLOW */
+    .progress-badge {
+        display: inline-block;
+        background: #3b82f6 !important;
+        color: white !important;
+        padding: 4px 10px !important;
+        border-radius: 16px !important;
+        font-weight: 500 !important;
+        font-size: 0.8rem !important;
+        box-shadow: 0 0 12px rgba(59, 130, 246, 0.4) !important;
+    }
+    
+    /* Animación shimmer para carga */
+    @keyframes shimmer {
+        0% { opacity: 0.6; }
+        50% { opacity: 1; }
+        100% { opacity: 0.6; }
+    }
+    
+    .shimmer {
+        animation: shimmer 1.5s infinite;
+    }
+    
+    /* Espaciado y tipografía mejorados */
+    [data-testid="stMarkdownContainer"] {
+        line-height: 1.6 !important;
+        color: #f1f5f9 !important;
+    }
+    
+    /* Color de texto en elementos especiales */
+    [data-testid="stMetricValue"] {
+        color: #f1f5f9 !important;
+    }
+    
+    [data-testid="stMetricLabel"] {
+        color: #cbd5e1 !important;
+    }
+    
+    /* Mejora visual para elementos de streamlit */
+    [data-testid="stVerticalBlock"] {
+        color: #f1f5f9 !important;
+    }
+    
+    /* Buttons secundarios */
+    [data-testid="baseButton-secondary"] {
+        background: #334155 !important;
+        color: #f1f5f9 !important;
+        border: none !important;
+        box-shadow: 0 0 15px rgba(59, 130, 246, 0.2) !important;
+    }
+    
+    [data-testid="baseButton-secondary"]:hover {
+        background: #475569 !important;
+        box-shadow: 0 0 25px rgba(59, 130, 246, 0.35) !important;
+    }
+    
+    </style>
+    """
+    st.markdown(estilos, unsafe_allow_html=True)
 
 # Aplicar estilos al cargar la página
 aplicar_estilos()
-
-# Toggle de modo día/noche (siempre visible)
-col_toggle = st.columns([0.95, 0.05])[1]
-with col_toggle:
-    if st.button("🌙" if st.session_state.tema_oscuro else "☀️", key="theme_toggle", help="Cambiar modo día/noche"):
-        st.session_state.tema_oscuro = not st.session_state.tema_oscuro
-        st.rerun()
 
 # Cargar API key desde secrets (Streamlit Cloud) o variable local
 try:
@@ -63,25 +417,6 @@ except (KeyError, FileNotFoundError):
 genai.configure(api_key=GEMINI_API_KEY)
 model = genai.GenerativeModel('gemini-2.0-flash')
 
-# Inicializar estado de sesión
-if 'usuario_logueado' not in st.session_state:
-    st.session_state.usuario_logueado = None
-
-if 'data' not in st.session_state:
-    st.session_state.data = {
-        "perfil_completado": False, 
-        "user": {}, 
-        "rutina_semanal": {}, 
-        "historial_pesos": [],
-        "historial_entrenamientos": [],
-        "pr_por_ejercicio": {},
-        "fecha_ultima_rotacion": None,
-        "dieta_semanal": {}
-    }
-
-if '_ultima_carga' not in st.session_state:
-    st.session_state._ultima_carga = None
-
 # --- GESTIÓN DE USUARIOS ---
 def cargar_usuarios():
     """Carga la base de datos de usuarios desde user_data.json"""
@@ -89,8 +424,7 @@ def cargar_usuarios():
         try:
             with open(USERS_FILE, "r", encoding='utf-8') as f:
                 return json.load(f)
-        except (json.JSONDecodeError, IOError) as e:
-            st.error(f"Error cargando usuarios: {e}")
+        except:
             return {}
     return {}
 
@@ -109,8 +443,7 @@ def validar_credenciales(username, password):
     usuarios = cargar_usuarios()
     user_lower = username.lower()
     if user_lower in usuarios:
-        hash_guardado = usuarios[user_lower].get("password")
-        return verificar_password(password, hash_guardado)
+        return usuarios[user_lower].get("password") == password
     return False
 
 def registrar_usuario(username, password, datos_perfil):
@@ -123,7 +456,7 @@ def registrar_usuario(username, password, datos_perfil):
     
     usuarios[usuario_lower] = {
         "username": username,
-        "password": hash_password(password),  # ⚠️ SEGURIDAD: Ahora usa hash
+        "password": password,
         "datos_perfil": datos_perfil,
         "fecha_registro": str(pd.Timestamp.now())
     }
@@ -185,6 +518,39 @@ def obtener_datos_usuario(username):
         return datos
     return {"peso_lb": 160.0, "estatura_m": 1.70, "dias_entreno": 5}
 
+
+
+# --- LISTA MAESTRA DE OBJETIVOS (PROTEGIDA) ---
+LISTA_OBJETIVOS = [
+    "🏋️ Ganar masa muscular (hipertrofia)",
+    "🏋️ Perder grasa corporal",
+    "🏋️ Aumentar fuerza (ej. mejorar en ejercicios clave)",
+    "🏋️ Mejorar resistencia cardiovascular",
+    "🏋️ Tonificar el cuerpo",
+    "🏋️ Mejorar la movilidad y flexibilidad",
+    "❤️ Reducir el estrés",
+    "❤️ Dormir mejor",
+    "❤️ Mejorar la salud cardiovascular",
+    "❤️ Prevenir lesiones o dolores",
+    "❤️ Aumentar niveles de energía diarios",
+    "⚡ Correr más rápido o más distancia",
+    "⚡ Saltar más alto o mejorar potencia",
+    "⚡ Prepararse para un deporte específico",
+    "⚡ Mejorar coordinación y equilibrio",
+    "🎯 Marcar abdomen",
+    "🎯 Aumentar glúteos o piernas",
+    "🎯 Definir brazos y hombros",
+    "🎯 Mejorar postura corporal",
+    "🧠 Crear una rutina constante",
+    "🧠 Aprender técnica correcta de ejercicios",
+    "🧠 Mantener consistencia a largo plazo",
+    "🧠 Desarrollar disciplina y autocontrol",
+    "📊 Bajar peso en tiempo específico",
+    "📊 Levantar cierto peso en ejercicios clave",
+    "📊 Reducir porcentaje de grasa corporal",
+    "📊 Completar metas de cardio"
+]
+
 # --- PERSISTENCIA ---
 def guardar_todo(datos):
     """Guarda datos del usuario actual en gym_data.json"""
@@ -207,18 +573,18 @@ def guardar_todo(datos):
 def cargar_todo():
     """Carga datos del usuario actual desde gym_data.json"""
     usuario = st.session_state.usuario_logueado if st.session_state.usuario_logueado else "default"
-
+    
     estructura_vacia = {
-        "perfil_completado": False,
-        "user": {"dias_entreno": 5},
-        "rutina_semanal": {},
+        "perfil_completado": False, 
+        "user": {"dias_entreno": 5}, 
+        "rutina_semanal": {}, 
         "historial_pesos": [],
         "historial_entrenamientos": [],
         "pr_por_ejercicio": {},
         "fecha_ultima_rotacion": None,
         "dieta_semanal": {}
     }
-
+    
     if os.path.exists(DB_FILE):
         try:
             with open(DB_FILE, "r", encoding='utf-8') as f:
@@ -227,7 +593,7 @@ def cargar_todo():
                     data = todos_datos[usuario]
                 else:
                     data = estructura_vacia.copy()
-
+                
                 # Asegurar compatibilidad
                 if "historial_pesos" not in data:
                     data["historial_pesos"] = []
@@ -242,25 +608,29 @@ def cargar_todo():
                 if "dieta_semanal" not in data:
                     data["dieta_semanal"] = {}
                 return data
-        except (json.JSONDecodeError, IOError, KeyError) as e:
-            st.warning(f"Error cargando datos de {usuario}: {e}. Usando datos por defecto.")
-            return estructura_vacia
+        except: 
+            pass
     return estructura_vacia
 
-def asegurar_datos_frescos():
-    """Asegura que los datos en session_state estén actualizados sin recargar innecesariamente"""
-    # Solo recargar si no hay datos o si han pasado cambios
-    if not hasattr(st.session_state, '_ultima_carga') or st.session_state._ultima_carga != st.session_state.usuario_logueado:
-        st.session_state.data = cargar_todo()
-        st.session_state._ultima_carga = st.session_state.usuario_logueado
+if 'usuario_logueado' not in st.session_state:
+    st.session_state.usuario_logueado = None
 
 if 'data' not in st.session_state or (st.session_state.usuario_logueado and st.session_state.data.get('user', {}) == {}):
     # Cargar datos si hay usuario logueado O si nunca se ha cargado nada
     if st.session_state.usuario_logueado:
-        asegurar_datos_frescos()
+        st.session_state.data = cargar_todo()
     else:
-        # Estructura vacía para la pantalla de login (ya inicializada arriba)
-        pass
+        # Estructura vacía para la pantalla de login
+        st.session_state.data = {
+            "perfil_completado": False, 
+            "user": {}, 
+            "rutina_semanal": {}, 
+            "historial_pesos": [],
+            "historial_entrenamientos": [],
+            "pr_por_ejercicio": {},
+            "fecha_ultima_rotacion": None,
+            "dieta_semanal": {}
+        }
 
 # --- LÓGICA DE SALUD ---
 def obtener_analisis(peso_lb, estatura_m):
@@ -1179,9 +1549,10 @@ if not st.session_state.usuario_logueado:
     col_header = st.columns([1])[0]
     with col_header:
         st.markdown("""
-        <div class="hero-section">
-            <h3 class="hero-title">Tu Entrenador Personal Inteligente</h3>
-            <p class="hero-subtitle">Entrenamientos personalizados con IA | Nutrición optimizada | Progreso garantizado</p>
+        <div style='text-align: center; padding: 20px; background: linear-gradient(135deg, rgba(255, 107, 53, 0.1) 0%, rgba(78, 205, 196, 0.1) 100%); 
+                    border-radius: 12px; border: 2px solid #FF6B35; margin-bottom: 30px;'>
+            <h3 style='color: #4ECDC4; margin: 0; font-size: 1.5rem;'>Tu Entrenador Personal Inteligente</h3>
+            <p style='color: #FFE66D; margin: 10px 0 0 0; font-size: 1rem;'>Entrenamientos personalizados con IA | Nutrición optimizada | Progreso garantizado</p>
         </div>
         """, unsafe_allow_html=True)
     
@@ -1189,8 +1560,9 @@ if not st.session_state.usuario_logueado:
     
     with col1:
         st.markdown("""
-        <div class="login-card">
-            <h2 class="login-title">🔐 Iniciar Sesión</h2>
+        <div style='background: linear-gradient(135deg, rgba(255, 107, 53, 0.15) 0%, rgba(255, 184, 77, 0.15) 100%); 
+                    padding: 30px; border-radius: 12px; border: 2px solid #FF6B35; text-align: center;'>
+            <h2 style='color: #FF6B35; margin-top: 0;'>🔐 Iniciar Sesión</h2>
         </div>
         """, unsafe_allow_html=True)
         
@@ -1235,7 +1607,7 @@ if not st.session_state.usuario_logueado:
                         
                         st.success("✅ ¡Sesión iniciada correctamente!")
                         st.balloons()
-                        # ⚠️ RENDIMIENTO: Evitar rerun innecesario, usar navegación natural
+                        st.rerun()
                     else:
                         st.error("❌ Usuario o contraseña incorrectos")
                 else:
@@ -1243,8 +1615,9 @@ if not st.session_state.usuario_logueado:
     
     with col2:
         st.markdown("""
-        <div class="register-card">
-            <h2 class="register-title">📝 Registrarse</h2>
+        <div style='background: linear-gradient(135deg, rgba(78, 205, 196, 0.15) 0%, rgba(52, 152, 219, 0.15) 100%); 
+                    padding: 30px; border-radius: 12px; border: 2px solid #4ECDC4; text-align: center;'>
+            <h2 style='color: #4ECDC4; margin-top: 0;'>📝 Registrarse</h2>
         </div>
         """, unsafe_allow_html=True)
         
@@ -1260,23 +1633,23 @@ if not st.session_state.usuario_logueado:
             
             st.markdown("**📏 Medidas**")
             c_p, c_ft, c_in, c_ed = st.columns(4)
-            peso = c_p.number_input("Peso (Lbs)", PESO_MIN, PESO_MAX, 160.0)
+            peso = c_p.number_input("Peso (Lbs)", 50.0, 500.0, 160.0)
             pies = c_ft.number_input("Pies", 3, 8, 5)
             pulgadas = c_in.number_input("Pulg", 0, 11, 7)
-            edad = c_ed.number_input("Edad", EDAD_MIN, EDAD_MAX, 25)
+            edad = c_ed.number_input("Edad", 12, 100, 25)
             
             st.markdown("**💪 Entrenamiento**")
             c_d, c_o = st.columns([1, 2])
-            dias_e = c_d.selectbox("Días/Semana", DIAS_ENTRENO_OPCIONES, index=2)
-            objs = c_o.multiselect("🎯 Tus metas:", LISTA_OBJETIVOS, max_selections=MAX_OBJECTIVES)
+            dias_e = c_d.selectbox("Días/Semana", [3, 4, 5], index=2)
+            objs = c_o.multiselect("🎯 Tus metas:", LISTA_OBJETIVOS, max_selections=5)
             
             signup_btn = st.form_submit_button("✅ Crear Cuenta", use_container_width=True)
             
             if signup_btn:
                 if not signup_user or not signup_pass:
                     st.error("❌ Usuario y contraseña son requeridos")
-                elif len(signup_pass) < MIN_PASSWORD_LENGTH:
-                    st.error(f"❌ La contraseña debe tener al menos {MIN_PASSWORD_LENGTH} caracteres")
+                elif len(signup_pass) < 6:
+                    st.error("❌ La contraseña debe tener al menos 6 caracteres")
                 elif signup_pass != signup_pass_conf:
                     st.error("❌ Las contraseñas no coinciden")
                 elif usuario_existe(signup_user):
@@ -1355,16 +1728,16 @@ else:
         objetivo_principal = objetivos_usuario[0] if objetivos_usuario else 'Sin objetivos'
         
         st.markdown(f"""
-            <div class="sidebar-header">
-                <h2 class="sidebar-title">💪 Gym Pro AI</h2>
-                <p class="sidebar-subtitle">Tu Entrenador Personal Inteligente</p>
+            <div style="text-align: center; padding: 20px 0;">
+                <h2 style="margin:0;">💪 Gym Pro AI</h2>
+                <p style="color: grey;">Tu Entrenador Personal Inteligente</p>
             </div>
-            <hr class="sidebar-divider">
-            <p class="sidebar-label">👤 Perfil de Usuario</p>
-            <h3 class="sidebar-name">{nombre_usuario}</h3>
-            <p class="sidebar-info">⚧️ {sexo_usuario}</p>
-            <p class="sidebar-info">🎂 {edad_usuario} años</p>
-            <p class="sidebar-objective">🎯 {objetivo_principal}</p>
+            <hr style="margin: 10px 0; border: 0.1px solid rgba(255,255,255,0.1);">
+            <p class="sidebar-label" style="color: #FFE66D; font-size: 0.9rem; font-weight: 700; text-transform: uppercase;">👤 Perfil de Usuario</p>
+            <h3 style="color: #FF6B35; margin: 10px 0;">{nombre_usuario}</h3>
+            <p style="color: #bbb; margin: 5px 0;">⚧️ {sexo_usuario}</p>
+            <p style="color: #bbb; margin: 5px 0;">🎂 {edad_usuario} años</p>
+            <p style="color: #4ECDC4; margin: 5px 0; font-weight: 600;">🎯 {objetivo_principal}</p>
         """, unsafe_allow_html=True)
         st.info(f"📍 **Meta**: {len(objetivos_usuario)} objetivos seleccionados")
         
@@ -1432,36 +1805,40 @@ else:
     
     with col_imc:
         st.markdown(f"""
-        <div class="metric-card">
-            <h4 class="metric-title">📏 IMC</h4>
-            <h2 class="metric-value">{imc}</h2>
-            <p class="metric-subtitle">Índice de Masa Corporal</p>
+        <div class="stat-card">
+            <h4 style="margin: 0; font-size: 0.9rem;">📏 IMC</h4>
+            <h2 style="margin: 10px 0; color: white; font-size: 2.5rem;">{imc}</h2>
+            <p style="margin: 0; font-size: 0.85rem; opacity: 0.9;">Índice de Masa Corporal</p>
         </div>
         """, unsafe_allow_html=True)
     
     with col_estado:
+        color_estado = "#27AE60" if estado == "Peso normal" else "#F39C12" if estado == "Sobrepeso" else "#E74C3C"
         st.markdown(f"""
-        <div class="status-card">
-            <h4 class="status-title">💪 Estado</h4>
-            <h2 class="status-value">{estado}</h2>
+        <div style='background: linear-gradient(135deg, rgba({','.join(map(str, [39, 174, 96][:3]))}, 0.2) 0%, rgba(46, 204, 113, 0.2) 100%); 
+                    border-radius: 12px; padding: 20px; border: 2px solid {color_estado}; text-align: center;'>
+            <h4 style='margin: 0; font-size: 0.9rem; color: {color_estado};'>💪 Estado</h4>
+            <h2 style='margin: 10px 0; color: {color_estado}; font-size: 1.8rem;'>{estado}</h2>
         </div>
         """, unsafe_allow_html=True)
     
     with col_ideal:
         st.markdown(f"""
-        <div class="ideal-weight-card">
-            <h4 class="ideal-weight-title">⚖️ Peso Ideal</h4>
-            <h2 class="ideal-weight-value">{p_min}-{p_max}</h2>
-            <p class="ideal-weight-subtitle">en Lbs</p>
+        <div style='background: linear-gradient(135deg, rgba(52, 152, 219, 0.2) 0%, rgba(41, 128, 185, 0.2) 100%); 
+                    border-radius: 12px; padding: 20px; border: 2px solid #3498DB; text-align: center;'>
+            <h4 style='margin: 0; font-size: 0.9rem; color: #3498DB;'>⚖️ Peso Ideal</h4>
+            <h2 style='margin: 10px 0; color: #3498DB; font-size: 1.8rem;'>{p_min}-{p_max}</h2>
+            <p style='margin: 0; font-size: 0.85rem; color: #bbb;'>en Lbs</p>
         </div>
         """, unsafe_allow_html=True)
     
     with col_dias:
         st.markdown(f"""
-        <div class="days-card">
-            <h4 class="days-title">📅 Días</h4>
-            <h2 class="days-value">{u.get("dias_entreno", 5)}</h2>
-            <p class="days-subtitle">entrenos/semana</p>
+        <div style='background: linear-gradient(135deg, rgba(155, 89, 182, 0.2) 0%, rgba(142, 68, 173, 0.2) 100%); 
+                    border-radius: 12px; padding: 20px; border: 2px solid #9B59B6; text-align: center;'>
+            <h4 style='margin: 0; font-size: 0.9rem; color: #9B59B6;'>📅 Días</h4>
+            <h2 style='margin: 10px 0; color: #9B59B6; font-size: 1.8rem;'>{u.get("dias_entreno", 5)}</h2>
+            <p style='margin: 0; font-size: 0.85rem; color: #bbb;'>entrenos/semana</p>
         </div>
         """, unsafe_allow_html=True)
     
@@ -1495,7 +1872,7 @@ else:
         st.markdown("---")
         
         # Recargar siempre los datos más frescos
-        asegurar_datos_frescos()
+        st.session_state.data = cargar_todo()
         rutina = st.session_state.data.get("rutina_semanal", {})
         for dia, ejercicios in rutina.items():
             # Obtener músculos del día
@@ -1522,12 +1899,12 @@ else:
 
                         st.markdown(f"""
                             <div class="exercise-card">
-                                <div class="exercise-display">
-                                    <strong class="exercise-name">{ej['ejercicio']}</strong>
-                                    <span class="exercise-tip" title="{ej.get('tip', '')}">💡 Tip</span>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <strong>{ej['ejercicio']}</strong>
+                                    <span title="{ej.get('tip', '')}" style="cursor:help;">💡 Tip</span>
                                 </div>
-                                <small class="exercise-config">{ej.get('tip', 'Mantén la técnica correcta.')}</small><br>
-                                <small class="exercise-config">Configuración: {ej['series']} sets totales</small>
+                                <small style="color: #bbb;">{ej.get('tip', 'Mantén la técnica correcta.')}</small><br>
+                                <small>Configuración: {ej['series']} sets totales</small>
                             </div>
                         """, unsafe_allow_html=True)
                         
@@ -1564,7 +1941,7 @@ else:
         st.markdown("### 🍽️ Tu Plan de Nutrición Personalizado")
         
         # Cargar datos frescos
-        asegurar_datos_frescos()
+        st.session_state.data = cargar_todo()
         dieta = st.session_state.data.get("dieta_semanal", {})
         u = st.session_state.data.get("user", {})
         
@@ -1598,60 +1975,60 @@ else:
                         # Desayuno
                         if "desayuno" in comidas:
                             des = comidas["desayuno"]
-                            st.markdown(f"""<div class="exercise-card breakfast-card">
-                                <h4 class="breakfast-title">🌅 Desayuno</h4>
-                                <strong class="meal-name">{des.get('comida', 'N/A')}</strong><br>
-                                <small class="meal-details">📏 {des.get('cantidad', 'N/A')}</small><br>
-                                <small class="meal-details">💡 {des.get('tip', '')}</small><br>
-                                <small class="meal-calories">🔥 {des.get('calorias_aprox', '')} kcal | 🥩 {des.get('proteina_g', '')}g proteína</small>
+                            st.markdown(f"""<div class="exercise-card" style="border-left-color: #FFB84D;">
+                                <h4 style="margin:0; color: #FFB84D;">🌅 Desayuno</h4>
+                                <strong>{des.get('comida', 'N/A')}</strong><br>
+                                <small>📏 {des.get('cantidad', 'N/A')}</small><br>
+                                <small>💡 {des.get('tip', '')}</small><br>
+                                <small>🔥 {des.get('calorias_aprox', '')} kcal | 🥩 {des.get('proteina_g', '')}g proteína</small>
                             </div>""", unsafe_allow_html=True)
                             st.markdown("<br>", unsafe_allow_html=True)
                         
                         # Merienda Mañana
                         if "merienda_manana" in comidas:
                             mer_m = comidas["merienda_manana"]
-                            st.markdown(f"""<div class="exercise-card morning-snack-card">
-                                <h4 class="morning-snack-title">🥪 Merienda Media Mañana</h4>
-                                <strong class="meal-name">{mer_m.get('comida', 'N/A')}</strong><br>
-                                <small class="meal-details">📏 {mer_m.get('cantidad', 'N/A')}</small><br>
-                                <small class="meal-details">💡 {mer_m.get('tip', '')}</small><br>
-                                <small class="meal-calories">🔥 {mer_m.get('calorias_aprox', '')} kcal</small>
+                            st.markdown(f"""<div class="exercise-card" style="border-left-color: #81C784;">
+                                <h4 style="margin:0; color: #81C784;">🥪 Merienda Media Mañana</h4>
+                                <strong>{mer_m.get('comida', 'N/A')}</strong><br>
+                                <small>📏 {mer_m.get('cantidad', 'N/A')}</small><br>
+                                <small>💡 {mer_m.get('tip', '')}</small><br>
+                                <small>🔥 {mer_m.get('calorias_aprox', '')} kcal</small>
                             </div>""", unsafe_allow_html=True)
                             st.markdown("<br>", unsafe_allow_html=True)
                         
                         # Almuerzo
                         if "almuerzo" in comidas:
                             alm = comidas["almuerzo"]
-                            st.markdown(f"""<div class="exercise-card lunch-card">
-                                <h4 class="lunch-title">🍽️ Almuerzo</h4>
-                                <strong class="meal-name">{alm.get('comida', 'N/A')}</strong><br>
-                                <small class="meal-details">📏 {alm.get('cantidad', 'N/A')}</small><br>
-                                <small class="meal-details">💡 {alm.get('tip', '')}</small><br>
-                                <small class="meal-calories">🔥 {alm.get('calorias_aprox', '')} kcal | 🥩 {alm.get('proteina_g', '')}g proteína</small>
+                            st.markdown(f"""<div class="exercise-card" style="border-left-color: #64B5F6;">
+                                <h4 style="margin:0; color: #64B5F6;">🍽️ Almuerzo</h4>
+                                <strong>{alm.get('comida', 'N/A')}</strong><br>
+                                <small>📏 {alm.get('cantidad', 'N/A')}</small><br>
+                                <small>💡 {alm.get('tip', '')}</small><br>
+                                <small>🔥 {alm.get('calorias_aprox', '')} kcal | 🥩 {alm.get('proteina_g', '')}g proteína</small>
                             </div>""", unsafe_allow_html=True)
                             st.markdown("<br>", unsafe_allow_html=True)
                         
                         # Merienda Tarde
                         if "merienda_tarde" in comidas:
                             mer_t = comidas["merienda_tarde"]
-                            st.markdown(f"""<div class="exercise-card afternoon-snack-card">
-                                <h4 class="afternoon-snack-title">🍌 Merienda Media Tarde (Post-Entreno)</h4>
-                                <strong class="meal-name">{mer_t.get('comida', 'N/A')}</strong><br>
-                                <small class="meal-details">📏 {mer_t.get('cantidad', 'N/A')}</small><br>
-                                <small class="meal-details">💡 {mer_t.get('tip', '')}</small><br>
-                                <small class="meal-calories">🔥 {mer_t.get('calorias_aprox', '')} kcal | 🥩 {mer_t.get('proteina_g', '')}g proteína</small>
+                            st.markdown(f"""<div class="exercise-card" style="border-left-color: #F06292;">
+                                <h4 style="margin:0; color: #F06292;">🍌 Merienda Media Tarde (Post-Entreno)</h4>
+                                <strong>{mer_t.get('comida', 'N/A')}</strong><br>
+                                <small>📏 {mer_t.get('cantidad', 'N/A')}</small><br>
+                                <small>💡 {mer_t.get('tip', '')}</small><br>
+                                <small>🔥 {mer_t.get('calorias_aprox', '')} kcal | 🥩 {mer_t.get('proteina_g', '')}g proteína</small>
                             </div>""", unsafe_allow_html=True)
                             st.markdown("<br>", unsafe_allow_html=True)
                         
                         # Cena
                         if "cena" in comidas:
                             cena = comidas["cena"]
-                            st.markdown(f"""<div class="exercise-card dinner-card">
-                                <h4 class="dinner-title">🌙 Cena</h4>
-                                <strong class="meal-name">{cena.get('comida', 'N/A')}</strong><br>
-                                <small class="meal-details">📏 {cena.get('cantidad', 'N/A')}</small><br>
-                                <small class="meal-details">💡 {cena.get('tip', '')}</small><br>
-                                <small class="meal-calories">🔥 {cena.get('calorias_aprox', '')} kcal | 🥩 {cena.get('proteina_g', '')}g proteína</small>
+                            st.markdown(f"""<div class="exercise-card" style="border-left-color: #9C27B0;">
+                                <h4 style="margin:0; color: #9C27B0;">🌙 Cena</h4>
+                                <strong>{cena.get('comida', 'N/A')}</strong><br>
+                                <small>📏 {cena.get('cantidad', 'N/A')}</small><br>
+                                <small>💡 {cena.get('tip', '')}</small><br>
+                                <small>🔥 {cena.get('calorias_aprox', '')} kcal | 🥩 {cena.get('proteina_g', '')}g proteína</small>
                             </div>""", unsafe_allow_html=True)
         else:
             st.info("No tienes un plan de dieta aún. ¡Genera uno abajo!")
@@ -1888,7 +2265,7 @@ else:
                                     guardar_todo(st.session_state.data)
                                     
                                     # Recargar desde JSON para asegurar sincronización
-                                    asegurar_datos_frescos()
+                                    st.session_state.data = cargar_todo()
                                     
                                     st.success(f"✅ {ej_original} → {alt['nombre']}")
                                     st.toast(f"Cambio guardado en {dia}", icon="💪")
@@ -1943,9 +2320,9 @@ else:
             
             cal, p, g, c = calcular_macros(u)
             st.markdown(f"""
-                <div class="exercise-card calories-objective-card">
-                    <h4 class="calories-objective-title">🔥 Calorías Objetivo</h4>
-                    <h2 class="calories-objective-value">{cal} kcal</h2>
+                <div class="exercise-card" style="border-left-color: var(--secondary);">
+                    <h4 style="margin:0;">🔥 Calorías Objetivo</h4>
+                    <h2 style="margin:0; color: var(--secondary);">{cal} kcal</h2>
                 </div>
             """, unsafe_allow_html=True)
             st.markdown(f"**Macros Directriz:**")
