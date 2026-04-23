@@ -121,6 +121,29 @@ input, textarea, .stSelectbox div[data-baseweb="select"], .stNumberInput input {
     border-radius: 14px !important;
 }
 
+[data-baseweb="input"] input,
+[data-baseweb="textarea"] textarea,
+[data-baseweb="select"] input,
+.stTextInput input,
+.stTextArea textarea,
+.stNumberInput input {
+    color: var(--text) !important;
+    -webkit-text-fill-color: var(--text) !important;
+    caret-color: var(--accent) !important;
+    background-color: transparent !important;
+}
+
+[data-baseweb="input"] input::placeholder,
+[data-baseweb="textarea"] textarea::placeholder,
+[data-baseweb="select"] input::placeholder,
+.stTextInput input::placeholder,
+.stTextArea textarea::placeholder,
+.stNumberInput input::placeholder {
+    color: var(--muted) !important;
+    -webkit-text-fill-color: var(--muted) !important;
+    opacity: 1 !important;
+}
+
 [data-baseweb="input"],
 [data-baseweb="textarea"],
 [data-baseweb="select"] {
