@@ -23,12 +23,14 @@ def verificar_password(password, hash_guardado):
 def aplicar_estilos():
     """Aplica estilos CSS desde archivo externo"""
     try:
-        with open("styles.css", "r", encoding="utf-8") as f:
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        styles_path = os.path.join(base_dir, "styles.css")
+
+        with open(styles_path, "r", encoding="utf-8") as f:
             estilos = f"<style>{f.read()}</style>"
         st.markdown(estilos, unsafe_allow_html=True)
 
         # Aplicar tema al contenedor principal
-        tema_attr = 'data-theme="dark"' if st.session_state.tema_oscuro else 'data-theme="light"'
         st.markdown(f"""
         <script>
         document.querySelector('[data-testid="stAppViewContainer"]').setAttribute('data-theme', '{"dark" if st.session_state.tema_oscuro else "light"}');
@@ -37,13 +39,6 @@ def aplicar_estilos():
 
     except FileNotFoundError:
         st.warning("Archivo styles.css no encontrado. Usando estilos básicos.")
-        estilos_basicos = """
-        <style>
-        body { font-family: Arial, sans-serif; }
-        .main-header { font-size: 2rem; color: #333; }
-        </style>
-        """
-        st.markdown(estilos_basicos, unsafe_allow_html=True)
 
 # Inicializar tema (modo día por defecto) - ANTES de aplicar_estilos()
 if 'tema_oscuro' not in st.session_state:
