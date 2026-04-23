@@ -1,5 +1,27 @@
 # 📊 Arquitectura del Sistema de Login y Registro
 
+## Arquitectura N-Capas (Abril 2026)
+
+La app ahora quedó separada en capas para reducir acoplamiento y facilitar mantenimiento:
+
+1. Capa de presentación
+- `app.py`
+- Renderizado de UI con Streamlit, formularios, tabs y estado de sesión.
+
+2. Capa de aplicación/negocio
+- `gym_app/services.py`
+- Reglas de negocio: autenticación, cálculo de macros/IMC, generación de rutina, fallback de dieta, recomendaciones y utilidades de progreso.
+
+3. Capa de infraestructura/persistencia
+- `gym_app/repositories.py`
+- Acceso a archivos JSON (`gym_data.json` y `user_data.json`) mediante funciones de lectura/escritura reutilizables.
+
+### Flujo entre capas
+
+`app.py` -> `gym_app/services.py` -> `gym_app/repositories.py`
+
+Con esta estructura, `app.py` dejó de contener la lógica de negocio principal y ahora actúa como orquestador de la interfaz.
+
 ## Diagrama de flujo
 
 ```
