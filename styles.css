@@ -1,53 +1,94 @@
-/* Nuevo diseño divertido y moderno para Gym Pro AI */
-/* Tema: Colores vibrantes, gradientes, animaciones divertidas */
+/* Diseño minimalista para Gym Pro AI */
+/* Tema: Colores neutros, diseño limpio, modo día/noche */
 
 :root {
-    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-    --success-gradient: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-    --warning-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-    --bg-light: #f8fafc;
-    --bg-card: #ffffff;
+    /* Tema Claro (por defecto) */
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8fafc;
+    --bg-tertiary: #f1f5f9;
     --text-primary: #1e293b;
     --text-secondary: #64748b;
-    --shadow-fun: 0 10px 30px rgba(102, 126, 234, 0.3);
-    --border-radius: 16px;
+    --text-muted: #94a3b8;
+    --border-color: #e2e8f0;
+    --shadow-light: 0 1px 3px rgba(0, 0, 0, 0.1);
+    --shadow-medium: 0 4px 6px rgba(0, 0, 0, 0.07);
+    --accent-primary: #3b82f6;
+    --accent-secondary: #64748b;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --error: #ef4444;
+
+    /* Tema Oscuro */
+    --dark-bg-primary: #0f172a;
+    --dark-bg-secondary: #1e293b;
+    --dark-bg-tertiary: #334155;
+    --dark-text-primary: #f8fafc;
+    --dark-text-secondary: #cbd5e1;
+    --dark-text-muted: #94a3b8;
+    --dark-border-color: #334155;
+    --dark-shadow-light: 0 1px 3px rgba(0, 0, 0, 0.3);
+    --dark-shadow-medium: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
 
-/* Fondo principal con patrón divertido */
+/* Aplicar tema según atributo data-theme */
+[data-theme="dark"] {
+    --bg-primary: var(--dark-bg-primary);
+    --bg-secondary: var(--dark-bg-secondary);
+    --bg-tertiary: var(--dark-bg-tertiary);
+    --text-primary: var(--dark-text-primary);
+    --text-secondary: var(--dark-text-secondary);
+    --text-muted: var(--dark-text-muted);
+    --border-color: var(--dark-border-color);
+    --shadow-light: var(--dark-shadow-light);
+    --shadow-medium: var(--dark-shadow-medium);
+}
+
+/* Fondo principal minimalista */
 [data-testid="stAppViewContainer"] {
-    background: var(--bg-light) !important;
-    background-image:
-        radial-gradient(circle at 25% 25%, rgba(102, 126, 234, 0.1) 0%, transparent 50%),
-        radial-gradient(circle at 75% 75%, rgba(245, 87, 108, 0.1) 0%, transparent 50%) !important;
+    background: var(--bg-primary) !important;
     color: var(--text-primary) !important;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    transition: background-color 0.3s ease, color 0.3s ease !important;
 }
 
-/* Headers con gradientes y animaciones */
+/* Headers minimalistas */
 .main-header {
-    font-size: 3.5rem !important;
-    font-weight: 800 !important;
-    background: var(--primary-gradient) !important;
-    -webkit-background-clip: text !important;
-    -webkit-text-fill-color: transparent !important;
-    background-clip: text !important;
+    font-size: 2.5rem !important;
+    font-weight: 700 !important;
+    color: var(--text-primary) !important;
     text-align: center !important;
     margin-bottom: 2rem !important;
-    letter-spacing: -2px !important;
-    animation: bounceIn 1s ease-out !important;
-    text-shadow: 0 4px 20px rgba(102, 126, 234, 0.3) !important;
+    letter-spacing: -0.5px !important;
 }
 
-@keyframes bounceIn {
-    0% { transform: scale(0.3); opacity: 0; }
-    50% { transform: scale(1.05); }
-    70% { transform: scale(0.9); }
-    100% { transform: scale(1); opacity: 1; }
+/* Subtítulos limpios */
+h2, h3 {
+    color: var(--text-primary) !important;
+    font-weight: 600 !important;
+    letter-spacing: -0.25px !important;
+    text-transform: none !important;
+    border: none !important;
+    padding-bottom: 0.5rem !important;
+    margin-top: 1.5rem !important;
+    margin-bottom: 1rem !important;
 }
 
-/* Subtítulos con estilo moderno */
+h2::after, h3::after {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 2px;
+    background: var(--accent-primary);
+    margin-top: 0.5rem;
+}
+
+h4 {
+    color: var(--text-secondary) !important;
+    font-weight: 500 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.875rem;
+}
 h2, h3 {
     background: var(--secondary-gradient) !important;
     -webkit-background-clip: text !important;
