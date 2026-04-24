@@ -1,6 +1,11 @@
 import streamlit as st
 import os
 
+def nav_page(filename):
+    abs_path = os.path.join(os.path.dirname(__file__), "pages", filename)
+    rel_path = os.path.relpath(abs_path, os.getcwd())
+    st.switch_page(rel_path.replace("\\", "/"))
+
 # --- CONFIGURACIÓN Y ESTILOS ---
 st.set_page_config(page_title="Gym Pro AI", page_icon="💪", layout="wide", initial_sidebar_state="expanded")
 def aplicar_estilos():
@@ -27,14 +32,14 @@ if 'data' not in st.session_state:
 
 # Redirigir según estado y navegación
 if not st.session_state.usuario_logueado:
-    st.switch_page("Login")
+    nav_page("01_Login.py")
 elif not st.session_state.data.get("perfil_completado", False):
-    st.switch_page("Perfil")
+    nav_page("04_Perfil.py")
 else:
     # Navegación básica entre Dashboard y Perfil
     st.markdown("<h1 class='main-header'>Gym Pro AI</h1>", unsafe_allow_html=True)
     nav = st.sidebar.radio("Navegación", ["Dashboard", "Perfil"], index=0)
     if nav == "Dashboard":
-        st.switch_page("Dashboard")
+        nav_page("03_Dashboard.py")
     elif nav == "Perfil":
-        st.switch_page("Perfil")
+        nav_page("04_Perfil.py")

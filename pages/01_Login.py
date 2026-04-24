@@ -3,6 +3,11 @@ import gym_app.services as services
 import os
 import json
 
+def nav_page(filename):
+    abs_path = os.path.join(os.path.dirname(__file__), filename)
+    rel_path = os.path.relpath(abs_path, os.getcwd())
+    st.switch_page(rel_path.replace("\\", "/"))
+
 def login_page():
     st.markdown('<h1 class="main-header">💪 GYM PRO AI</h1>', unsafe_allow_html=True)
     st.markdown("""
@@ -61,7 +66,7 @@ def login_page():
     </div>
     """, unsafe_allow_html=True)
     if st.button("📝 Registrarse aquí", use_container_width=True, key="show_register_page"):
-        st.switch_page("Registro")
+        nav_page("02_Registro.py")
 
 if __name__ == "__main__":
     login_page()
