@@ -345,34 +345,14 @@ else:
         
         st.markdown("---")
         
-        col_logout, col_reinicio = st.columns([1, 1])
-        
-        with col_logout:
-            if st.button("🚪 Salir", use_container_width=True, help="Cerrar sesión"):
-                st.success("👋 ¡Hasta luego!")
-                import time
-                time.sleep(1)
-                st.session_state.usuario_logueado = None
-                st.session_state.data = {"perfil_completado": False, "user": {}, "rutina_semanal": {}, "historial_pesos": [], "historial_entrenamientos": [], "pr_por_ejercicio": {}, "fecha_ultima_rotacion": None, "dieta_semanal": {}}
-                st.rerun()
-        
-        with col_reinicio:
-            if not st.session_state.get('confirmar_reinicio', False):
-                if st.button("⚠️ Reiniciar", use_container_width=True, help="Reiniciar datos"):
-                    st.session_state.confirmar_reinicio = True
-                    st.rerun()
-            else:
-                st.warning("❓ ¿Estás seguro? Se borrarán todos los datos.")
-                c1, c2 = st.columns(2)
-                if c1.button("✅ Sí", use_container_width=True, key="confirm_yes"):
-                    st.session_state.data = {"perfil_completado": False, "user": {}, "rutina_semanal": {}, "historial_pesos": [], "historial_entrenamientos": [], "pr_por_ejercicio": {}, "fecha_ultima_rotacion": None, "dieta_semanal": {}}
-                    st.session_state.confirmar_reinicio = False
-                    guardar_todo(st.session_state.data)
-                    st.success("✅ Datos reiniciados")
-                    st.rerun()
-                if c2.button("❌ No", use_container_width=True, key="confirm_no"):
-                    st.session_state.confirmar_reinicio = False
-                    st.rerun()
+        # Solo botón de salir
+        if st.button("🚪 Salir", use_container_width=True, help="Cerrar sesión"):
+            st.success("👋 ¡Hasta luego!")
+            import time
+            time.sleep(1)
+            st.session_state.usuario_logueado = None
+            st.session_state.data = {"perfil_completado": False, "user": {}, "rutina_semanal": {}, "historial_pesos": [], "historial_entrenamientos": [], "pr_por_ejercicio": {}, "fecha_ultima_rotacion": None, "dieta_semanal": {}}
+            st.rerun()
         
         st.markdown("---")
         
