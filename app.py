@@ -27,14 +27,14 @@ if 'data' not in st.session_state:
 
 # Redirigir según estado y navegación
 if not st.session_state.usuario_logueado:
-    st.switch_page("pages/01_Login.py")
+    st.switch_page("Login")
 elif not st.session_state.data.get("perfil_completado", False):
-    st.switch_page("pages/04_Perfil.py")
+    st.switch_page("Perfil")
 else:
     # Navegación básica entre Dashboard y Perfil
     st.markdown("<h1 class='main-header'>Gym Pro AI</h1>", unsafe_allow_html=True)
     nav = st.sidebar.radio("Navegación", ["Dashboard", "Perfil"], index=0)
     if nav == "Dashboard":
-        st.switch_page("pages/03_Dashboard.py")
+        st.switch_page("Dashboard")
     elif nav == "Perfil":
-        st.switch_page("pages/04_Perfil.py")
+        st.switch_page("Perfil")

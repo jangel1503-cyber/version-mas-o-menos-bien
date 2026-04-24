@@ -56,11 +56,11 @@ def registro_page():
                     st.success(mensaje)
                     st.info("✅ Ahora puedes iniciar sesión con tu nueva cuenta")
                     if st.button("Volver al Login", use_container_width=True, key="volver_login"):
-                        st.switch_page("pages/01_Login.py")
+                        st.switch_page("Login")
                 else:
                     st.error(f"❌ {mensaje}")
     if st.button("Volver al Login", use_container_width=True, key="volver_login2"):
-        st.switch_page("pages/01_Login.py")
+        st.switch_page("Login")
 
 if __name__ == "__main__":
     registro_page()

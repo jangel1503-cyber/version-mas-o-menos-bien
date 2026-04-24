@@ -61,7 +61,7 @@ def login_page():
     </div>
     """, unsafe_allow_html=True)
     if st.button("📝 Registrarse aquí", use_container_width=True, key="show_register_page"):
-        st.switch_page("pages/02_Registro.py")
+        st.switch_page("Registro")
 
 if __name__ == "__main__":
     login_page()
