@@ -1,6 +1,13 @@
 import streamlit as st
 import gym_app.services as services
 
+import os
+
+def nav_page(filename):
+    abs_path = os.path.join(os.path.dirname(__file__), filename)
+    rel_path = os.path.relpath(abs_path, os.getcwd())
+    st.switch_page(rel_path.replace("\\", "/"))
+
 def registro_page():
     st.markdown("""
     <div class="section-card section-card-register">
@@ -56,11 +63,11 @@ def registro_page():
                     st.success(mensaje)
                     st.info("✅ Ahora puedes iniciar sesión con tu nueva cuenta")
                     if st.button("Volver al Login", use_container_width=True, key="volver_login"):
-                        st.switch_page("Login")
+                        nav_page("01_Login.py")
                 else:
                     st.error(f"❌ {mensaje}")
     if st.button("Volver al Login", use_container_width=True, key="volver_login2"):
-        st.switch_page("Login")
+        nav_page("01_Login.py")
 
 if __name__ == "__main__":
     registro_page()
