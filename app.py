@@ -360,6 +360,25 @@ if not st.session_state.usuario_logueado:
                             st.error(f"❌ {mensaje}")
         
         st.markdown("---")
+        
+        # Panel de diagnóstico
+        with st.expander("🔍 Ver Usuarios Registrados"):
+            try:
+                usuarios = cargar_usuarios()
+                if usuarios:
+                    st.info(f"**Total de usuarios registrados: {len(usuarios)}**")
+                    st.write("**Nombres de usuario disponibles:**")
+                    for username in usuarios.keys():
+                        st.write(f"  • {username}")
+                else:
+                    st.warning("⚠️ No hay usuarios registrados aún")
+                
+                st.write(f"**Ubicación del archivo de usuarios:**")
+                st.code(USERS_FILE)
+            except Exception as e:
+                st.error(f"Error al leer usuarios: {str(e)}")
+        
+        st.markdown("---")
         if st.button("⬅️ Volver a Iniciar Sesión", use_container_width=True):
             st.session_state.login_view_state = "login"
             st.rerun()
