@@ -592,10 +592,44 @@ else:
                             </div>
                         """, unsafe_allow_html=True)
                         
-                        c1, c2 = st.columns([3, 1])
-                        rutina[dia][i]['ejercicio'] = c1.text_input("Ejercicio", ej['ejercicio'], key=f"e_{dia}_{i}")
-                        num_sets = c2.number_input("Sets totales", 1, 12, int(ej['series']), key=f"s_{dia}_{i}")
-                        rutina[dia][i]['series'] = num_sets
+                        # Fila para editar ejercicio y acciones
+                        col_ejercicio, col_sets, col_alt = st.columns([2, 1, 1])
+                        with col_ejercicio:
+                            rutina[dia][i]['ejercicio'] = st.text_input("Ejercicio", ej['ejercicio'], key=f"e_{dia}_{i}")
+                        with col_sets:
+                            num_sets = st.number_input("Sets totales", 1, 12, int(ej['series']), key=f"s_{dia}_{i}")
+                            rutina[dia][i]['series'] = num_sets
+                        with col_alt:
+                            if st.button("🔄 Alternativa", key=f"alt_btn_{dia}_{i}", help="Generar ejercicio alternativo"):
+                                st.session_state[f"mostrar_alternativas_{dia}_{i}"] = True
+                        
+                        # Mostrar alternativas si se solicitan
+                        if st.session_state.get(f"mostrar_alternativas_{dia}_{i}", False):
+                            with st.spinner(f"Buscando alternativas para {ej['ejercicio']}..."):
+                                alternativas = obtener_ejercicios_alternativos(ej['ejercicio'], "")
+                            
+                            if alternativas.get('alternativas') and len(alternativas['alternativas']) > 0:
+                                st.markdown(f"**Alternativas para {ej['ejercicio']}:**")
+                                for alt_idx, alt in enumerate(alternativas['alternativas']):
+                                    col_alt_info, col_alt_btn = st.columns([3, 1])
+                                    with col_alt_info:
+                                        st.write(f"**{alt['nombre']}**")
+                                        st.caption(f"💡 {alt['razon']}")
+                                    with col_alt_btn:
+                                        if st.button("✅ Usar", key=f"usar_alt_{dia}_{i}_{alt_idx}"):
+                                            # Reemplazar el ejercicio
+                                            st.session_state.data["rutina_semanal"][dia][i]['ejercicio'] = alt['nombre']
+                                            guardar_todo(st.session_state.data)
+                                            st.session_state[f"mostrar_alternativas_{dia}_{i}"] = False
+                                            st.success(f"✅ {ej['ejercicio']} → {alt['nombre']}")
+                                            st.balloons()
+                                            import time
+                                            time.sleep(0.5)
+                                            st.rerun()
+                            else:
+                                st.warning("⚠️ No se encontraron alternativas en este momento")
+                            
+                            st.markdown("---")
                         
                         # Ajustar lista de detalles si cambió el número de sets
                         if len(ej['detalles_sets']) != num_sets:
