@@ -126,8 +126,19 @@ def obtener_musculos_del_dia(ejercicios_dia):
     return services.obtener_musculos_del_dia(ejercicios_dia)
 
 
+def restablecer_contrasena(username, nueva_contrasena):
+    return services.restablecer_contrasena(username, nueva_contrasena)
+
+
+def obtener_nombre_usuario(username):
+    return services.obtener_nombre_usuario(username)
+
+
 if 'usuario_logueado' not in st.session_state:
     st.session_state.usuario_logueado = None
+
+if 'login_view_state' not in st.session_state:
+    st.session_state.login_view_state = "login"  # "login", "registro", "olvide_password"
 
 if 'data' not in st.session_state or (st.session_state.usuario_logueado and st.session_state.data.get('user', {}) == {}):
     if st.session_state.usuario_logueado:
@@ -160,9 +171,10 @@ if not st.session_state.usuario_logueado:
         </div>
         """, unsafe_allow_html=True)
     
-    col1, col2 = st.columns(2)
+    st.markdown("---")
     
-    with col1:
+    # ===== VISTA DE LOGIN =====
+    if st.session_state.login_view_state == "login":
         st.markdown("""
         <div class="section-card section-card-login">
             <h2 class="section-card-title">🔐 Iniciar Sesion</h2>
@@ -215,21 +227,36 @@ if not st.session_state.usuario_logueado:
                         st.error("❌ Usuario o contraseña incorrectos")
                 else:
                     st.warning("⚠️ Completa todos los campos")
+        
+        st.markdown("---")
+        st.markdown("#### ¿No tienes cuenta?")
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("📝 Registrarse", use_container_width=True, key="btn_ir_registro"):
+                st.session_state.login_view_state = "registro"
+                st.rerun()
+        
+        with col2:
+            if st.button("🔑 Olvidé mi contraseña", use_container_width=True, key="btn_ir_olvide"):
+                st.session_state.login_view_state = "olvide_password"
+                st.rerun()
     
-    with col2:
+    # ===== VISTA DE REGISTRO =====
+    elif st.session_state.login_view_state == "registro":
         st.markdown("""
         <div class="section-card section-card-register">
-            <h2 class="section-card-title">📝 Registrarse</h2>
+            <h2 class="section-card-title">📝 Crear Nueva Cuenta</h2>
         </div>
         """, unsafe_allow_html=True)
         
         with st.form("signup_form"):
-            st.markdown("**👤 Crear nueva cuenta**")
+            st.markdown("**👤 Información de la Cuenta**")
             signup_user = st.text_input("Nombre de usuario", key="signup_user", placeholder="Elige tu usuario")
             signup_pass = st.text_input("Contraseña", type="password", key="signup_pass", placeholder="Mínimo 6 caracteres")
             signup_pass_conf = st.text_input("Confirmar contraseña", type="password", key="signup_pass_conf", placeholder="Repite tu contraseña")
             
-            st.markdown("**📋 Datos de perfil**")
+            st.markdown("**👤 Datos de perfil**")
             nombre = st.text_input("¿Cuál es tu nombre completo?", placeholder="Ej: Juan Pérez")
             sexo = st.selectbox("Sexo", ["Masculino", "Femenino"], index=0)
             
@@ -276,8 +303,67 @@ if not st.session_state.usuario_logueado:
                     if exito:
                         st.success(mensaje)
                         st.info("✅ Ahora puedes iniciar sesión con tu nueva cuenta")
+                        st.session_state.login_view_state = "login"
+                        st.rerun()
                     else:
                         st.error(f"❌ {mensaje}")
+        
+        st.markdown("---")
+        if st.button("⬅️ Volver a Iniciar Sesión", use_container_width=True):
+            st.session_state.login_view_state = "login"
+            st.rerun()
+    
+    # ===== VISTA DE RESTABLECER CONTRASEÑA =====
+    elif st.session_state.login_view_state == "olvide_password":
+        st.markdown("""
+        <div class="section-card section-card-login">
+            <h2 class="section-card-title">🔑 Restablecer Contraseña</h2>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("Ingresa tu nombre de usuario para restablecer tu contraseña.")
+        
+        with st.form("reset_password_form"):
+            reset_user = st.text_input("👤 Nombre de usuario", key="reset_user", placeholder="Ingresa tu usuario")
+            
+            st.markdown("---")
+            st.markdown("**Ingresa tu nueva contraseña**")
+            nueva_pass = st.text_input("🔑 Nueva contraseña", type="password", key="nueva_pass", placeholder="Mínimo 6 caracteres")
+            nueva_pass_conf = st.text_input("🔑 Confirmar contraseña", type="password", key="nueva_pass_conf", placeholder="Repite tu contraseña")
+            
+            reset_btn = st.form_submit_button("✅ Restablecer Contraseña", use_container_width=True)
+            
+            if reset_btn:
+                if not reset_user:
+                    st.error("❌ Ingresa tu nombre de usuario")
+                elif not nueva_pass or not nueva_pass_conf:
+                    st.error("❌ Completa ambos campos de contraseña")
+                elif len(nueva_pass) < 6:
+                    st.error("❌ La contraseña debe tener al menos 6 caracteres")
+                elif nueva_pass != nueva_pass_conf:
+                    st.error("❌ Las contraseñas no coinciden")
+                else:
+                    # Validar que el usuario existe
+                    if not usuario_existe(reset_user):
+                        st.error("❌ El usuario no existe")
+                    else:
+                        # Obtener el nombre del usuario para validación adicional
+                        nombre_usuario = obtener_nombre_usuario(reset_user)
+                        
+                        exito, mensaje = restablecer_contrasena(reset_user, nueva_pass)
+                        if exito:
+                            st.success("✅ " + mensaje)
+                            st.info("🔐 Tu contraseña ha sido restablecida exitosamente. Puedes iniciar sesión ahora.")
+                            st.session_state.login_view_state = "login"
+                            st.rerun()
+                        else:
+                            st.error(f"❌ {mensaje}")
+        
+        st.markdown("---")
+        if st.button("⬅️ Volver a Iniciar Sesión", use_container_width=True):
+            st.session_state.login_view_state = "login"
+            st.rerun()
+
 
 elif not st.session_state.data.get("perfil_completado", False):
     st.markdown('<h1 class="main-header">💪 Gym Pro AI</h1>', unsafe_allow_html=True)
