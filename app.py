@@ -753,31 +753,93 @@ else:
                     comidas = plan[dia]
                     
                     with st.expander(f"📅 {dia}", expanded=(dia == "Lunes")):
-                        # Desayuno
+                        # ===== DESAYUNO =====
                         if "desayuno" in comidas:
                             des = comidas["desayuno"]
-                            st.markdown(f"""<div class="exercise-card meal-card meal-breakfast">
-                                <h4 class="meal-title">🌅 Desayuno</h4>
-                                <strong>{des.get('comida', 'N/A')}</strong><br>
-                                <small>📏 {des.get('cantidad', 'N/A')}</small><br>
-                                <small>💡 {des.get('tip', '')}</small><br>
-                                <small>🔥 {des.get('calorias_aprox', '')} kcal | 🥩 {des.get('proteina_g', '')}g proteína</small>
-                            </div>""", unsafe_allow_html=True)
+                            col_comida, col_btn = st.columns([4, 1])
+                            
+                            with col_comida:
+                                st.markdown(f"""<div class="exercise-card meal-card meal-breakfast">
+                                    <h4 class="meal-title">🌅 Desayuno</h4>
+                                    <strong>{des.get('comida', 'N/A')}</strong><br>
+                                    <small>📏 {des.get('cantidad', 'N/A')}</small><br>
+                                    <small>💡 {des.get('tip', '')}</small><br>
+                                    <small>🔥 {des.get('calorias_aprox', '')} kcal | 🥩 {des.get('proteina_g', '')}g proteína</small>
+                                </div>""", unsafe_allow_html=True)
+                            
+                            with col_btn:
+                                if st.button("🔄 Cambiar", key=f"cambiar_desayuno_{dia}", help="Ver opciones alternativas"):
+                                    st.session_state[f"mostrar_opciones_desayuno_{dia}"] = True
+                            
+                            # Mostrar opciones alternativas
+                            if st.session_state.get(f"mostrar_opciones_desayuno_{dia}", False):
+                                with st.expander("🥗 Opciones Alternativas para Desayuno", expanded=True):
+                                    cal_actual = des.get('calorias_aprox', 300)
+                                    opciones = generar_opciones_comida_alternativa(
+                                        des.get('comida', ''),
+                                        {"calorias": cal_actual}
+                                    )
+                                    
+                                    if opciones:
+                                        for opcion in opciones:
+                                            col_opt, col_use = st.columns([4, 1])
+                                            with col_opt:
+                                                st.write(f"**{opcion['nombre'].title()}**")
+                                                st.caption(f"🔥 {opcion['macros']['calorias']} kcal | 🥩 {opcion['macros']['proteina']}g prot")
+                                            with col_use:
+                                                if st.button("✅ Usar", key=f"use_desayuno_{opcion['nombre']}_{dia}"):
+                                                    plan[dia]["desayuno"]["comida"] = opcion['nombre'].capitalize()
+                                                    st.session_state[f"mostrar_opciones_desayuno_{dia}"] = False
+                                                    st.rerun()
+                                    else:
+                                        st.info("No hay opciones disponibles")
+                            
                             st.markdown("<br>", unsafe_allow_html=True)
                         
-                        # Merienda Mañana
+                        # ===== MERIENDA MAÑANA =====
                         if "merienda_manana" in comidas:
                             mer_m = comidas["merienda_manana"]
-                            st.markdown(f"""<div class="exercise-card meal-card meal-midmorning">
-                                <h4 class="meal-title">🥪 Merienda Media Manana</h4>
-                                <strong>{mer_m.get('comida', 'N/A')}</strong><br>
-                                <small>📏 {mer_m.get('cantidad', 'N/A')}</small><br>
-                                <small>💡 {mer_m.get('tip', '')}</small><br>
-                                <small>🔥 {mer_m.get('calorias_aprox', '')} kcal</small>
-                            </div>""", unsafe_allow_html=True)
+                            col_comida, col_btn = st.columns([4, 1])
+                            
+                            with col_comida:
+                                st.markdown(f"""<div class="exercise-card meal-card meal-midmorning">
+                                    <h4 class="meal-title">🥪 Merienda Media Mañana</h4>
+                                    <strong>{mer_m.get('comida', 'N/A')}</strong><br>
+                                    <small>📏 {mer_m.get('cantidad', 'N/A')}</small><br>
+                                    <small>💡 {mer_m.get('tip', '')}</small><br>
+                                    <small>🔥 {mer_m.get('calorias_aprox', '')} kcal</small>
+                                </div>""", unsafe_allow_html=True)
+                            
+                            with col_btn:
+                                if st.button("🔄 Cambiar", key=f"cambiar_merienda_manana_{dia}", help="Ver opciones alternativas"):
+                                    st.session_state[f"mostrar_opciones_merienda_manana_{dia}"] = True
+                            
+                            # Mostrar opciones alternativas
+                            if st.session_state.get(f"mostrar_opciones_merienda_manana_{dia}", False):
+                                with st.expander("🥗 Opciones Alternativas para Merienda Mañana", expanded=True):
+                                    cal_actual = mer_m.get('calorias_aprox', 200)
+                                    opciones = generar_opciones_comida_alternativa(
+                                        mer_m.get('comida', ''),
+                                        {"calorias": cal_actual}
+                                    )
+                                    
+                                    if opciones:
+                                        for opcion in opciones:
+                                            col_opt, col_use = st.columns([4, 1])
+                                            with col_opt:
+                                                st.write(f"**{opcion['nombre'].title()}**")
+                                                st.caption(f"🔥 {opcion['macros']['calorias']} kcal | 🥩 {opcion['macros']['proteina']}g prot")
+                                            with col_use:
+                                                if st.button("✅ Usar", key=f"use_merienda_manana_{opcion['nombre']}_{dia}"):
+                                                    plan[dia]["merienda_manana"]["comida"] = opcion['nombre'].capitalize()
+                                                    st.session_state[f"mostrar_opciones_merienda_manana_{dia}"] = False
+                                                    st.rerun()
+                                    else:
+                                        st.info("No hay opciones disponibles")
+                            
                             st.markdown("<br>", unsafe_allow_html=True)
                         
-                        # Almuerzo
+                        # ===== ALMUERZO =====
                         if "almuerzo" in comidas:
                             alm = comidas["almuerzo"]
                             col_comida, col_btn = st.columns([4, 1])
@@ -792,20 +854,19 @@ else:
                                 </div>""", unsafe_allow_html=True)
                             
                             with col_btn:
-                                if st.button("🔄 Cambiar", key=f"cambiar_almuerzo_{dia}", help="Ver opciones de comida"):
+                                if st.button("🔄 Cambiar", key=f"cambiar_almuerzo_{dia}", help="Ver opciones alternativas"):
                                     st.session_state[f"mostrar_opciones_almuerzo_{dia}"] = True
                             
-                            # Mostrar opciones si se solicita
+                            # Mostrar opciones alternativas
                             if st.session_state.get(f"mostrar_opciones_almuerzo_{dia}", False):
-                                with st.expander("🥗 Opciones Disponibles", expanded=True):
-                                    cal_actual = alm.get('calorias_aprox', 300)
+                                with st.expander("🥗 Opciones Alternativas para Almuerzo", expanded=True):
+                                    cal_actual = alm.get('calorias_aprox', 500)
                                     opciones = generar_opciones_comida_alternativa(
                                         alm.get('comida', ''),
                                         {"calorias": cal_actual}
                                     )
                                     
                                     if opciones:
-                                        st.markdown("**Alternativas con calorías similares:**")
                                         for opcion in opciones:
                                             col_opt, col_use = st.columns([4, 1])
                                             with col_opt:
@@ -814,37 +875,110 @@ else:
                                             with col_use:
                                                 if st.button("✅ Usar", key=f"use_almuerzo_{opcion['nombre']}_{dia}"):
                                                     plan[dia]["almuerzo"]["comida"] = opcion['nombre'].capitalize()
-                                                    st.success(f"✅ Almuerzo cambiado")
+                                                    st.session_state[f"mostrar_opciones_almuerzo_{dia}"] = False
+                                                    st.rerun()
                                     else:
-                                        st.info("No hay opciones disponibles en este momento")
+                                        st.info("No hay opciones disponibles")
                             
                             st.markdown("<br>", unsafe_allow_html=True)
-
                         
-                        # Merienda Tarde
+                        # ===== MERIENDA TARDE =====
                         if "merienda_tarde" in comidas:
                             mer_t = comidas["merienda_tarde"]
-                            st.markdown(f"""<div class="exercise-card meal-card meal-afternoon">
-                                <h4 class="meal-title">🍌 Merienda Media Tarde (Post-Entreno)</h4>
-                                <strong>{mer_t.get('comida', 'N/A')}</strong><br>
-                                <small>📏 {mer_t.get('cantidad', 'N/A')}</small><br>
-                                <small>💡 {mer_t.get('tip', '')}</small><br>
-                                <small>🔥 {mer_t.get('calorias_aprox', '')} kcal | 🥩 {mer_t.get('proteina_g', '')}g proteína</small>
-                            </div>""", unsafe_allow_html=True)
+                            col_comida, col_btn = st.columns([4, 1])
+                            
+                            with col_comida:
+                                st.markdown(f"""<div class="exercise-card meal-card meal-afternoon">
+                                    <h4 class="meal-title">🍌 Merienda Media Tarde (Post-Entreno)</h4>
+                                    <strong>{mer_t.get('comida', 'N/A')}</strong><br>
+                                    <small>📏 {mer_t.get('cantidad', 'N/A')}</small><br>
+                                    <small>💡 {mer_t.get('tip', '')}</small><br>
+                                    <small>🔥 {mer_t.get('calorias_aprox', '')} kcal | 🥩 {mer_t.get('proteina_g', '')}g proteína</small>
+                                </div>""", unsafe_allow_html=True)
+                            
+                            with col_btn:
+                                if st.button("🔄 Cambiar", key=f"cambiar_merienda_tarde_{dia}", help="Ver opciones alternativas"):
+                                    st.session_state[f"mostrar_opciones_merienda_tarde_{dia}"] = True
+                            
+                            # Mostrar opciones alternativas
+                            if st.session_state.get(f"mostrar_opciones_merienda_tarde_{dia}", False):
+                                with st.expander("🥗 Opciones Alternativas para Merienda Tarde", expanded=True):
+                                    cal_actual = mer_t.get('calorias_aprox', 300)
+                                    opciones = generar_opciones_comida_alternativa(
+                                        mer_t.get('comida', ''),
+                                        {"calorias": cal_actual}
+                                    )
+                                    
+                                    if opciones:
+                                        for opcion in opciones:
+                                            col_opt, col_use = st.columns([4, 1])
+                                            with col_opt:
+                                                st.write(f"**{opcion['nombre'].title()}**")
+                                                st.caption(f"🔥 {opcion['macros']['calorias']} kcal | 🥩 {opcion['macros']['proteina']}g prot")
+                                            with col_use:
+                                                if st.button("✅ Usar", key=f"use_merienda_tarde_{opcion['nombre']}_{dia}"):
+                                                    plan[dia]["merienda_tarde"]["comida"] = opcion['nombre'].capitalize()
+                                                    st.session_state[f"mostrar_opciones_merienda_tarde_{dia}"] = False
+                                                    st.rerun()
+                                    else:
+                                        st.info("No hay opciones disponibles")
+                            
                             st.markdown("<br>", unsafe_allow_html=True)
                         
-                        # Cena
+                        # ===== CENA =====
                         if "cena" in comidas:
                             cena = comidas["cena"]
-                            st.markdown(f"""<div class="exercise-card meal-card meal-dinner">
-                                <h4 class="meal-title">🌙 Cena</h4>
-                                <strong>{cena.get('comida', 'N/A')}</strong><br>
-                                <small>📏 {cena.get('cantidad', 'N/A')}</small><br>
-                                <small>💡 {cena.get('tip', '')}</small><br>
-                                <small>🔥 {cena.get('calorias_aprox', '')} kcal | 🥩 {cena.get('proteina_g', '')}g proteína</small>
-                            </div>""", unsafe_allow_html=True)
+                            col_comida, col_btn = st.columns([4, 1])
+                            
+                            with col_comida:
+                                st.markdown(f"""<div class="exercise-card meal-card meal-dinner">
+                                    <h4 class="meal-title">🌙 Cena</h4>
+                                    <strong>{cena.get('comida', 'N/A')}</strong><br>
+                                    <small>📏 {cena.get('cantidad', 'N/A')}</small><br>
+                                    <small>💡 {cena.get('tip', '')}</small><br>
+                                    <small>🔥 {cena.get('calorias_aprox', '')} kcal | 🥩 {cena.get('proteina_g', '')}g proteína</small>
+                                </div>""", unsafe_allow_html=True)
+                            
+                            with col_btn:
+                                if st.button("🔄 Cambiar", key=f"cambiar_cena_{dia}", help="Ver opciones alternativas"):
+                                    st.session_state[f"mostrar_opciones_cena_{dia}"] = True
+                            
+                            # Mostrar opciones alternativas
+                            if st.session_state.get(f"mostrar_opciones_cena_{dia}", False):
+                                with st.expander("🥗 Opciones Alternativas para Cena", expanded=True):
+                                    cal_actual = cena.get('calorias_aprox', 400)
+                                    opciones = generar_opciones_comida_alternativa(
+                                        cena.get('comida', ''),
+                                        {"calorias": cal_actual}
+                                    )
+                                    
+                                    if opciones:
+                                        for opcion in opciones:
+                                            col_opt, col_use = st.columns([4, 1])
+                                            with col_opt:
+                                                st.write(f"**{opcion['nombre'].title()}**")
+                                                st.caption(f"🔥 {opcion['macros']['calorias']} kcal | 🥩 {opcion['macros']['proteina']}g prot")
+                                            with col_use:
+                                                if st.button("✅ Usar", key=f"use_cena_{opcion['nombre']}_{dia}"):
+                                                    plan[dia]["cena"]["comida"] = opcion['nombre'].capitalize()
+                                                    st.session_state[f"mostrar_opciones_cena_{dia}"] = False
+                                                    st.rerun()
+                                    else:
+                                        st.info("No hay opciones disponibles")
+                            
+                            st.markdown("<br>", unsafe_allow_html=True)
         else:
             st.info("No tienes un plan de dieta aún. ¡Genera uno abajo!")
+        
+        st.markdown("---")
+        
+        # ===== GUARDAR CAMBIOS EN DIETA =====
+        if dieta and any(dieta.values()):
+            if st.button("💾 Guardar Cambios en la Dieta", use_container_width=True, key="save_dieta_changes"):
+                st.session_state.data["dieta_semanal"] = dieta
+                guardar_todo(st.session_state.data)
+                st.success("✅ ¡Cambios de dieta guardados exitosamente!")
+                st.balloons()
         
         st.markdown("---")
         
