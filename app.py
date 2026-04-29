@@ -4,6 +4,29 @@ import os
 import pandas as pd
 import google.generativeai as genai
 import gym_app.services as services
+from gym_app.exercises_db import (
+    obtener_descripcion_ejercicio, 
+    obtener_alternativas_ejercicio,
+    obtener_ejercicios_por_musculo,
+    validar_ejercicio,
+    EJERCICIOS_COMPLETOS,
+    EJERCICIOS_POR_MUSCULO
+)
+from gym_app.nutrition_progress import (
+    obtener_alternativas_comida_categoria,
+    calcular_macros_comida,
+    generar_opciones_comida_alternativa,
+    crear_registro_entrenamiento,
+    calcular_progreso_ejercicio,
+    generar_analisis_progreso,
+    calcular_consistencia
+)
+from gym_app.integration import (
+    obtener_ejercicio_info,
+    obtener_ejercicios_categoria,
+    obtener_alternativas_comida
+)
+from gym_app.services import analizar_progreso_por_objetivo
 
 # --- CONFIGURACIÓN ---
 st.set_page_config(page_title="Gym Pro AI", page_icon="💪", layout="wide", initial_sidebar_state="expanded")
@@ -581,55 +604,89 @@ else:
                             old_lbs = ej.get('libras', 0)
                             ej['detalles_sets'] = [{"reps": old_reps, "libras": old_lbs} for _ in range(int(ej.get('series', 3)))]
 
-                        st.markdown(f"""
-                            <div class="exercise-card">
-                                <div class="exercise-card-header">
-                                    <strong>{ej['ejercicio']}</strong>
-                                    <span title="{ej.get('tip', '')}" class="exercise-card-tip-icon">💡 Tip</span>
+                        # ===== TARJETA DEL EJERCICIO CON DESCRIPCIÓN =====
+                        info_ej = obtener_descripcion_ejercicio(ej['ejercicio'])
+                        musculos_ej = info_ej.get('musculos', [])
+                        
+                        col_card, col_action = st.columns([4, 1])
+                        with col_card:
+                            st.markdown(f"""
+                                <div class="exercise-card">
+                                    <div class="exercise-card-header">
+                                        <strong>💪 {ej['ejercicio']}</strong>
+                                        <span style="font-size:0.85em; color:#999;">({', '.join(musculos_ej)})</span>
+                                    </div>
+                                    <small class="exercise-card-tip-text">{info_ej.get('descripcion', 'Mantén la técnica correcta.')[:120]}...</small><br>
+                                    <small style="color:#666;">⚙️ {info_ej.get('equipo', 'N/A')} | 📊 {info_ej.get('dificultad', 'N/A')}</small>
                                 </div>
-                                <small class="exercise-card-tip-text">{ej.get('tip', 'Mantén la técnica correcta.')}</small><br>
-                                <small>Configuración: {ej['series']} sets totales</small>
-                            </div>
-                        """, unsafe_allow_html=True)
+                            """, unsafe_allow_html=True)
                         
-                        # Fila para editar ejercicio y acciones
-                        col_ejercicio, col_sets, col_alt = st.columns([2, 1, 1])
-                        with col_ejercicio:
-                            rutina[dia][i]['ejercicio'] = st.text_input("Ejercicio", ej['ejercicio'], key=f"e_{dia}_{i}")
-                        with col_sets:
-                            num_sets = st.number_input("Sets totales", 1, 12, int(ej['series']), key=f"s_{dia}_{i}")
-                            rutina[dia][i]['series'] = num_sets
-                        with col_alt:
-                            if st.button("🔄 Alternativa", key=f"alt_btn_{dia}_{i}", help="Generar ejercicio alternativo"):
-                                st.session_state[f"mostrar_alternativas_{dia}_{i}"] = True
+                        with col_action:
+                            if st.button("ℹ️ Detalles", key=f"info_btn_{dia}_{i}", help="Ver descripción completa"):
+                                st.session_state[f"mostrar_detalles_{dia}_{i}"] = True
                         
-                        # Mostrar alternativas si se solicitan
-                        if st.session_state.get(f"mostrar_alternativas_{dia}_{i}", False):
-                            with st.spinner(f"Buscando alternativas para {ej['ejercicio']}..."):
-                                alternativas = obtener_ejercicios_alternativos(ej['ejercicio'], "")
-                            
-                            if alternativas.get('alternativas') and len(alternativas['alternativas']) > 0:
-                                st.markdown(f"**Alternativas para {ej['ejercicio']}:**")
-                                for alt_idx, alt in enumerate(alternativas['alternativas']):
-                                    col_alt_info, col_alt_btn = st.columns([3, 1])
-                                    with col_alt_info:
-                                        st.write(f"**{alt['nombre']}**")
-                                        st.caption(f"💡 {alt['razon']}")
-                                    with col_alt_btn:
-                                        if st.button("✅ Usar", key=f"usar_alt_{dia}_{i}_{alt_idx}"):
-                                            # Reemplazar el ejercicio
-                                            st.session_state.data["rutina_semanal"][dia][i]['ejercicio'] = alt['nombre']
-                                            guardar_todo(st.session_state.data)
-                                            st.session_state[f"mostrar_alternativas_{dia}_{i}"] = False
-                                            st.success(f"✅ {ej['ejercicio']} → {alt['nombre']}")
-                                            st.balloons()
-                                            import time
-                                            time.sleep(0.5)
-                                            st.rerun()
+                        # Mostrar detalles completos si se solicitan
+                        if st.session_state.get(f"mostrar_detalles_{dia}_{i}", False):
+                            with st.expander("📖 Descripción Completa", expanded=True):
+                                st.markdown(f"**{ej['ejercicio']}**")
+                                st.write(info_ej.get('descripcion', 'No hay descripción disponible'))
+                                
+                                col_m, col_d, col_e = st.columns(3)
+                                with col_m:
+                                    st.write(f"**💪 Músculos:**")
+                                    for m in musculos_ej:
+                                        st.caption(f"• {m}")
+                                with col_d:
+                                    st.write(f"**📊 Dificultad:**")
+                                    st.caption(info_ej.get('dificultad', 'N/A'))
+                                with col_e:
+                                    st.write(f"**⚙️ Equipo:**")
+                                    st.caption(info_ej.get('equipo', 'N/A'))
+                        
+                        # ===== DROPDOWN PARA CAMBIAR EJERCICIO =====
+                        st.markdown("**Cambiar ejercicio o editar sets:**")
+                        
+                        # Obtener ejercicios alternativos del mismo grupo muscular
+                        ejercicios_alternativas = info_ej.get('alternativas', [])
+                        if not ejercicios_alternativas and musculos_ej:
+                            ejercicios_alternativas = obtener_ejercicios_por_musculo(musculos_ej[0])
+                        
+                        col_select, col_sets, col_alt = st.columns([2.5, 1, 1])
+                        
+                        with col_select:
+                            # DROPDOWN: Seleccionar ejercicio alternativo
+                            if ej['ejercicio'] in ejercicios_alternativas:
+                                idx_actual = ejercicios_alternativas.index(ej['ejercicio'])
                             else:
-                                st.warning("⚠️ No se encontraron alternativas en este momento")
+                                idx_actual = 0
                             
-                            st.markdown("---")
+                            nuevo_ej = st.selectbox(
+                                f"Ejercicio {i+1}:",
+                                ejercicios_alternativas if ejercicios_alternativas else [ej['ejercicio']],
+                                index=idx_actual,
+                                key=f"select_ej_{dia}_{i}",
+                                label_visibility="collapsed"
+                            )
+                            
+                            if nuevo_ej != ej['ejercicio']:
+                                rutina[dia][i]['ejercicio'] = nuevo_ej
+                                st.success(f"✅ Cambio seleccionado: {nuevo_ej}")
+                        
+                        with col_sets:
+                            num_sets = st.number_input(
+                                "Sets", 1, 12, int(ej['series']), 
+                                key=f"s_{dia}_{i}",
+                                label_visibility="collapsed"
+                            )
+                            rutina[dia][i]['series'] = num_sets
+                        
+                        with col_alt:
+                            if st.button("💡 Ver Tip", key=f"tip_btn_{dia}_{i}"):
+                                st.session_state[f"mostrar_tip_{dia}_{i}"] = True
+                        
+                        # Mostrar tip si se solicita
+                        if st.session_state.get(f"mostrar_tip_{dia}_{i}", False):
+                            st.info(f"💡 {ej.get('tip', 'Mantén la técnica correcta.')}")
                         
                         # Ajustar lista de detalles si cambió el número de sets
                         if len(ej['detalles_sets']) != num_sets:
@@ -646,8 +703,14 @@ else:
                         for s_idx in range(num_sets):
                             sc1, sc2, sc3 = st.columns([1, 2, 2])
                             sc1.markdown(f"**Set {s_idx+1}**")
-                            ej['detalles_sets'][s_idx]['reps'] = sc2.text_input(f"Reps S{s_idx}", ej['detalles_sets'][s_idx]['reps'], key=f"r_{dia}_{i}_{s_idx}", label_visibility="collapsed")
-                            ej['detalles_sets'][s_idx]['libras'] = sc3.number_input(f"Lbs S{s_idx}", 0.0, 1000.0, float(ej['detalles_sets'][s_idx]['libras']), key=f"l_{dia}_{i}_{s_idx}", label_visibility="collapsed")
+                            ej['detalles_sets'][s_idx]['reps'] = sc2.text_input(
+                                f"Reps S{s_idx}", ej['detalles_sets'][s_idx]['reps'], 
+                                key=f"r_{dia}_{i}_{s_idx}", label_visibility="collapsed"
+                            )
+                            ej['detalles_sets'][s_idx]['libras'] = sc3.number_input(
+                                f"Lbs S{s_idx}", 0.0, 1000.0, float(ej['detalles_sets'][s_idx]['libras']), 
+                                key=f"l_{dia}_{i}_{s_idx}", label_visibility="collapsed"
+                            )
                         st.markdown("---")
         
         if st.button("💾 Guardar Cambios en la Rutina"):
@@ -717,14 +780,46 @@ else:
                         # Almuerzo
                         if "almuerzo" in comidas:
                             alm = comidas["almuerzo"]
-                            st.markdown(f"""<div class="exercise-card meal-card meal-lunch">
-                                <h4 class="meal-title">🍽️ Almuerzo</h4>
-                                <strong>{alm.get('comida', 'N/A')}</strong><br>
-                                <small>📏 {alm.get('cantidad', 'N/A')}</small><br>
-                                <small>💡 {alm.get('tip', '')}</small><br>
-                                <small>🔥 {alm.get('calorias_aprox', '')} kcal | 🥩 {alm.get('proteina_g', '')}g proteína</small>
-                            </div>""", unsafe_allow_html=True)
+                            col_comida, col_btn = st.columns([4, 1])
+                            
+                            with col_comida:
+                                st.markdown(f"""<div class="exercise-card meal-card meal-lunch">
+                                    <h4 class="meal-title">🍽️ Almuerzo</h4>
+                                    <strong>{alm.get('comida', 'N/A')}</strong><br>
+                                    <small>📏 {alm.get('cantidad', 'N/A')}</small><br>
+                                    <small>💡 {alm.get('tip', '')}</small><br>
+                                    <small>🔥 {alm.get('calorias_aprox', '')} kcal | 🥩 {alm.get('proteina_g', '')}g proteína</small>
+                                </div>""", unsafe_allow_html=True)
+                            
+                            with col_btn:
+                                if st.button("🔄 Cambiar", key=f"cambiar_almuerzo_{dia}", help="Ver opciones de comida"):
+                                    st.session_state[f"mostrar_opciones_almuerzo_{dia}"] = True
+                            
+                            # Mostrar opciones si se solicita
+                            if st.session_state.get(f"mostrar_opciones_almuerzo_{dia}", False):
+                                with st.expander("🥗 Opciones Disponibles", expanded=True):
+                                    cal_actual = alm.get('calorias_aprox', 300)
+                                    opciones = generar_opciones_comida_alternativa(
+                                        alm.get('comida', ''),
+                                        {"calorias": cal_actual}
+                                    )
+                                    
+                                    if opciones:
+                                        st.markdown("**Alternativas con calorías similares:**")
+                                        for opcion in opciones:
+                                            col_opt, col_use = st.columns([4, 1])
+                                            with col_opt:
+                                                st.write(f"**{opcion['nombre'].title()}**")
+                                                st.caption(f"🔥 {opcion['macros']['calorias']} kcal | 🥩 {opcion['macros']['proteina']}g prot")
+                                            with col_use:
+                                                if st.button("✅ Usar", key=f"use_almuerzo_{opcion['nombre']}_{dia}"):
+                                                    plan[dia]["almuerzo"]["comida"] = opcion['nombre'].capitalize()
+                                                    st.success(f"✅ Almuerzo cambiado")
+                                    else:
+                                        st.info("No hay opciones disponibles en este momento")
+                            
                             st.markdown("<br>", unsafe_allow_html=True)
+
                         
                         # Merienda Tarde
                         if "merienda_tarde" in comidas:
@@ -1015,78 +1110,256 @@ else:
 
 
     with t_progreso:
-        st.markdown("### 📊 Evolución y Análisis Nutricional")
+        st.markdown("### 📊 Evolución y Análisis de Progreso")
+        st.markdown("Seguimiento inteligente de tu progreso basado en tus objetivos")
+        
+        # Cargar datos frescos
+        st.session_state.data = cargar_todo()
+        historial_ent = st.session_state.data.get("historial_entrenamientos", [])
+        historial_pesos = st.session_state.data.get("historial_pesos", [])
+        pr_data = st.session_state.data.get("pr_por_ejercicio", {})
+        u = st.session_state.data.get("user", {})
+        objetivos = u.get('objetivos', [])
+        
+        # ===== ANÁLISIS INTELIGENTE PERSONALIZADO =====
+        st.markdown("#### 🎯 Análisis Según Tus Objetivos")
+        
+        if historial_ent or historial_pesos or pr_data:
+            analisis = analizar_progreso_por_objetivo(historial_ent, historial_pesos, pr_data, objetivos, u)
+            
+            # Mostrar métricas generales
+            col_g1, col_g2, col_g3 = st.columns(3)
+            
+            with col_g1:
+                st.metric(
+                    "💪 Entrenamientos Totales",
+                    analisis["metricas_generales"].get("entrenamientos_totales", 0),
+                    f"Últimas 4 semanas: {analisis['metricas_generales'].get('entrenamientos_4_semanas', 0)}"
+                )
+            
+            with col_g2:
+                consistencia = analisis["metricas_generales"].get("consistencia_porcentaje", 0)
+                color_emoji = "🟢" if consistencia >= 75 else ("🟡" if consistencia >= 50 else "🔴")
+                st.metric(
+                    f"{color_emoji} Consistencia",
+                    f"{consistencia}%",
+                    "Excelente" if consistencia >= 75 else ("Regular" if consistencia >= 50 else "Necesita mejora")
+                )
+            
+            with col_g3:
+                if "peso_actual" in analisis["metricas_generales"]:
+                    cambio = analisis["metricas_generales"].get("cambio_peso", 0)
+                    cambio_emoji = "📈" if cambio > 0 else ("📉" if cambio < 0 else "→")
+                    st.metric(
+                        f"{cambio_emoji} Cambio de Peso",
+                        f"{analisis['metricas_generales'].get('peso_actual', 0):.1f} lbs",
+                        f"{cambio:+.1f} lbs"
+                    )
+            
+            st.markdown("---")
+            
+            # Mostrar métricas específicas por objetivo
+            if analisis["metricas_por_objetivo"]:
+                st.markdown("#### 🎯 Progreso por Objetivo")
+                
+                for objetivo_tipo, metricas in analisis["metricas_por_objetivo"].items():
+                    with st.expander(f"📌 {objetivo_tipo}", expanded=True):
+                        col_m1, col_m2 = st.columns(2)
+                        
+                        with col_m1:
+                            for clave, valor in metricas.items():
+                                if clave != "estado":
+                                    if isinstance(valor, (int, float)):
+                                        st.write(f"**{clave.replace('_', ' ').title()}:** {valor}")
+                                    else:
+                                        st.write(f"**{clave.replace('_', ' ').title()}:** {valor}")
+                        
+                        with col_m2:
+                            estado = metricas.get("estado", "")
+                            if "✅" in estado:
+                                st.success(estado)
+                            elif "⚠️" in estado:
+                                st.warning(estado)
+                            else:
+                                st.info(estado)
+                
+                st.markdown("---")
+            
+            # Tendencias
+            if analisis["tendencias"]:
+                st.markdown("#### 📊 Tendencias Actuales")
+                col_t1, col_t2 = st.columns(2)
+                
+                with col_t1:
+                    if "entrenamientos" in analisis["tendencias"]:
+                        tendencia_ent = analisis["tendencias"]["entrenamientos"]
+                        icon = "📈" if "↑" in tendencia_ent else ("📉" if "↓" in tendencia_ent else "→")
+                        st.info(f"{icon} **Entrenamientos:** {tendencia_ent}")
+                
+                with col_t2:
+                    if "peso" in analisis["tendencias"]:
+                        tendencia_peso = analisis["tendencias"]["peso"]
+                        icon = "📈" if "↑" in tendencia_peso else ("📉" if "↓" in tendencia_peso else "→")
+                        st.info(f"{icon} **Peso:** {tendencia_peso}")
+                
+                st.markdown("---")
+            
+            # Recomendaciones
+            if analisis["recomendaciones"]:
+                st.markdown("#### 💡 Recomendaciones Personalizadas")
+                for rec in analisis["recomendaciones"]:
+                    st.info(f"✨ {rec}")
+        else:
+            st.warning("📊 Necesitas registrar entrenamientos para ver análisis de progreso")
+        
+        st.markdown("---")
+        
+        # ===== ANÁLISIS DETALLADO POR EJERCICIO =====
+        st.markdown("#### 📈 Análisis Detallado de Ejercicios")
+        
+        if historial_ent:
+            # Recolectar todos los ejercicios realizados
+            ejercicios_realizados = {}
+            for entrenamiento in historial_ent:
+                for ej in entrenamiento.get('ejercicios', []):
+                    ej_nombre = ej['nombre']
+                    if ej_nombre not in ejercicios_realizados:
+                        ejercicios_realizados[ej_nombre] = []
+                    ejercicios_realizados[ej_nombre].append({
+                        "reps": ej.get('reps_completadas', 0),
+                        "peso": ej.get('peso_levantado', 0),
+                        "fecha": entrenamiento.get('fecha', 'N/A')
+                    })
+            
+            if ejercicios_realizados:
+                col_select, col_tab = st.columns([3, 1])
+                
+                with col_select:
+                    ejercicio_sel = st.selectbox(
+                        "Selecciona un ejercicio para ver su progreso detallado:",
+                        list(ejercicios_realizados.keys()),
+                        key="select_ejercicio_progreso"
+                    )
+                
+                if ejercicio_sel in ejercicios_realizados:
+                    datos_ej = ejercicios_realizados[ejercicio_sel]
+                    pesos = [d['peso'] for d in datos_ej]
+                    reps = [d['reps'] for d in datos_ej]
+                    
+                    # Mostrar métricas del ejercicio
+                    col_m1, col_m2, col_m3, col_m4 = st.columns(4)
+                    
+                    with col_m1:
+                        st.metric(
+                            f"💪 {ejercicio_sel}",
+                            f"{max(pesos):.0f} lbs",
+                            f"×{len(datos_ej)} sesiones"
+                        )
+                    
+                    with col_m2:
+                        mejora_peso = max(pesos) - min(pesos) if pesos else 0
+                        mejora_emoji = "📈" if mejora_peso > 0 else ("📉" if mejora_peso < 0 else "→")
+                        st.metric(f"{mejora_emoji} Mejora de Peso", f"{mejora_peso:.0f} lbs", "Progresando" if mejora_peso > 0 else "")
+                    
+                    with col_m3:
+                        vol_total = sum(p * r for p, r in zip(pesos, reps))
+                        st.metric("📊 Volumen Total", f"{vol_total:.0f} lbs")
+                    
+                    with col_m4:
+                        if len(pesos) > 1:
+                            tendencia = "📈 ↑" if max(pesos) > min(pesos) * 1.05 else ("→ =" if abs(max(pesos) - min(pesos)) <= min(pesos) * 0.05 else "📉 ↓")
+                        else:
+                            tendencia = "⏱️ Una sesión"
+                        st.metric("📍 Tendencia", tendencia)
+                    
+                    # Gráfico de progreso
+                    st.markdown("**Evolución de Peso por Sesión:**")
+                    df_ej = pd.DataFrame(datos_ej)
+                    st.line_chart(data=df_ej.set_index('fecha')['peso'].astype(float), use_container_width=True)
+                    
+                    # Tabla detallada
+                    with st.expander("📋 Historial Detallado"):
+                        df_display = pd.DataFrame(datos_ej).sort_values('fecha', ascending=False)
+                        df_display.columns = ['Reps', 'Peso (lbs)', 'Fecha']
+                        st.dataframe(df_display, use_container_width=True, hide_index=True)
+                    
+                    st.markdown("---")
+        else:
+            st.info("Aún no hay entrenamientos registrados")
+        
+        # ===== WIDGET DE PESO Y MÉTRICAS GENERALES =====
+        st.markdown("#### ⚖️ Control de Peso y Métricas")
         
         c1, c2 = st.columns([1, 2])
         
         with c1:
-            st.markdown("#### ⚖️ Registrar Peso")
+            st.markdown("**Registrar Nuevo Peso**")
             with st.form("log_peso"):
                 peso_actual = float(u.get('peso_lb', 160.0)) if u.get('peso_lb') else 160.0
                 n_p = st.number_input("Peso de hoy (Lbs)", 50.0, 500.0, peso_actual)
-                if st.form_submit_button("Anotar Peso"):
+                if st.form_submit_button("✅ Anotar Peso"):
                     from datetime import date
                     hoy = str(date.today())
-                    st.session_state.data["historial_pesos"].append({"fecha": hoy, "peso": n_p})
-                    st.session_state.data["user"]["peso_lb"] = n_p
-                    guardar_todo(st.session_state.data)
-                    st.success(f"¡Peso de {n_p} lbs registrado!")
-                    st.rerun()
+                    # Evitar duplicados del mismo día
+                    if not any(h['fecha'] == hoy for h in historial_pesos):
+                        st.session_state.data["historial_pesos"].append({"fecha": hoy, "peso": n_p})
+                        st.session_state.data["user"]["peso_lb"] = n_p
+                        guardar_todo(st.session_state.data)
+                        st.success(f"✅ Peso de {n_p} lbs registrado para {hoy}")
+                        st.rerun()
+                    else:
+                        st.warning("Ya registraste peso hoy")
             
             cal, p, g, c = calcular_macros(u)
             st.markdown(f"""
                 <div class="exercise-card macro-card">
-                    <h4 class="meal-title">🔥 Calorias Objetivo</h4>
+                    <h4 class="meal-title">🔥 Calorías Objetivo Diarias</h4>
                     <h2 class="metric-value">{cal} kcal</h2>
+                    <small>Basado en tu perfil actual</small>
                 </div>
             """, unsafe_allow_html=True)
-            st.markdown(f"**Macros Directriz:**")
-            st.write(f"🥩 Proteína: {p}g | 🍞 Carbos: {c}g | 🥑 Grasas: {g}g")
+            st.markdown(f"**📊 Distribución de Macros:**")
+            st.markdown(f"""
+            - 🥩 **Proteína:** {p}g ({round(p*4/cal*100)}%)
+            - 🍞 **Carbos:** {c}g ({round(c*4/cal*100)}%)
+            - 🥑 **Grasas:** {g}g ({round(g*9/cal*100)}%)
+            """)
 
         with c2:
-            st.markdown("#### 📉 Tendencia de Peso")
-            historial = st.session_state.data.get("historial_pesos", [])
-            if historial:
-                df = pd.DataFrame(historial)
+            if historial_pesos:
+                st.markdown("**📉 Tendencia de Peso (Últimas 8 Semanas)**")
+                df = pd.DataFrame(historial_pesos)
                 df['fecha'] = pd.to_datetime(df['fecha'])
-                st.line_chart(df.set_index('fecha')['peso'])
+                df_recent = df.tail(56)  # Últimas 8 semanas (7 días × 8)
+                st.line_chart(df_recent.set_index('fecha')['peso'].astype(float), use_container_width=True)
                 
                 # Estadísticas
-                pesos = [h['peso'] for h in historial]
-                st.metric("Peso Inicial", f"{pesos[0]:.1f} lbs", f"{pesos[-1] - pesos[0]:.1f} lbs")
+                pesos = [h['peso'] for h in historial_pesos]
+                peso_inicial = pesos[0]
+                peso_actual = pesos[-1]
+                cambio_total = peso_actual - peso_inicial
+                
+                col_s1, col_s2, col_s3 = st.columns(3)
+                with col_s1:
+                    st.metric("Peso Inicial", f"{peso_inicial:.1f} lbs")
+                with col_s2:
+                    st.metric("Peso Actual", f"{peso_actual:.1f} lbs")
+                with col_s3:
+                    cambio_emoji = "📈" if cambio_total > 0 else ("📉" if cambio_total < 0 else "→")
+                    st.metric(f"{cambio_emoji} Cambio Total", f"{cambio_total:+.1f} lbs")
             else:
-                st.info("Aún no tienes registros de peso. ¡Empieza hoy!")
+                st.info("📍 Comienza a registrar tu peso para ver la tendencia")
             
-            st.markdown("#### 📅 Historial de Entrenamientos")
-            historial_ent = st.session_state.data.get("historial_entrenamientos", [])
-            if historial_ent:
-                entrenamientos_df = pd.DataFrame(historial_ent)
-                if len(entrenamientos_df) > 0:
-                    st.metric("Total Entrenamientos", len(entrenamientos_df))
-                    
-                    # Mostrar últimos entrenamientos con detalles
-                    st.markdown("**Últimos Entrenamientos:**")
-                    for entrenamiento in historial_ent[-5:]:  # Mostrar últimos 5
-                        fecha = entrenamiento.get('fecha', 'N/A')
-                        dia = entrenamiento.get('dia', 'N/A')
-                        ejercicios = entrenamiento.get('ejercicios', [])
-                        
-                        with st.expander(f"📅 {fecha} - {dia} ({len(ejercicios)} ejercicios)"):
-                            for ej in ejercicios:
-                                st.write(f"✅ **{ej['nombre']}**: {ej['reps_completadas']} reps × {ej['peso_levantado']} lbs")
-                                if ej.get('notas'):
-                                    st.caption(f"📝 {ej['notas']}")
-            else:
-                st.info("Aún no has registrado entrenamientos.")
+            st.markdown("---")
             
-            st.markdown("#### 🏆 Personal Records (PR)")
-            pr_data = st.session_state.data.get("pr_por_ejercicio", {})
+            st.markdown("**🏆 Personal Records (PR) - Top 5**")
             if pr_data:
-                st.markdown("**Tus mejores pesos levantados:**")
-                for ejercicio, peso in sorted(pr_data.items(), key=lambda x: x[1], reverse=True):
-                    st.write(f"🥇 **{ejercicio}**: {peso} lbs")
+                pr_sorted = sorted(pr_data.items(), key=lambda x: x[1], reverse=True)[:5]
+                for idx, (ejercicio, peso) in enumerate(pr_sorted, 1):
+                    st.write(f"**{idx}. {ejercicio}**: 🥇 {peso} lbs")
             else:
-                st.info("Aún no tienes records. ¡Empieza a entrenar!")
+                st.info("🎯 Registra ejercicios para ver tus records personales")
+
 
     with t_perfil:
         st.markdown("### ⚙️ Configuración de Perfil")
