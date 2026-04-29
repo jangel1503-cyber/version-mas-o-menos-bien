@@ -1094,3 +1094,60 @@ def obtener_musculos_del_dia(ejercicios_dia):
     
     return sorted(list(musculos_unicos))
 
+
+def analizar_progreso_por_objetivo(historial_entrenamientos, objetivos, user_profile):
+    """Analiza el progreso basado en los objetivos del usuario"""
+    if not historial_entrenamientos or not isinstance(historial_entrenamientos, list):
+        return {
+            "resumen": "Sin datos de entrenamiento",
+            "progreso_general": 0,
+            "objetivo_alcance": 0,
+            "recomendaciones": ["Comienza a registrar tus entrenamientos"]
+        }
+    
+    total_sesiones = len(historial_entrenamientos)
+    
+    # Analizar según objetivo
+    objetivo_principal = objetivos[0].lower() if objetivos else "general"
+    
+    recomendaciones = []
+    progreso_general = min(100, (total_sesiones / 10) * 100)  # Escala simple
+    
+    if "ganar masa" in objetivo_principal or "aumentar fuerza" in objetivo_principal:
+        recomendaciones = [
+            "Incrementa el peso progresivamente en los ejercicios principales",
+            "Mantén consistencia en 4-5 sesiones semanales",
+            "Consume suficiente proteína (2g por kg de peso)"
+        ]
+        objetivo_alcance = min(100, (total_sesiones / 8) * 100)
+    elif "perder grasa" in objetivo_principal or "bajar peso" in objetivo_principal:
+        recomendaciones = [
+            "Mantén un déficit calórico consistente",
+            "Realiza al menos 3 sesiones de cardio semanales",
+            "Aumenta la intensidad gradualmente"
+        ]
+        objetivo_alcance = min(100, (total_sesiones / 12) * 100)
+    elif "tonificar" in objetivo_principal:
+        recomendaciones = [
+            "Enfócate en 3-4 series de 10-15 repeticiones",
+            "Reduce el descanso entre series a 45-60 segundos",
+            "Varía los ejercicios cada 4 semanas"
+        ]
+        objetivo_alcance = min(100, (total_sesiones / 9) * 100)
+    else:
+        recomendaciones = [
+            "Mantén consistencia en tus entrenamientos",
+            "Incrementa la intensidad gradualmente",
+            "Diversifica tus ejercicios"
+        ]
+        objetivo_alcance = min(100, (total_sesiones / 10) * 100)
+    
+    return {
+        "resumen": f"Has completado {total_sesiones} sesiones de entrenamiento",
+        "sesiones_completadas": total_sesiones,
+        "progreso_general": round(progreso_general, 1),
+        "objetivo_alcance": round(objetivo_alcance, 1),
+        "objetivo_principal": objetivo_principal,
+        "recomendaciones": recomendaciones
+    }
+
